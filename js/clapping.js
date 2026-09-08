@@ -11,41 +11,49 @@ const svgNode = (tag, attrs = {}, text) => {
 export function renderClapPlot(container, result) {
   const { totalMatras, structure, hits, duration } = result;
   const width = Math.max(760, totalMatras * 40 + 64);
-  const start = 32, end = width - 32, top = 70, baseline = 166;
+  const start = 32, end = width - 32, top = 70;
   const x = matra => start + matra / totalMatras * (end - start);
-  const svg = svgNode('svg', { viewBox: `0 0 ${width} 260`, role: 'img', 'aria-labelledby': 'clap-plot-title clap-plot-description', class: 'clap-plot' });
+  // Reserve enough horizontal space for each label; coincident hits stack vertically.
+  const laneEnds = [];
+  const plotted = hits.map(hit => {
+    const px = x(hit.matra);
+    const halfWidth = Math.max(8, (hit.label || '').length * 6 + 4);
+    const labelX = Math.max(halfWidth, Math.min(width - halfWidth, px));
+    let lane = laneEnds.findIndex(previous => labelX - halfWidth >= previous + 6);
+    if (lane < 0) lane = laneEnds.length;
+    laneEnds[lane] = labelX + halfWidth;
+    return { hit, px, labelX, lane };
+  });
+  const baseline = 166 + Math.max(0, laneEnds.length - 2) * 30;
+  const gridBottom = baseline + 34;
+  const svg = svgNode('svg', { viewBox: `0 0 ${width} ${baseline + 94}`, role: 'img', 'aria-labelledby': 'clap-plot-title clap-plot-description', class: 'clap-plot' });
   svg.append(svgNode('title', { id: 'clap-plot-title' }, 'Claps over one tala cycle'));
   svg.append(svgNode('desc', { id: 'clap-plot-description' }, `${hits.length} hits over ${(duration / 1000).toFixed(2)} seconds. ${totalMatras} equal matras grouped ${structure.join(', ')}. The last tap marks the next sam and is excluded from the hit count.`));
   let offset = 0;
   structure.forEach((length, i) => {
-    svg.append(svgNode('rect', { x: x(offset), y: top, width: x(offset + length) - x(offset), height: 130, fill: i % 2 ? '#f8f0fb' : '#f0f4ff' }));
+    svg.append(svgNode('rect', { x: x(offset), y: top, width: x(offset + length) - x(offset), height: gridBottom - top, fill: i % 2 ? '#f8f0fb' : '#f0f4ff' }));
     svg.append(svgNode('text', { x: x(offset + length / 2), y: 35, 'text-anchor': 'middle', class: 'clap-vibhag-label' }, `V${i + 1} · ${length}`));
     offset += length;
   });
   for (let m = 0; m <= totalMatras; m++) {
-    svg.append(svgNode('line', { x1: x(m), x2: x(m), y1: top, y2: 200, class: 'clap-matra-line' }));
-    if (m < totalMatras) svg.append(svgNode('text', { x: x(m + .5), y: 224, 'text-anchor': 'middle', class: 'clap-matra-label' }, m + 1));
+    svg.append(svgNode('line', { x1: x(m), x2: x(m), y1: top, y2: gridBottom, class: 'clap-matra-line' }));
+    if (m < totalMatras) svg.append(svgNode('text', { x: x(m + .5), y: gridBottom + 24, 'text-anchor': 'middle', class: 'clap-matra-label' }, m + 1));
   }
   if (result.snap) {
-    for (let q = 1; q < totalMatras * 2; q++) if (q % 2) svg.append(svgNode('line', { x1: x(q / 2), x2: x(q / 2), y1: top, y2: 200, class: 'clap-half-line' }));
+    for (let q = 1; q < totalMatras * 2; q++) if (q % 2) svg.append(svgNode('line', { x1: x(q / 2), x2: x(q / 2), y1: top, y2: gridBottom, class: 'clap-half-line' }));
   }
   offset = 0;
   for (const length of [...structure, 0]) {
-    svg.append(svgNode('line', { x1: x(offset), x2: x(offset), y1: top - 10, y2: 200, class: 'clap-vibhag-line' }));
+    svg.append(svgNode('line', { x1: x(offset), x2: x(offset), y1: top - 10, y2: gridBottom, class: 'clap-vibhag-line' }));
     offset += length;
   }
   svg.append(svgNode('line', { x1: start, x2: end, y1: baseline, y2: baseline, class: 'clap-baseline' }));
-  // Nearby hits occupy separate visual lanes while retaining their exact time/x.
-  const laneEnds = [];
-  hits.forEach(hit => {
-    const px = x(hit.matra);
-    let lane = laneEnds.findIndex(previous => px - previous >= 16);
-    if (lane < 0) lane = laneEnds.length;
-    laneEnds[lane] = px;
-    const py = baseline - Math.min(hit.matra === totalMatras ? Math.max(1, lane) : lane, 7) * 11;
+  plotted.forEach(({ hit, px, labelX, lane }) => {
+    const py = baseline - lane * 30 - (hit.matra === totalMatras ? 12 : 0);
     const dot = svgNode('circle', { cx: px, cy: py, r: 5, class: 'clap-hit' });
-    dot.append(svgNode('title', {}, `Clap ${hit.index}: ${(hit.elapsed / 1000).toFixed(3)} s · ${result.snap ? 'snapped ' : ''}matra ${(hit.matra + 1).toFixed(2)}`));
+    dot.append(svgNode('title', {}, `Clap ${hit.index}${hit.label ? ': ' + hit.label : ''}: ${(hit.elapsed / 1000).toFixed(3)} s · ${result.snap ? 'snapped ' : ''}matra ${(hit.matra + 1).toFixed(2)}`));
     svg.append(dot);
+    if (hit.label) svg.append(svgNode('text', { x: labelX, y: py - 11, 'text-anchor': 'middle', class: 'clap-bol-label' }, hit.label));
   });
   svg.append(svgNode('circle', { cx: end, cy: baseline, r: 7, class: 'clap-endpoint' }));
   svg.append(svgNode('text', { x: start, y: 58, class: 'clap-sam-label' }, 'sam'));
@@ -60,18 +68,19 @@ export function setupClapping(getComposition, updateComposition) {
   const status = document.querySelector('#clap-status');
   const resultPanel = document.querySelector('#clap-result');
   const snapButton = document.querySelector('#clap-snap');
-  let lastCapture;
+  let lastCapture, lastBols;
   let recording = false, times = [], structure = [], name = '';
   const setIdle = () => {
     recording = false; startButton.textContent = 'Start clapping';
     startButton.setAttribute('aria-pressed', 'false'); clapButton.disabled = true;
   };
   const sync = () => {
-    const capture = getComposition().clapping;
-    if (capture === lastCapture) return;
-    lastCapture = capture; setIdle();
+    const { clapping: capture, bols } = getComposition();
+    if (capture === lastCapture && (bols === lastBols || recording)) return;
+    if (capture !== lastCapture) setIdle();
+    lastCapture = capture; lastBols = bols;
     if (!capture) { resultPanel.hidden = true; document.querySelector('#clap-plot-container').replaceChildren(); return; }
-    const result = clapDisplay(capture);
+    const result = clapDisplay(capture, bols);
     renderClapPlot(document.querySelector('#clap-plot-container'), result);
     document.querySelector('#clap-summary').textContent = `${capture.name} · ${capture.structure.join('–')} · ${result.totalMatras} matras · ${result.hits.length} claps · ${(result.duration / 1000).toFixed(2)} s · ${capture.snap ? 'Snap ½ matra' : 'Original timing'}`;
     snapButton.setAttribute('aria-pressed', String(capture.snap));

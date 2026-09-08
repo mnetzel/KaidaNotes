@@ -20,9 +20,11 @@ export function validateClapCapture(raw) {
   return { timestamps: [...raw.timestamps], structure: [...raw.structure], name: raw.name, snap: raw.snap };
 }
 
-export function clapDisplay(capture) {
+export function clapDisplay(capture, bols = []) {
+  const labels = bols.filter(bol => bol.text.trim() && bol.text !== '—').map(bol => bol.text);
   const result = analyzeClaps(capture.timestamps, capture.structure);
   return { ...result, snap: capture.snap, hits: result.hits.map(hit => ({ ...hit,
+    label: labels[hit.index - 1] || '',
     matra: capture.snap ? Math.round(hit.matra * 2) / 2 : hit.matra,
   })) };
 }
