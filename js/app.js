@@ -1,4 +1,4 @@
-import { createComposition, clearVibhag, deleteBol, replaceBol, recognizeTala } from './model.js';
+import { createComposition, clearVibhag, deleteBol, insertPause, replaceBol, recognizeTala } from './model.js';
 import { moveSelectedAtLevel } from './rhythm.js';
 import { createSelection, createBolInteraction, clickNotationBol, setMultiSelect, getPrimarySelection } from './selection.js';
 import { applyTagToSelection } from './tags.js';
@@ -61,6 +61,7 @@ function render() {
   $('#next-vibhag').setAttribute('aria-pressed', String(nextVibhag));
   $('#entry-status').textContent = interaction.editingId ? 'Replace selected bol' : `Next bol: V${cursor().vibhag} · matra ${cursor().matra}`;
   $('#delete-selected-bol').disabled = !getPrimarySelection(selection);
+  document.querySelectorAll('[data-pause]').forEach(button => { button.disabled = !getPrimarySelection(selection) || !!interaction.editingId; });
   $('#undo').disabled = !store.canUndo;
   $('#redo').disabled = !store.canRedo;
   $('#clear-bols').disabled = !composition.bols.some(b => b.position.vibhag === currentVibhag());
@@ -94,6 +95,13 @@ document.querySelectorAll('[data-bol]').forEach(button => button.addEventListene
   selection = { ...selection, ids: composition.bols.filter(b => !oldIds.has(b.id)).slice(-1).map(b => b.id) };
   nextVibhag = false; entryCursor = null;
   store.update(() => composition);
+}));
+
+document.querySelectorAll('[data-pause]').forEach(button => button.addEventListener('click', () => {
+  const target = getPrimarySelection(selection);
+  if (!target || interaction.editingId) return;
+  interaction = createBolInteraction(); entryCursor = null; nextVibhag = false;
+  store.update(composition => insertPause(composition, target, button.dataset.pause));
 }));
 
 $('#next-vibhag').addEventListener('click', () => {

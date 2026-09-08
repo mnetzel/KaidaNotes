@@ -236,4 +236,6 @@ button.empty-matra { background: transparent; border-radius: 0; min-height: 68px
 @media (min-width: 601px) and (max-width: 839px) { .clap-plot { min-width: calc(var(--clap-plot-width, 760px) * .75); } }
 @media print { .clapping-controls, #clap-status { display: none; } }
 
-.pause-key { position: absolute; left: calc(50% - 55px); bottom: 5%; width: 110px; min-height: 64px; padding: 0 8px; background: white; font-size: 48px; line-height: 1; border-radius: 12px; }
+.pause-keys { position: absolute; left: calc(50% - 120px); bottom: 5%; width: 240px; display: flex; gap: 10px; }
+.pause-keys button { flex: 1; min-width: 0; min-height: 64px; padding: 0 4px; background: white; font-size: 32px; line-height: 1; border-radius: 12px; }
+@media (min-width: 601px) and (max-width: 760px) { .pause-keys { left: calc(50% - 70px); width: 140px; gap: 6px; } .pause-keys button { font-size: 22px; } }

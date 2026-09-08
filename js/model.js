@@ -26,6 +26,27 @@ function appendSingleBol(composition, text, forceVibhag, sameMatra = false) {
   return { ...composition, bols: [...composition.bols, bol] };
 }
 
+export function insertPause(composition, selectedBolId, side) {
+  const target = composition.bols.find(b => b.id === selectedBolId);
+  if (!target || !['before', 'after'].includes(side)) return composition;
+  const sameMatra = b => b.position.vibhag === target.position.vibhag && b.position.matra === target.position.matra;
+  const group = composition.bols.filter(sameMatra);
+  const index = group.findIndex(b => b.id === selectedBolId);
+  const sharedSubMatra = group.filter(b => b.position.subMatra === target.position.subMatra).length > 1;
+  const depth = sharedSubMatra ? 3 : 2;
+  const edges = deriveBoundaries(group);
+  const at = index + (side === 'after' ? 1 : 0);
+  const incoming = side === 'before' ? Math.min(edges[at], depth) : depth;
+  const pause = { id: id('bol'), order: 0, text: '—', position: { ...target.position }, tags: emptyTags(), note: '' };
+  group.splice(at, 0, pause);
+  edges.splice(at, 0, incoming);
+  if (at + 1 < edges.length) edges[at + 1] = side === 'before' ? depth : Math.min(edges[at + 1], depth);
+  const updated = positionsFromBoundaries(group, edges).map(b => ({ ...b, position: { ...b.position, vibhag: target.position.vibhag, matra: target.position.matra } }));
+  const first = composition.bols.findIndex(sameMatra);
+  const bols = [...composition.bols.slice(0, first), ...updated, ...composition.bols.slice(first + group.length - 1)].map((b, i) => ({ ...b, order: i + 1 }));
+  return { ...composition, bols };
+}
+
 // Keep empty vibhags and surrounding rows in place when deleting/refilling.
 export function appendToVibhag(composition, text, vibhag) {
   const row = composition.bols.filter(b => b.position.vibhag === vibhag);
