@@ -28,7 +28,7 @@ async function fetchFresh(request) {
     for (const name of ['Content-Encoding', 'Content-Length', 'ETag', 'Last-Modified']) freshHeaders.delete(name);
     return new Response(response.body, { status: response.status, statusText: response.statusText, headers: freshHeaders });
   } catch {
-    return new Response('KaidaNotes needs a connection to load the latest version. Reconnect and reload. Your saved notation is still on this device.',
+    return new Response('KaidaNotes needs a connection to load the latest version. Reconnect and reload to start a fresh composition.',
       { status: 503, headers: { 'Content-Type': 'text/plain; charset=utf-8', 'Cache-Control': 'no-store' } });
   }
 }

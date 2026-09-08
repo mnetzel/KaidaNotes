@@ -8,7 +8,7 @@ import { recognizeTala, matchTala } from '../js/talas.js';
 import { validateRhythm } from '../js/rhythm.js';
 import { exportBasic, exportComplete } from '../js/export.js';
 import { createStore } from '../js/state.js';
-import { loadComposition, STORAGE_KEY, LEGACY_BACKUP_KEY } from '../js/persistence.js';
+import { startComposition } from '../js/persistence.js';
 
 const withoutIds = composition => composition.bols.map(({ id, ...bol }) => bol);
 
@@ -114,17 +114,14 @@ test('legacy compounds expand without losing annotations, existing IDs, notes or
   assert.deepEqual(sanitizeComposition(c), c);
 });
 
-test('legacy storage upgrade backs up the original and retains generated IDs across reloads', () => {
-  const old = JSON.stringify({ schemaVersion: 1, bols: [{ id: 'old', order: 1, text: 'GheGhe' }] });
-  const map = new Map([[STORAGE_KEY, old]]);
-  const storage = { getItem: key => map.get(key), setItem: (key, value) => map.set(key, value) };
-  const first = loadComposition(storage);
-  assert.equal(first.warning, null);
-  assert.equal(storage.getItem(LEGACY_BACKUP_KEY), old);
-  assert.deepEqual(loadComposition(storage), first);
-  assert.equal(first.composition.bols.length, 2);
-  const denied = { getItem: key => map.get(key), setItem() { throw new Error('quota'); } };
-  map.set(STORAGE_KEY, old);
-  assert.ok(loadComposition(denied).warning);
-  assert.equal(map.get(STORAGE_KEY), old);
+test('unavailable browser storage does not block a fresh editor or in-memory editing', () => {
+  const denied = { removeItem() { throw new Error('storage disabled'); } };
+  const c = startComposition(denied);
+  assert.equal(c.bols.length, 0);
+  const store = createStore(c);
+  store.update(value => appendBol(value, 'GheGhe'));
+  assert.equal(store.composition.bols.length, 2);
+  store.undo();
+  assert.equal(store.composition.bols.length, 0);
+  assert.equal(startComposition(denied).bols.length, 0);
 });

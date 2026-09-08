@@ -5,7 +5,7 @@ import { LEVELS, moveBoundary, normalizePositions, validateRhythm, getParentScop
 import { applyTagToSelection } from '../js/tags.js';
 import { selectBol, createSelection, getPrimarySelection, setMultiSelect } from '../js/selection.js';
 import { exportBasic, exportComplete } from '../js/export.js';
-import { loadComposition, saveComposition, STORAGE_KEY } from '../js/persistence.js';
+import { startComposition, STORAGE_KEY, LEGACY_BACKUP_KEY } from '../js/persistence.js';
 import { createStore } from '../js/state.js';
 
 const phrase = (text, structure = [4, 4, 4, 4]) => text.split(' ').reduce((c, bol) => appendBol(c, bol), { ...createComposition(), vibhagStructure: structure });
@@ -146,21 +146,22 @@ test('complete export uses human-readable tags; basic excludes tags and both inc
   }
 });
 
-test('local persistence roundtrip, corrupt JSON, unsupported versions and denied storage', () => {
-  const map = new Map();
-  const storage = { getItem: key => map.get(key), setItem: (key, value) => map.set(key, value) };
-  const c = phrase('Dha Dha Ti Ti');
-  c.ui.showSubSubMatra = false;
-  assert.equal(saveComposition(c, storage).saved, true);
-  assert.deepEqual(loadComposition(storage).composition, c);
-  storage.setItem(STORAGE_KEY, '{broken');
-  assert.ok(loadComposition(storage).warning);
-  assert.equal(storage.getItem(STORAGE_KEY), '{broken');
-  storage.setItem(STORAGE_KEY, '{"schemaVersion":999}');
-  assert.ok(loadComposition(storage).warning);
-  const denied = { getItem() { throw new Error('blocked'); }, setItem() { throw new Error('quota'); } };
-  assert.ok(loadComposition(denied).warning);
-  assert.equal(saveComposition(c, denied).saved, false);
+test('each page starts empty, removes only old app data and never reads or writes a saved document', () => {
+  const map = new Map([[STORAGE_KEY, JSON.stringify(phrase('Dha Dha Ti Ti'))], [LEGACY_BACKUP_KEY, '{broken'], ['another-app', 'keep']]);
+  const storage = {
+    removeItem: key => map.delete(key),
+    getItem() { throw new Error('must not restore data'); },
+    setItem() { throw new Error('must not persist data'); },
+  };
+  const first = startComposition(storage);
+  assert.equal(first.bols.length, 0);
+  assert.equal(first.notes, '');
+  assert.equal(first.compositionType, 'kaida');
+  assert.deepEqual([...map.entries()], [['another-app', 'keep']]);
+  const second = startComposition(storage);
+  assert.notEqual(second.id, first.id);
+  assert.notEqual(second.bols, first.bols);
+  assert.equal(second.bols.length, 0);
 });
 
 test('schema defaults recover duplicate IDs, bad addresses and missing tags safely', () => {

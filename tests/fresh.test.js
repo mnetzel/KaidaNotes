@@ -51,5 +51,5 @@ test('failed requests never fall back to stale application files', async () => {
   const response = await dispatch(new Request('https://example.test/KaidaNotes/'));
   assert.equal(response.status, 503);
   assert.equal(response.headers.get('Cache-Control'), 'no-store');
-  assert.match(await response.text(), /saved notation is still on this device/);
+  assert.match(await response.text(), /reload to start a fresh composition/);
 });

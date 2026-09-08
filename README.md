@@ -19,7 +19,7 @@ Open <http://localhost:4173/KaidaNotes/>. Any static HTTP server also works. Ser
 3. Tap bols on the drum keyboard. Compound buttons are shortcuts for sequential individual taps: **GheGhe** enters `Ghe Ghe`, **TeTe** enters `Te Te`, **TeReKeTe** enters `Te Re Ke Te`, and **TaKe** enters `Ta Ke`. Each resulting bol has its own permanent ID and order and can be selected, grouped, and tagged independently. A shortcut is one undo step. Reverse buttons retain the same recited syllables; they do not guess an unspecified fingering. **next vibhag** applies to the first bol of the shortcut, with normal entry continuing for the remaining bols.
 4. Select a rendered bol. Yellow marks selection; the underline identifies the primary anchor. **select more** toggles multiple selection; the most recently selected bol anchors rhythm edits.
 5. Use the rhythm arrows, drum zones, finger buttons, bayan arrows, and **open / close**. Tags apply to all selected bols. Clicking a tag active on the whole selection removes it. Applying a different choice replaces that group's value. Mixed selections are exposed as `aria-pressed="mixed"`.
-6. Add extra notes. Meaningful edits save to this browser on this device. If saving fails, the page shows a persistent warning.
+6. Add extra notes. Edits exist only in the current page's memory. Reloading starts a new, empty composition; copy/share anything you want to keep before reloading.
 7. **basic** or **complete** copies text and opens a readable preview with an optional WhatsApp link. Complete includes performance annotations. Both include composition notes. No message is sent automatically.
 
 **Undo / redo:** buttons or Ctrl/Cmd+Z and Ctrl/Cmd+Shift+Z. History is held in memory (last 100 edits); nearby note keystrokes form one undo step. Clearing notation requires confirmation and is undoable. It retains the structure, composition type, and notes.
@@ -53,11 +53,11 @@ Hide **subSubMatra** with × and restore with **+ subSubMatra**. Hiding controls
 | `js/tags.js` | Central extensible definitions, exclusivity, human-readable labels |
 | `js/state.js` | Controlled updates and undo/redo |
 | `js/renderer.js` | DOM creation, notation groups, inspector and tag state |
-| `js/persistence.js` | Replaceable `loadComposition` / `saveComposition` adapter |
+| `js/persistence.js` | Start a fresh composition and retire old autosave keys |
 | `js/export.js` | Pure notation export and progressive clipboard helper |
 | `js/app.js` | UI event orchestration |
 
-Storage key remains `kaidanotes.composition.v1` for continuity; the current document schema is version 2. Version 1 documents migrate automatically, with the original backed up at `kaidanotes.composition.v1.before-v2`. Old color tags gain their musical meanings. Old compound tokens expand within their existing matra as subdivisions, preserving previously edited parent groups; their annotations are copied to the component bols and the first component retains the original ID. Sequence order is renumbered once during expansion, preserving recited order. Migrated IDs are saved immediately and stay stable on reload. New shortcut entry uses the same advancement as separate taps. A malformed or unsupported document produces an empty sheet and a warning, retaining the stored original until an edit. Selection, drafts, pending boundaries, and undo history remain transient.
+The user's request to reset on reload supersedes the original brief's autosave requirement. The editor no longer restores or writes compositions to localStorage or sessionStorage. Each startup removes only the former app keys `kaidanotes.composition.v1` and `kaidanotes.composition.v1.before-v2`, then creates an empty Kaida with the default Tintal structure. Other applications' storage is untouched. Bols, tags, notes, custom structure, selection, drafts, and undo history all reset on reload. Editing, undo/redo, and Basic/Complete export work normally within the active page, including when browser storage is unavailable. The schema validation/conversion helpers remain independently available but are not used to restore old browser data.
 
 The user's clarified execution mapping supersedes the original brief's neutral color labels:
 
@@ -94,7 +94,7 @@ npm test
 npm run check
 ```
 
-Tests use the built-in Node test runner. They cover the brief's cases A–E, randomized boundary edits, local scope, sequence identity, arbitrary structures, compound entry, invalid moves, selection, tag exclusivity, export, persistence failures, schema recovery, and undo/redo.
+Tests use the built-in Node test runner. They cover the brief's cases A–E, randomized boundary edits, local scope, sequence identity, arbitrary structures, compound entry, invalid moves, selection, tag exclusivity, export, fresh-session startup, scoped cleanup of old data, schema recovery, and undo/redo.
 
 Append `?debug=1` to show bol addresses. In this mode only, `kaidaDebug.snapshot()` returns a copy of the current composition and `kaidaDebug.exportJSON()` returns formatted JSON. Debug APIs cannot mutate editor state.
 
@@ -110,6 +110,6 @@ No compilation is required for deployment. `package.json` and Node.js are develo
 
 GitHub Pages supplies its own HTTP caching headers (observed `max-age=600`). A scoped, **network-only** service worker in `sw.js` bypasses those cached copies for the HTML document, all JavaScript modules, CSS, the drum image, and favicon. It uses a unique request URL and `fetch(..., { cache: 'no-store' })`, and returns `Cache-Control: no-store`. It never uses Cache Storage or an offline fallback. The worker's own update check uses `updateViaCache: 'none'`.
 
-On first activation, the entire document is replaced once before the editor starts. Every subsequent visit/reload fetches fresh resources. Returning from another phone app/tab, or restoring a page from back/forward history, also replaces the entire page with a unique URL. There is no timed reload while actively editing. Autosaved composition data and the legacy backup remain in localStorage; only transient selection and undo history reset on page navigation, as before. An Internet connection is required when opening or returning to the editor. A failed fresh load offers retry instead of silently using an old application.
+On first activation, the entire document is replaced once before the editor starts. Every subsequent visit/reload fetches fresh resources. Returning from another phone app/tab, or restoring a page from back/forward history, also replaces the entire page with a unique URL. There is no timed reload while actively editing. Every such reload now starts an empty composition, including automatic reloads on returning to the tab. Copy notation before leaving/reloading if you want to keep it. An Internet connection is required when opening or returning to the editor. A failed fresh load offers retry instead of silently using an old application.
 
 This requires HTTPS (or localhost) and service worker support in the browser. A browser still displaying a version from **before** this mechanism was installed needs one initial visit using a new query URL, e.g. `?update=always-fresh`; afterwards the mechanism handles reloads automatically. It does not clear other sites' storage or change GitHub's CDN configuration. Implementation references: [MDN request cache](https://developer.mozilla.org/en-US/docs/Web/API/Request/cache), [service worker registration and updateViaCache](https://developer.mozilla.org/en-US/docs/Web/API/ServiceWorkerContainer/register).

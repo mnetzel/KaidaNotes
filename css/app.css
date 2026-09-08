@@ -89,7 +89,7 @@ button[aria-pressed="true"] { box-shadow: inset 0 0 0 3px var(--purple-strong); 
 .history-actions button { font-size: 21px; padding: 5px 8px; background: transparent; }
 .history-actions span { font-size: 13px; }
 #entry-status { flex: 1; }
-#save-status { font-size: 12px; text-align: right; }
+#session-status { font-size: 12px; text-align: right; }
 .warning { margin: 10px 30px; padding: 12px 16px; background: #fff2c6; border-radius: 8px; line-height: 1.5; font-size: 14px; }
 .notation { padding: 28px 42px 34px; overflow-x: auto; min-height: 350px; }
 .vibhag-row { display: flex; align-items: stretch; gap: 26px; min-height: 88px; margin-bottom: 10px; min-width: min-content; }
@@ -222,7 +222,7 @@ dialog p { font-size: 16px; line-height: 1.5; color: #706276; }
   #select-more { font-size: 17px; padding: 7px 10px; }
   .utility-bar { display: grid; grid-template-columns: auto 1fr; padding: 0 8px; gap: 0 6px; }
   #entry-status { text-align: right; }
-  #save-status { grid-column: 1 / -1; font-size: 11px; }
+  #session-status { grid-column: 1 / -1; font-size: 11px; }
   .notation { padding: 12px 8px 18px; min-height: 0; }
   .notation-empty { margin: 0 0 12px 0; font-size: 13px; }
   .vibhag-row { gap: 6px; min-height: 60px; min-width: 0; margin-bottom: 6px; }

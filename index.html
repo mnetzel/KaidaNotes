@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#dab2e7">
-  <meta name="description" content="Write, group and annotate tabla compositions. Your notation is saved on this device, ready to copy and share.">
+  <meta name="description" content="Write, group and annotate tabla compositions. Copy or share your notation before reloading to start a fresh composition.">
   <title>KaidaNotes — Tabla notation</title>
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="css/app.css">
@@ -20,7 +20,7 @@
       }
     } catch (error) {
       const status = document.querySelector('#fresh-status');
-      status.textContent = 'Could not open the latest KaidaNotes. Check your connection, then retry. Your saved notation is unchanged. ';
+      status.textContent = 'Could not open the latest KaidaNotes. Check your connection, then retry. ';
       status.setAttribute('role', 'alert');
       const retry = document.createElement('button');
       retry.type = 'button';
@@ -132,9 +132,8 @@
         <button type="button" id="redo" aria-label="Redo" title="Redo (Ctrl / Cmd + Shift + Z)">↷ <span>redo</span></button>
       </div>
       <span id="entry-status" role="status">Tap a bol to begin</span>
-      <span id="save-status" role="status">Saved on this device</span>
+      <span id="session-status">Clears on reload</span>
     </div>
-    <p id="storage-warning" class="warning" role="alert" hidden></p>
 
     <section id="notation" class="notation" aria-label="Composition notation"></section>
 
@@ -155,8 +154,8 @@
         <button type="button" data-share="complete" aria-label="Share complete notation"><svg viewBox="0 0 32 32" aria-hidden="true"><use href="#whatsapp-mark"/></svg><span>complete</span></button>
       </div>
     </section>
-    <footer>KaidaNotes <span>•</span> Your lesson, saved on this device.</footer>
-    <noscript>KaidaNotes needs JavaScript enabled to edit and save notation.</noscript>
+    <footer>KaidaNotes <span>•</span> Copy your notation before reloading.</footer>
+    <noscript>KaidaNotes needs JavaScript enabled to edit notation.</noscript>
   </main>
   <dialog id="clear-dialog" aria-labelledby="clear-title">
     <h2 id="clear-title">Clear the bol sequence?</h2>

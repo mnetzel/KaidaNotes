@@ -2,25 +2,19 @@ import { appendBol, recognizeTala } from './model.js';
 import { moveSelectedAtLevel } from './rhythm.js';
 import { createSelection, selectBol, setMultiSelect, getPrimarySelection } from './selection.js';
 import { applyTagToSelection } from './tags.js';
-import { loadComposition, saveComposition } from './persistence.js';
+import { startComposition } from './persistence.js';
 import { createStore } from './state.js';
 import { renderNotation, renderInspector } from './renderer.js';
 import { exportBasic, exportComplete, shareText } from './export.js';
 import { matchTala } from './talas.js';
 
 const $ = selector => document.querySelector(selector);
-const loaded = loadComposition();
 let selection = createSelection();
 let structureDraft = null;
 let nextVibhag = false;
 let toastTimeout;
 const debug = new URLSearchParams(location.search).get('debug') === '1';
-const store = createStore(loaded.composition, composition => {
-  const result = saveComposition(composition);
-  $('#save-status').textContent = result.saved ? 'Saved on this device' : 'Not saved';
-  $('#storage-warning').hidden = result.saved;
-  $('#storage-warning').textContent = result.warning ?? '';
-});
+const store = createStore(startComposition());
 
 function toast(message) {
   clearTimeout(toastTimeout);
@@ -156,7 +150,6 @@ $('#copy-again').addEventListener('click', async () => {
 $('#close-share').addEventListener('click', () => $('#share-dialog').close());
 
 render();
-if (loaded.warning) { $('#storage-warning').textContent = loaded.warning; $('#storage-warning').hidden = false; }
 if (debug) Object.defineProperty(window, 'kaidaDebug', { value: Object.freeze({
   snapshot: () => structuredClone(store.composition),
   exportJSON: () => JSON.stringify(store.composition, null, 2),
