@@ -1,16 +1,5 @@
-// Timings belong to one measured cycle, independent of notation editing.
-export function analyzeClaps(timestamps, structure) {
-  if (!structure.length || structure.some(n => !Number.isSafeInteger(n) || n < 1)) throw new Error('Set a vibhag structure before clapping.');
-  if (timestamps.length < 2) throw new Error('Tap the first sam and the next sam before stopping (at least two claps).');
-  if (timestamps.some((t, i) => !Number.isFinite(t) || (i > 0 && t <= timestamps[i - 1]))) throw new Error('Clap timings must increase. Please record again.');
-  const totalMatras = structure.reduce((sum, n) => sum + n, 0);
-  const duration = timestamps.at(-1) - timestamps[0];
-  return {
-    structure: [...structure], totalMatras, duration,
-    // The final tap closes the interval. It is not a plotted rhythmic hit.
-    hits: timestamps.slice(0, -1).map((t, index) => ({ index: index + 1, elapsed: t - timestamps[0], matra: (t - timestamps[0]) / duration * totalMatras })),
-  };
-}
+import { analyzeClaps, clapDisplay } from './clap-data.js';
+export { analyzeClaps } from './clap-data.js';
 
 const svgNode = (tag, attrs = {}, text) => {
   const node = document.createElementNS('http://www.w3.org/2000/svg', tag);
@@ -37,6 +26,9 @@ export function renderClapPlot(container, result) {
     svg.append(svgNode('line', { x1: x(m), x2: x(m), y1: top, y2: 200, class: 'clap-matra-line' }));
     if (m < totalMatras) svg.append(svgNode('text', { x: x(m + .5), y: 224, 'text-anchor': 'middle', class: 'clap-matra-label' }, m + 1));
   }
+  if (result.snap) {
+    for (let q = 1; q < totalMatras * 4; q++) if (q % 4) svg.append(svgNode('line', { x1: x(q / 4), x2: x(q / 4), y1: top, y2: 200, class: 'clap-quarter-line' }));
+  }
   offset = 0;
   for (const length of [...structure, 0]) {
     svg.append(svgNode('line', { x1: x(offset), x2: x(offset), y1: top - 10, y2: 200, class: 'clap-vibhag-line' }));
@@ -50,9 +42,9 @@ export function renderClapPlot(container, result) {
     let lane = laneEnds.findIndex(previous => px - previous >= 16);
     if (lane < 0) lane = laneEnds.length;
     laneEnds[lane] = px;
-    const py = baseline - Math.min(lane, 7) * 11;
+    const py = baseline - Math.min(hit.matra === totalMatras ? Math.max(1, lane) : lane, 7) * 11;
     const dot = svgNode('circle', { cx: px, cy: py, r: 5, class: 'clap-hit' });
-    dot.append(svgNode('title', {}, `Clap ${hit.index}: ${(hit.elapsed / 1000).toFixed(3)} s · matra ${(hit.matra + 1).toFixed(2)}`));
+    dot.append(svgNode('title', {}, `Clap ${hit.index}: ${(hit.elapsed / 1000).toFixed(3)} s · ${result.snap ? 'snapped ' : ''}matra ${(hit.matra + 1).toFixed(2)}`));
     svg.append(dot);
   });
   svg.append(svgNode('circle', { cx: end, cy: baseline, r: 7, class: 'clap-endpoint' }));
@@ -62,26 +54,47 @@ export function renderClapPlot(container, result) {
   container.style.setProperty('--clap-plot-width', `${width}px`);
 }
 
-export function setupClapping(getComposition) {
+export function setupClapping(getComposition, updateComposition) {
   const startButton = document.querySelector('#start-clapping');
   const clapButton = document.querySelector('#clap');
   const status = document.querySelector('#clap-status');
   const resultPanel = document.querySelector('#clap-result');
+  const snapButton = document.querySelector('#clap-snap');
+  let lastCapture;
   let recording = false, times = [], structure = [], name = '';
   const setIdle = () => {
     recording = false; startButton.textContent = 'Start clapping';
     startButton.setAttribute('aria-pressed', 'false'); clapButton.disabled = true;
   };
+  const sync = () => {
+    const capture = getComposition().clapping;
+    if (capture === lastCapture) return;
+    lastCapture = capture; setIdle();
+    if (!capture) { resultPanel.hidden = true; document.querySelector('#clap-plot-container').replaceChildren(); return; }
+    const result = clapDisplay(capture);
+    renderClapPlot(document.querySelector('#clap-plot-container'), result);
+    document.querySelector('#clap-summary').textContent = `${capture.name} · ${capture.structure.join('–')} · ${result.totalMatras} matras · ${result.hits.length} claps · ${(result.duration / 1000).toFixed(2)} s · ${capture.snap ? 'Snap ¼ matra' : 'Original timing'}`;
+    snapButton.setAttribute('aria-pressed', String(capture.snap));
+    resultPanel.hidden = false;
+    status.textContent = 'Final clap = next sam (end only). This recording is included in your Kaida link.';
+  };
+  snapButton.addEventListener('click', () => {
+    if (recording || !getComposition().clapping) return;
+    updateComposition(c => ({ ...c, clapping: { ...c.clapping, snap: !c.clapping.snap } }));
+    sync();
+  });
   startButton.addEventListener('click', () => {
     if (recording) {
       setIdle();
       try {
-        const result = analyzeClaps(times, structure);
-        renderClapPlot(document.querySelector('#clap-plot-container'), result);
-        document.querySelector('#clap-summary').textContent = `${name} · ${structure.join('–')} · ${result.totalMatras} matras · ${result.hits.length} claps · ${(result.duration / 1000).toFixed(2)} s`;
-        resultPanel.hidden = false;
-        status.textContent = 'Done. The final clap marks the next sam; it is not counted as a hit. Start again to record another cycle.';
-      } catch (error) { status.textContent = error.message; }
+        analyzeClaps(times, structure);
+        const capture = { timestamps: times.map(t => t - times[0]), structure: [...structure], name, snap: false };
+        updateComposition(c => ({ ...c, clapping: capture }));
+        sync();
+      } catch (error) {
+        if (getComposition().clapping) { lastCapture = undefined; sync(); }
+        status.textContent = error.message + (getComposition().clapping ? ' Previous recording kept.' : '');
+      }
       return;
     }
     const composition = getComposition();
@@ -111,5 +124,6 @@ export function setupClapping(getComposition) {
   });
   // Assistive technology may activate a button without pointer or keyboard events.
   clapButton.addEventListener('click', event => { if (event.detail === 0) record(); });
-  return { reset() { setIdle(); times = []; resultPanel.hidden = true; document.querySelector('#clap-plot-container').replaceChildren(); status.textContent = 'Start, then tap Clap from sam to the next sam.'; } };
+  sync();
+  return { sync, reset() { setIdle(); times = []; resultPanel.hidden = true; document.querySelector('#clap-plot-container').replaceChildren(); status.textContent = 'Start, then tap Clap from sam to the next sam.'; } };
 }

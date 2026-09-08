@@ -35,7 +35,7 @@ function currentBol() {
     ?? store.composition.bols.filter(b => b.position.vibhag === currentVibhag()).at(-1);
 }
 fitPortraitLayout();
-const clapping = setupClapping(() => store.composition);
+const clapping = setupClapping(() => store.composition, transform => store.update(transform));
 
 function toast(message) {
   clearTimeout(toastTimeout);
@@ -45,6 +45,7 @@ function toast(message) {
 }
 
 function render() {
+  clapping.sync();
   const composition = store.composition;
   const validIds = new Set(composition.bols.map(bol => bol.id));
   selection = { ...selection, ids: selection.ids.filter(id => validIds.has(id)) };

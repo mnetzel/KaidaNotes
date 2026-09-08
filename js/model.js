@@ -1,3 +1,4 @@
+import { validateClapCapture } from './clap-data.js';
 import { normalizePositions, nextPosition, LEVELS, deriveBoundaries, positionsFromBoundaries } from './rhythm.js';
 import { emptyTags, sanitizeTags } from './tags.js';
 import { expandBolSequence, SINGLE_MATRA_SHORTCUTS } from './keyboard.js';
@@ -125,7 +126,7 @@ export function sanitizeComposition(raw) {
     const position = Object.fromEntries(LEVELS.map(level => [level, Number.isSafeInteger(bol.position?.[level]) && bol.position[level] > 0 ? bol.position[level] : 1]));
     return { id: bolId, order, text: bol.text.slice(0, 120), position, tags: sanitizeTags(bol.tags), note: typeof bol.note === 'string' ? bol.note : '' };
   });
-  return { schemaVersion: 2, id: typeof raw.id === 'string' ? raw.id : fresh.id,
+  return { ...(raw.clapping !== undefined ? { clapping: validateClapCapture(raw.clapping) } : {}), schemaVersion: 2, id: typeof raw.id === 'string' ? raw.id : fresh.id,
     compositionType: COMPOSITION_TYPES.includes(raw.compositionType) ? raw.compositionType : 'kaida',
     vibhagStructure: structure, talaName: recognizeTala(structure), notes: typeof raw.notes === 'string' ? raw.notes : '',
     bols: expandLegacyCompounds(normalizeRetainingVibhags(bols)), ui: { showSubSubMatra: raw.ui?.showSubSubMatra === true,

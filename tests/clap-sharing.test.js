@@ -1,0 +1,21 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {clapDisplay,validateClapCapture} from '../js/clap-data.js';
+import {createComposition,sanitizeComposition} from '../js/model.js';
+import {createShareLink,readShareLink} from '../js/share-link.js';
+const capture=()=>({timestamps:[0,61,64,124,126,499,999,1000],structure:[2],name:'Custom',snap:false});
+test('quarter snapping rounds both ways without changing raw times or merging hits',()=>{
+ const c=capture();const original=structuredClone(c);const raw=clapDisplay(c);const snapped=clapDisplay({...c,snap:true});
+ assert.deepEqual(snapped.hits.map(h=>h.matra),[0,0,.25,.25,.25,1,2]);
+ assert.equal(snapped.hits.length,7);assert.equal(snapped.duration,1000);assert.deepEqual(c,original);assert.deepEqual(clapDisplay({...c,snap:false}),raw);
+});
+test('full share/restore retains raw clap times, captured structure and snap toggle',async()=>{
+ const c={...createComposition(),clapping:{...capture(),snap:true}};
+ assert.deepEqual(sanitizeComposition(c),c);
+ const decoded=await readShareLink(new URL(await createShareLink(c,'https://example.com/KaidaNotes/')).hash);
+ assert.deepEqual(decoded,c);assert.deepEqual(clapDisplay({...decoded.clapping,snap:false}).hits,clapDisplay(capture()).hits);
+ assert.ok(!('clapping' in sanitizeComposition(createComposition())));
+});
+test('invalid clap payloads are rejected before import',()=>{
+ for(const c of [{...capture(),timestamps:[0,0]}, {...capture(),timestamps:[100,200]}, {...capture(),snap:'true'}, {...capture(),structure:[Infinity]}, {...capture(),timestamps:[0,NaN]}, {...capture(),structure:[]}])assert.throws(()=>validateClapCapture(c));
+});

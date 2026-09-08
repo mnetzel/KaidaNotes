@@ -169,6 +169,7 @@
       <p id="clap-status" role="status">Start, then tap Clap from sam to the next sam.</p>
       <div id="clap-result" hidden>
         <p id="clap-summary"></p>
+        <button type="button" id="clap-snap" class="yellow" aria-pressed="false" title="Snap to the nearest quarter matra">Snap · ¼ matra</button>
         <div id="clap-plot-container" tabindex="0" aria-label="Clap timing plot; scroll horizontally for longer talas"></div>
         <p class="clap-legend">● claps · thin lines: matras · thick lines: vibhags · ○ next sam (end only)</p>
         <p class="clap-legend">Equal matras across the measured cycle. Grid uses the structure at Start clapping.</p>
@@ -184,7 +185,7 @@
   <dialog id="share-dialog" aria-labelledby="share-title">
     <h2 id="share-title">Basic notation</h2>
     <p id="copy-status" role="status"></p>
-    <p id="share-details" hidden>Opens an editable copy with all bols, rhythm, tags and notes. After editing, create a new link to send your changes.</p>
+    <p id="share-details" hidden>Opens an editable copy with all bols, rhythm, tags, notes and any completed clap recording. After editing, create a new link to send your changes.</p>
     <textarea id="share-preview" readonly aria-label="Notation to copy" rows="10"></textarea>
     <div class="dialog-actions"><button type="button" id="copy-again" class="yellow">copy text</button><a id="whatsapp-link" target="_blank" rel="noopener noreferrer">open WhatsApp ↗</a><button type="button" id="close-share">done</button></div>
   </dialog>
