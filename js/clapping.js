@@ -63,12 +63,20 @@ export function setupClapping(getComposition, updateComposition) {
     recording = false; startButton.textContent = 'Start clapping';
     startButton.setAttribute('aria-pressed', 'false'); clapButton.disabled = true;
   };
+  const reset = () => {
+    setIdle(); times = []; structure = []; name = '';
+    resultPanel.hidden = true;
+    document.querySelector('#clap-plot-container').replaceChildren();
+    document.querySelector('#clap-summary').textContent = '';
+    snapButton.setAttribute('aria-pressed', 'false');
+    status.textContent = 'Start, then tap Clap from sam to the next sam.';
+  };
   const sync = () => {
     const { clapping: capture, bols } = getComposition();
     if (capture === lastCapture && (bols === lastBols || recording)) return;
     if (capture !== lastCapture) setIdle();
     lastCapture = capture; lastBols = bols;
-    if (!capture) { resultPanel.hidden = true; document.querySelector('#clap-plot-container').replaceChildren(); return; }
+    if (!capture) { reset(); return; }
     const result = clapDisplay(capture, bols);
     renderClapPlot(document.querySelector('#clap-plot-container'), result);
     document.querySelector('#clap-summary').textContent = `${capture.name} · ${capture.structure.join('–')} · ${result.totalMatras} matras · ${result.hits.length} claps · ${(result.duration / 1000).toFixed(2)} s · ${capture.snap ? 'Snap ½ matra' : 'Original timing'}`;
@@ -76,6 +84,14 @@ export function setupClapping(getComposition, updateComposition) {
     resultPanel.hidden = false;
     status.textContent = 'Final clap = next sam (end only). This recording is included in your Kaida link.';
   };
+  document.querySelector('#clear-clapping').addEventListener('click', () => {
+    reset();
+    updateComposition(c => {
+      const { clapping, ...composition } = c;
+      return composition;
+    });
+    sync();
+  });
   snapButton.addEventListener('click', () => {
     if (recording || !getComposition().clapping) return;
     updateComposition(c => ({ ...c, clapping: { ...c.clapping, snap: !c.clapping.snap } }));
@@ -123,5 +139,5 @@ export function setupClapping(getComposition, updateComposition) {
   // Assistive technology may activate a button without pointer or keyboard events.
   clapButton.addEventListener('click', event => { if (event.detail === 0) record(); });
   sync();
-  return { sync, reset() { setIdle(); times = []; resultPanel.hidden = true; document.querySelector('#clap-plot-container').replaceChildren(); status.textContent = 'Start, then tap Clap from sam to the next sam.'; } };
+  return { sync, reset };
 }

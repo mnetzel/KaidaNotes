@@ -240,7 +240,7 @@ button.empty-matra { background: transparent; border-radius: 0; min-height: 68px
 .pause-keys button { flex: 1; min-width: 0; min-height: 64px; padding: 0 4px; background: white; font-size: 32px; line-height: 1; border-radius: 12px; }
 @media (min-width: 601px) and (max-width: 760px) { .pause-keys { left: calc(50% - 70px); width: 140px; gap: 6px; } .pause-keys button { font-size: 22px; } }
 
-#clap-snap { padding: 10px 20px; font-size: 26px; margin: 0 0 18px; }
+#clap-snap, #clear-clapping { padding: 10px 20px; font-size: 26px; margin: 0 0 18px; }
 .clap-half-line { stroke: #bcb3c3; stroke-width: 1; stroke-dasharray: 3 4; opacity: .6; }
 
 .clap-bol-label { font: 600 17px Arial, sans-serif; fill: #302536; paint-order: stroke; stroke: white; stroke-width: 3px; stroke-linejoin: round; }
