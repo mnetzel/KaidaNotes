@@ -77,12 +77,12 @@ test('invalid arrows are disabled and parent scopes are respected', () => {
   const c = phrase('Dha Dha Ti Ti Ta Na');
   for (const level of LEVELS) {
     assert.equal(canMoveBoundary(c.bols, level, 'left', c.bols[0].id), false);
-    assert.equal(canMoveBoundary(c.bols, level, 'right', c.bols[0].id), false);
+    assert.equal(canMoveBoundary(c.bols, level, 'right', c.bols[0].id), level === 'matra');
     assert.equal(canMoveBoundary(c.bols, level, 'left', 'missing'), false);
   }
   assert.deepEqual(getParentScope(c.bols, 'matra', c.bols[4].id), { start: 4, end: 6, index: 4 });
   assert.equal(canMoveBoundary(c.bols, 'matra', 'left', c.bols[4].id), false);
-  assert.equal(canMoveBoundary(c.bols, 'matra', 'right', c.bols[1].id), false);
+  assert.equal(canMoveBoundary(c.bols, 'matra', 'right', c.bols[1].id), true);
   assert.ok(canMoveBoundary(c.bols, 'vibhag', 'left', c.bols[4].id));
 });
 

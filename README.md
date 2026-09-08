@@ -30,7 +30,7 @@ The immutable sequence is separate from four-level positions: `vibhag : matra : 
 
 The rhythm module derives one boundary depth before each bol. It edits these boundaries, then regenerates normalized addresses with no gaps or reversals:
 
-- **Right:** start a new group at the selected bol within its current parent. Disabled at a parent start or where that group boundary already exists.
+- **Right:** start a new group at the selected bol within its current parent. Exception for **matra →**: when the selected bol is alone in its matra, pull in the first bol of the following matra in the same vibhag. Thus `| Ke | Te |` becomes `| KeTe |`; `| Ke | TeRe |` becomes `| KeTe | Re |`. The remaining suffix stays separate, order and annotations are preserved, and undo is available. It never pulls across a vibhag boundary. Other existing boundaries remain disabled.
 - **Left:** join the current group's prefix, through the selected bol, to the preceding group in the same parent. Its children stay in order; any remaining suffix stays in its own group. Disabled when there is no preceding group in that parent.
 - A matra merge introduces a new subMatra at the old boundary; a subMatra merge introduces a subSubMatra. A subSubMatra merge puts adjacent tokens in the same leaf. Variable subdivision counts are supported.
 - Edits of a child level never change positions outside its parent scope. Vibhag edits can renumber subsequent vibhags.

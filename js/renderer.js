@@ -1,4 +1,4 @@
-import { LEVELS, canMoveBoundary, vibhagLength } from './rhythm.js';
+import { LEVELS, canMoveBoundary, canJoinNextMatra, vibhagLength } from './rhythm.js';
 import { getPrimarySelection } from './selection.js';
 import { tagDefinition, tagLabels } from './tags.js';
 
@@ -123,6 +123,7 @@ export function renderInspector(composition, selection, editingId = null) {
       button.dataset.direction = direction;
       button.setAttribute('aria-label', `${level} ${direction}`);
       button.title = direction === 'left' ? `Join the previous ${level} through this bol` : `Start a new ${level} at this bol`;
+      if (level === 'matra' && direction === 'right' && canJoinNextMatra(composition.bols, primaryId)) button.title = 'Join the first bol of the next matra to this bol';
       button.disabled = !!editingId || !bol || !canMoveBoundary(composition.bols, level, direction, primaryId);
       group.append(button);
     }

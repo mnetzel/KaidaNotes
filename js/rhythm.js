@@ -71,6 +71,12 @@ export function isLastInGroup(bols, level, id) {
   return !!group && bols[group.end - 1].id === id;
 }
 
+export function canJoinNextMatra(bols, selectedBolId) {
+  const scope = getParentScope(bols, 'matra', selectedBolId);
+  const group = getBolGroup(bols, 'matra', selectedBolId);
+  return !!scope && !!group && group.end - group.start === 1 && group.end < scope.end;
+}
+
 function editedBoundaries(bols, level, direction, selectedBolId) {
   const scope = getParentScope(bols, level, selectedBolId);
   if (!scope || !['left', 'right'].includes(direction)) return null;
@@ -78,6 +84,13 @@ function editedBoundaries(bols, level, direction, selectedBolId) {
   const boundaries = deriveBoundaries(bols);
   const { index, start, end } = scope;
   if (direction === 'right') {
+    // A singleton matra can pull in exactly the first bol of the next matra.
+    // If that next matra has a suffix, keep the suffix in its own matra.
+    if (level === 'matra' && canJoinNextMatra(bols, selectedBolId)) {
+      boundaries[index + 1] = depth + 1;
+      if (index + 2 < end && boundaries[index + 2] > depth) boundaries[index + 2] = depth;
+      return boundaries;
+    }
     // Split this parent at the anchor; an existing boundary cannot be split twice.
     if (index === start || boundaries[index] <= depth) return null;
     boundaries[index] = depth;
@@ -98,7 +111,15 @@ export function canMoveBoundary(bols, level, direction, selectedBolId) {
 
 export function moveBoundary(bols, level, direction, selectedBolId) {
   const boundaries = editedBoundaries(bols, level, direction, selectedBolId);
-  return boundaries ? positionsFromBoundaries(bols, boundaries) : bols;
+  if (!boundaries) return bols;
+  if (level === 'matra') {
+    // Matra edits stay within their vibhag, including after another row was cleared.
+    const { start, end } = getParentScope(bols, level, selectedBolId);
+    const row = positionsFromBoundaries(bols.slice(start, end), boundaries.slice(start, end))
+      .map(bol => ({ ...bol, position: { ...bol.position, vibhag: bols[start].position.vibhag } }));
+    return [...bols.slice(0, start), ...row, ...bols.slice(end)];
+  }
+  return positionsFromBoundaries(bols, boundaries);
 }
 
 export function moveSelectedAtLevel({ composition, selectedBolId, level, direction }) {
