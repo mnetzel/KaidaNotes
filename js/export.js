@@ -13,9 +13,7 @@ export function exportNotation(composition, complete = false) {
       if (row) lines.push(`${row} |`);
       row = `V${p.vibhag}: | `;
     } else if (p.matra !== previous.matra) row += ' | ';
-    else if (p.subMatra !== previous.subMatra) row += ', ';
-    else if (p.subSubMatra !== previous.subSubMatra) row += '/';
-    else row += ' ';
+    // Bols inside one matra form one continuous written phrase.
     row += bol.text;
     if (complete) {
       const labels = tagLabels(bol.tags);

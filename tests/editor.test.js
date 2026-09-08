@@ -46,16 +46,16 @@ test('Case B: join four matras into four subdivisions without fixed subdivision 
   let c = phrase('Dha Te Re Ke Te', [5]);
   for (const index of [2, 3, 4]) c = move(c, index, 'matra', 'left');
   assert.deepEqual(addresses(c.bols), ['1:1:1:1', '1:2:1:1', '1:2:2:1', '1:2:3:1', '1:2:4:1']);
-  assert.match(exportBasic(c), /V1: \| Dha \| Te, Re, Ke, Te \|/);
+  assert.match(exportBasic(c), /V1: \| Dha \| TeReKeTe \|/);
   assert.ok(validateRhythm(c.bols));
 });
 
-test('Case C: subSubMatra grouping and slash export', () => {
+test('Case C: subSubMatra grouping retains joined matra export', () => {
   let c = phrase('Dha Te Re Ke');
   for (const index of [2, 3]) c = move(c, index, 'matra', 'left');
   c = move(c, 2, 'subMatra', 'left');
   assert.deepEqual(addresses(c.bols), ['1:1:1:1', '1:2:1:1', '1:2:1:2', '1:2:2:1']);
-  assert.match(exportBasic(c), /\| Dha \| Te\/Re, Ke \|/);
+  assert.match(exportBasic(c), /\| Dha \| TeReKe \|/);
   const hidden = { ...c, ui: { showSubSubMatra: false } };
   assert.equal(exportBasic(hidden), exportBasic(c));
   assert.deepEqual(addresses(sanitizeComposition(hidden).bols), addresses(c.bols));

@@ -80,10 +80,6 @@ export function renderNotation(container, composition, selection, debug = false,
         matra = element('div', 'matra');
         matra.setAttribute('aria-label', `Matra ${bol.position.matra}`);
         matras.append(matra);
-      } else if (bol.position.subMatra === previous.position.subMatra && bol.position.subSubMatra !== previous.position.subSubMatra) {
-        const separator = element('span', 'subsub-separator', '/');
-        separator.setAttribute('aria-hidden', 'true');
-        matra.append(separator);
       }
       matra.append(bolButton(bol, selection, debug, editingId));
       previous = bol;

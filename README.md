@@ -35,7 +35,7 @@ The rhythm module derives one boundary depth before each bol. It edits these bou
 - A matra merge introduces a new subMatra at the old boundary; a subMatra merge introduces a subSubMatra. A subSubMatra merge puts adjacent tokens in the same leaf. Variable subdivision counts are supported.
 - Edits of a child level never change positions outside its parent scope. Vibhag edits can renumber subsequent vibhags.
 
-For example, enter `Dha Te Re Ke Te` in a five-matra vibhag. Select `Re`, `Ke`, then the last `Te`, using **matra ←** each time. The result is `| Dha | Te, Re, Ke, Te |`. Select `Re` and use **subMatra ←** for `| Dha | Te/Re, Ke, Te |`.
+For example, enter `Dha Te Re Ke Te` in a five-matra vibhag. Select `Re`, `Ke`, then the last `Te`, using **matra ←** each time. The written result is `| Dha | TeReKeTe |`. All bols within a matra are joined without spaces, commas or slashes on screen and in Basic export. SubMatra and subSubMatra divisions remain editable and are preserved in shared links. Each bol remains individually selectable. Complete export also joins the bols, with execution annotations attached to their individual bol.
 
 Each keyboard entry advances one matra within the current vibhag, even beyond its configured length. Only **next vibhag** makes the next entry start a new vibhag; repeated presses before entry have the same effect as one press. A target of 4 remains 4 when entering 5, 6 or more matras, and its circle turns red on overflow. The structure repeats for additional vibhags; their addresses continue upward. Committing a different structure preserves the transcribed grouping and sequence, so it can be corrected deliberately. Empty slots are visual guides and are not exported as invented rests.
 
