@@ -24,7 +24,8 @@ function bolButton(bol, selection, debug, editingId) {
   button.setAttribute('aria-pressed', String(selected));
   const labels = tagLabels(bol.tags);
   button.setAttribute('aria-label', `${bol.text}, bol ${bol.order}, ${LEVELS.map(level => `${level} ${bol.position[level]}`).join(', ')}${labels.length ? `, ${labels.join(', ')}` : ''}${primary ? ', primary selection' : ''}`);
-  button.title = labels.join(' · ') || `${bol.text} — select to annotate`;
+  button.title = labels.join(' · ') || (bol.text === '—' ? 'Pause — select to edit its rhythm' : `${bol.text} — select to annotate`);
+  if (bol.text === '—') button.setAttribute('aria-label', `Pause, bol ${bol.order}, ${LEVELS.map(level => `${level} ${bol.position[level]}`).join(', ')}`);
   if (editing) button.setAttribute('aria-label', `Replace ${bol.text}, bol ${bol.order}: choose a new bol on the keyboard`);
   const text = element('span', 'notation-text', editing ? '\u00a0' : bol.text);
   text.style.color = bolColor(bol);

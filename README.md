@@ -141,3 +141,7 @@ At the bottom, **Start clapping** arms the **Clap** button and becomes **Stop cl
 The SVG shows the complete configured tala, split into equal matras and its actual vibhag pattern: thin matra lines, thick vibhag boundaries, red hit dots, and an open circle for the closing sam. Positions are proportional to measured elapsed time, without quantization or automatic bol matching. Very close hits use different vertical lanes while keeping their exact horizontal timing. Long tala grids can scroll horizontally. Labels and point tooltips provide the duration and individual timings.
 
 The structure is captured at Start clapping; later notation changes do not reinterpret that recording. Starting again replaces the previous capture. This separate practice panel neither edits the composition nor adds claps to its shared link or saved document. Reloading clears the capture; Clear All also resets it. Pointer presses are timed on pointerdown, with Space/Enter and assistive activation also supported. This records button presses, not microphone audio. Browser/input latency can affect measured timing.
+
+## Pause
+
+The **—** button between the finger controls inserts an explicit pause at the entry cursor. It is stored as an independent bol with text `—`, so existing rhythm arrows, selection, replacement, deletion, undo, local saving and share links work without a separate schema. A pause starts in a new matra and can be joined into a smaller subdivision (for example `Dha—`). Both text exports preserve the dash. This differs from an empty, not-yet-filled matra.

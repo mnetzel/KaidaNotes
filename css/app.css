@@ -235,3 +235,5 @@ button.empty-matra { background: transparent; border-radius: 0; min-height: 68px
 .clapping .clap-legend { font-size: 19px; color: #65556e; }
 @media (min-width: 601px) and (max-width: 839px) { .clap-plot { min-width: calc(var(--clap-plot-width, 760px) * .75); } }
 @media print { .clapping-controls, #clap-status { display: none; } }
+
+.pause-key { position: absolute; left: calc(50% - 55px); bottom: 5%; width: 110px; min-height: 64px; padding: 0 8px; background: white; font-size: 48px; line-height: 1; border-radius: 12px; }
