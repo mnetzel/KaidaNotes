@@ -214,3 +214,24 @@ button.empty-matra { background: transparent; border-radius: 0; min-height: 68px
 @media print { .selection-actions { display: none; } .entry-cursor { outline: none !important; } }
 
 @media (min-width: 601px) and (max-width: 760px) { .center-keys { gap: 4px; } .center-keys button { font-size: 34px; min-height: 36px; } }
+
+.clapping { margin: 0 30px; padding: 26px 0 34px; border-top: 2px solid #e8dceb; }
+.clapping h2 { margin: 0 0 12px; font-size: 30px; font-weight: 500; }
+.clapping p { font-size: 22px; line-height: 1.45; margin: 12px 0; }
+.clapping-controls { display: flex; gap: 18px; align-items: stretch; margin: 22px 0; }
+#start-clapping { min-width: 240px; padding: 16px 22px; font-size: 28px; }
+#clap { flex: 1; min-height: 150px; font-size: 48px; touch-action: manipulation; user-select: none; }
+#clap-status { min-height: 64px; color: #65556e; }
+#clap-summary { font-weight: 600; }
+#clap-plot-container { overflow-x: auto; }
+.clap-plot { display: block; width: 100%; min-width: var(--clap-plot-width, 760px); height: auto; }
+.clap-vibhag-label { font: 22px Arial, sans-serif; fill: #674279; }
+.clap-matra-label, .clap-sam-label { font: 20px Arial, sans-serif; fill: #66556d; }
+.clap-matra-line { stroke: #a2b8d6; stroke-width: 1; }
+.clap-vibhag-line { stroke: #75468c; stroke-width: 3; }
+.clap-baseline { stroke: #aca0b1; stroke-width: 1; }
+.clap-hit { fill: #be233c; }
+.clap-endpoint { stroke: #75468c; stroke-width: 3; fill: white; }
+.clapping .clap-legend { font-size: 19px; color: #65556e; }
+@media (min-width: 601px) and (max-width: 839px) { .clap-plot { min-width: calc(var(--clap-plot-width, 760px) * .75); } }
+@media print { .clapping-controls, #clap-status { display: none; } }

@@ -106,7 +106,7 @@ The app uses relative asset URLs and supports the `/KaidaNotes/` project path. T
 
 GitHub Pages is enabled with **GitHub Actions** as its source. The live application is <https://mnetzel.github.io/KaidaNotes/>. Push to `main` to validate and publish changes automatically. Alternatively, serve the repository root using GitHub Pages' branch publishing; `.nojekyll` is included.
 
-No compilation is required for deployment. `package.json` and Node.js are development conveniences only. No analytics, server communication, audio timing, playback, accounts, or synchronization are implemented in this MVP.
+No compilation is required for deployment. `package.json` and Node.js are development conveniences only. No analytics, microphone recording, audio playback, accounts, or live synchronization are implemented.
 
 ## Always load fresh
 
@@ -133,3 +133,11 @@ A red outline marks the empty matra where the next keyboard entry will go. By de
 Click an empty matra to place the cursor there for the next entry. The app preserves intentionally empty matras before it, including across saving and sharing; text export renders their empty columns. After inserting a bol or shortcut, the cursor returns to the global end. Grouped shortcuts occupy one matra; a multi-matra shortcut preserves order by shifting a following occupied matra only if necessary. **next vibhag** shows the destination in advance. **clear** initially places the cursor in the cleared row for refilling.
 
 **Delete Selected Bol**, below **select more**, deletes only the primary selected bol (also when multiple bols are selected) and is disabled when nothing is selected. Later matras retain their positions. Deleting the only bol in a matra leaves a clickable empty cell, including at the end of a row or outside the configured structure; these empty cells survive saving and shared links. A deleted bol within a multi-bol matra does not remove the other bols from that matra. Undo restores it. The existing backspace button remains available. The cursor itself is transient and is not part of the shared notation.
+
+## Clap a tala cycle
+
+At the bottom, **Start clapping** arms the **Clap** button and becomes **Stop clapping**. The first Clap starts a monotonic stopwatch. Tap each intended hit, including pauses, and finish with the next sam. Then press Stop clapping. The closing clap defines the duration but is excluded from the hit count; the first sam is included. Waiting before the first clap or after the last one does not affect the measured duration. At least two taps are needed.
+
+The SVG shows the complete configured tala, split into equal matras and its actual vibhag pattern: thin matra lines, thick vibhag boundaries, red hit dots, and an open circle for the closing sam. Positions are proportional to measured elapsed time, without quantization or automatic bol matching. Very close hits use different vertical lanes while keeping their exact horizontal timing. Long tala grids can scroll horizontally. Labels and point tooltips provide the duration and individual timings.
+
+The structure is captured at Start clapping; later notation changes do not reinterpret that recording. Starting again replaces the previous capture. This separate practice panel neither edits the composition nor adds claps to its shared link or saved document. Reloading clears the capture; Clear All also resets it. Pointer presses are timed on pointerdown, with Space/Enter and assistive activation also supported. This records button presses, not microphone audio. Browser/input latency can affect measured timing.

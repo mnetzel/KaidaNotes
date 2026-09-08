@@ -10,6 +10,7 @@ import { matchTala } from './talas.js';
 import { expandBolSequence } from './keyboard.js';
 import { createShareLink, readShareLink } from './share-link.js';
 import { endCursor, insertAtCursor } from './cursor.js';
+import { setupClapping } from './clapping.js';
 import { fitPortraitLayout } from './layout.js';
 
 const $ = selector => document.querySelector(selector);
@@ -34,6 +35,7 @@ function currentBol() {
     ?? store.composition.bols.filter(b => b.position.vibhag === currentVibhag()).at(-1);
 }
 fitPortraitLayout();
+const clapping = setupClapping(() => store.composition);
 
 function toast(message) {
   clearTimeout(toastTimeout);
@@ -134,6 +136,7 @@ $('#clear-dialog').addEventListener('close', () => {
   selection = createSelection(); interaction = createBolInteraction();
   $('#toast').hidden = true; clearTimeout(toastTimeout);
   $('#link-status').hidden = true;
+  clapping.reset();
   store.reset(createComposition());
   $('#notation').scrollLeft = 0;
   toast('New empty Kaida. App reset.');
