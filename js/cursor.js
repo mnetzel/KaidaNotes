@@ -16,5 +16,5 @@ export function insertAtCursor(composition, text, cursor) {
   const before = composition.bols.filter(b => b.position.vibhag < vibhag || (b.position.vibhag === vibhag && b.position.matra < matra));
   const after = composition.bols.filter(b => b.position.vibhag > vibhag || (b.position.vibhag === vibhag && b.position.matra > matra)).map(b => shift && b.position.vibhag === vibhag ? { ...b, position: { ...b.position, matra: b.position.matra + shift } } : b);
   const bols = [...before, ...added, ...after].map((b, i) => ({ ...b, order: i + 1 }));
-  return { ...composition, bols, ui: { ...composition.ui, entryVibhag: bols.at(-1).position.vibhag } };
+  return { ...composition, bols, ui: { ...composition.ui, entryVibhag: bols.at(-1).position.vibhag, ...(composition.ui.emptyMatras ? { emptyMatras: composition.ui.emptyMatras.filter(p => !bols.some(b => b.position.vibhag === p.vibhag && b.position.matra === p.matra)) } : {}) } };
 }

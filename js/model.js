@@ -38,9 +38,17 @@ export function clearVibhag(composition, vibhag) {
   return { ...composition, bols: composition.bols.filter(b => b.position.vibhag !== vibhag), ui: { ...composition.ui, entryVibhag: vibhag } };
 }
 
-export function deleteBol(composition, bolId) {
+export function deleteBol(composition, bolId, { preserveMatra = false } = {}) {
   const target = composition.bols.find(b => b.id === bolId);
   if (!target) return composition;
+  if (preserveMatra) {
+    const bols = normalizeRetainingVibhags(composition.bols.filter(b => b.id !== bolId));
+    const emptyMatras = [...(composition.ui.emptyMatras ?? [])];
+    const { vibhag, matra } = target.position;
+    if (!bols.some(b => b.position.vibhag === vibhag && b.position.matra === matra) &&
+        !emptyMatras.some(p => p.vibhag === vibhag && p.matra === matra)) emptyMatras.push({ vibhag, matra });
+    return { ...composition, bols, ui: { ...composition.ui, emptyMatras } };
+  }
   const row = normalizePositions(composition.bols.filter(b => b.position.vibhag === target.position.vibhag && b.id !== bolId));
   const byId = new Map(row.map(b => [b.id, { ...b, position: { ...b.position, vibhag: target.position.vibhag } }]));
   return { ...composition, bols: composition.bols.filter(b => b.id !== bolId).map(b => byId.get(b.id) ?? b), ui: { ...composition.ui, entryVibhag: target.position.vibhag } };
@@ -99,5 +107,6 @@ export function sanitizeComposition(raw) {
   return { schemaVersion: 2, id: typeof raw.id === 'string' ? raw.id : fresh.id,
     compositionType: COMPOSITION_TYPES.includes(raw.compositionType) ? raw.compositionType : 'kaida',
     vibhagStructure: structure, talaName: recognizeTala(structure), notes: typeof raw.notes === 'string' ? raw.notes : '',
-    bols: expandLegacyCompounds(normalizeRetainingVibhags(bols)), ui: { showSubSubMatra: raw.ui?.showSubSubMatra === true, ...(Number.isSafeInteger(raw.ui?.entryVibhag) && raw.ui.entryVibhag > 0 ? { entryVibhag: raw.ui.entryVibhag } : {}) } };
+    bols: expandLegacyCompounds(normalizeRetainingVibhags(bols)), ui: { showSubSubMatra: raw.ui?.showSubSubMatra === true,
+      ...(Array.isArray(raw.ui?.emptyMatras) ? { emptyMatras: raw.ui.emptyMatras.filter(p => p && Number.isSafeInteger(p.vibhag) && p.vibhag > 0 && p.vibhag <= 10000 && Number.isSafeInteger(p.matra) && p.matra > 0 && p.matra <= 10000).map(({vibhag, matra}) => ({vibhag, matra})) } : {}), ...(Number.isSafeInteger(raw.ui?.entryVibhag) && raw.ui.entryVibhag > 0 ? { entryVibhag: raw.ui.entryVibhag } : {}) } };
 }

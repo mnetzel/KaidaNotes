@@ -122,7 +122,7 @@ $('#delete-selected-bol').addEventListener('click', () => {
   if (!id) return;
   selection = createSelection(); interaction = createBolInteraction();
   entryCursor = null; nextVibhag = false;
-  store.update(composition => deleteBol(composition, id));
+  store.update(composition => deleteBol(composition, id, { preserveMatra: true }));
 });
 $('#clear-all').addEventListener('click', () => {
   $('#clear-dialog').returnValue = '';

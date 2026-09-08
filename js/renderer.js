@@ -56,7 +56,7 @@ export function renderNotation(container, composition, selection, debug = false,
     if (!rows.has(vibhag)) rows.set(vibhag, []);
     rows.get(vibhag).push(bol);
   }
-  const count = Math.max(composition.vibhagStructure.length, composition.bols.at(-1)?.position.vibhag ?? 1, cursor?.vibhag ?? 1);
+  const count = Math.max(composition.vibhagStructure.length, composition.bols.at(-1)?.position.vibhag ?? 1, cursor?.vibhag ?? 1, ...(composition.ui.emptyMatras ?? []).map(p => p.vibhag));
   for (let vibhag = 1; vibhag <= count; vibhag++) {
     const row = element('div', 'vibhag-row');
     row.setAttribute('aria-label', `Vibhag ${vibhag}`);
@@ -85,7 +85,7 @@ export function renderNotation(container, composition, selection, debug = false,
       matra.append(bolButton(bol, selection, debug, editingId));
       previous = bol;
     }
-    const visibleMatras = Math.max(expected ?? (actual || 1), actual, cursor?.vibhag === vibhag ? cursor.matra : 0);
+    const visibleMatras = Math.max(expected ?? (actual || 1), actual, cursor?.vibhag === vibhag ? cursor.matra : 0, ...(composition.ui.emptyMatras ?? []).filter(p => p.vibhag === vibhag).map(p => p.matra));
     for (let i = 1; i <= visibleMatras; i++) {
       const cell = cells.get(i) ?? element('button', 'matra empty-matra');
       if (!cells.has(i)) {
