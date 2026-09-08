@@ -27,7 +27,7 @@ export function renderClapPlot(container, result) {
     if (m < totalMatras) svg.append(svgNode('text', { x: x(m + .5), y: 224, 'text-anchor': 'middle', class: 'clap-matra-label' }, m + 1));
   }
   if (result.snap) {
-    for (let q = 1; q < totalMatras * 4; q++) if (q % 4) svg.append(svgNode('line', { x1: x(q / 4), x2: x(q / 4), y1: top, y2: 200, class: 'clap-quarter-line' }));
+    for (let q = 1; q < totalMatras * 2; q++) if (q % 2) svg.append(svgNode('line', { x1: x(q / 2), x2: x(q / 2), y1: top, y2: 200, class: 'clap-half-line' }));
   }
   offset = 0;
   for (const length of [...structure, 0]) {
@@ -73,7 +73,7 @@ export function setupClapping(getComposition, updateComposition) {
     if (!capture) { resultPanel.hidden = true; document.querySelector('#clap-plot-container').replaceChildren(); return; }
     const result = clapDisplay(capture);
     renderClapPlot(document.querySelector('#clap-plot-container'), result);
-    document.querySelector('#clap-summary').textContent = `${capture.name} · ${capture.structure.join('–')} · ${result.totalMatras} matras · ${result.hits.length} claps · ${(result.duration / 1000).toFixed(2)} s · ${capture.snap ? 'Snap ¼ matra' : 'Original timing'}`;
+    document.querySelector('#clap-summary').textContent = `${capture.name} · ${capture.structure.join('–')} · ${result.totalMatras} matras · ${result.hits.length} claps · ${(result.duration / 1000).toFixed(2)} s · ${capture.snap ? 'Snap ½ matra' : 'Original timing'}`;
     snapButton.setAttribute('aria-pressed', String(capture.snap));
     resultPanel.hidden = false;
     status.textContent = 'Final clap = next sam (end only). This recording is included in your Kaida link.';

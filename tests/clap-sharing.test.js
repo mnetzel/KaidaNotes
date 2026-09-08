@@ -4,9 +4,9 @@ import {clapDisplay,validateClapCapture} from '../js/clap-data.js';
 import {createComposition,sanitizeComposition} from '../js/model.js';
 import {createShareLink,readShareLink} from '../js/share-link.js';
 const capture=()=>({timestamps:[0,61,64,124,126,499,999,1000],structure:[2],name:'Custom',snap:false});
-test('quarter snapping rounds both ways without changing raw times or merging hits',()=>{
+test('half snapping rounds both ways without changing raw times or merging hits',()=>{
  const c=capture();const original=structuredClone(c);const raw=clapDisplay(c);const snapped=clapDisplay({...c,snap:true});
- assert.deepEqual(snapped.hits.map(h=>h.matra),[0,0,.25,.25,.25,1,2]);
+ assert.deepEqual(snapped.hits.map(h=>h.matra),[0,0,0,0,.5,1,2]);
  assert.equal(snapped.hits.length,7);assert.equal(snapped.duration,1000);assert.deepEqual(c,original);assert.deepEqual(clapDisplay({...c,snap:false}),raw);
 });
 test('full share/restore retains raw clap times, captured structure and snap toggle',async()=>{

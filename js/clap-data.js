@@ -23,6 +23,6 @@ export function validateClapCapture(raw) {
 export function clapDisplay(capture) {
   const result = analyzeClaps(capture.timestamps, capture.structure);
   return { ...result, snap: capture.snap, hits: result.hits.map(hit => ({ ...hit,
-    matra: capture.snap ? Math.round(hit.matra * 4) / 4 : hit.matra,
+    matra: capture.snap ? Math.round(hit.matra * 2) / 2 : hit.matra,
   })) };
 }
