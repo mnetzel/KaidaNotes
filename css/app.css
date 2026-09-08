@@ -193,3 +193,8 @@ dialog p { font-size: 16px; line-height: 1.5; color: #706276; }
   .notation { overflow: visible; }
   .notation-bol.selected { background: transparent; outline: none; }
 }
+
+/* Four entry actions fit in the same upper-right strip at every scale. */
+.entry-actions { gap: 7px; }
+.entry-actions button { font-size: 27px; padding: 7px 10px; }
+@media (max-width: 600px) { .entry-actions button { font-size: 27px; } }

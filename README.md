@@ -19,10 +19,10 @@ Open <http://localhost:4173/KaidaNotes/>. Any static HTTP server also works. Ser
 3. Tap bols on the drum keyboard. Compound buttons are shortcuts for sequential individual taps: **GheGhe** enters `Ghe Ghe`, **TeTe** enters `Te Te`, **TeReKeTe** enters `Te Re Ke Te`, and **TaKe** enters `Ta Ke`. Each resulting bol has its own permanent ID and order and can be selected, grouped, and tagged independently. A shortcut is one undo step. Reverse buttons retain the same recited syllables; they do not guess an unspecified fingering. **next vibhag** applies to the first bol of the shortcut, with normal entry continuing for the remaining bols.
 4. Tap a rendered bol once to select it, twice to select every identical bol in the composition, and a third time to open a blank replacement slot at the tapped position. Choose a single bol on the keyboard to replace it; compound shortcuts are disabled during replacement. The replacement retains its ID, rhythm, tags and note, and supports undo. **cancel replacement**, Escape, or selecting another bol leaves the original intact. Consecutive taps have no time limit; using another control restarts the count. Yellow marks selection; the underline identifies the primary anchor. **select more** toggles manual multiple selection; the last selected bol anchors rhythm edits. Selecting all matches keeps the tapped bol as anchor.
 5. Use the rhythm arrows, drum zones, finger buttons, bayan arrows, and **open / close**. Tags apply to all selected bols. Clicking a tag active on the whole selection removes it. Applying a different choice replaces that group's value. Mixed selections are exposed as `aria-pressed="mixed"`.
-6. Add extra notes. Edits exist only in the current page's memory. Reloading starts a new, empty composition; copy/share anything you want to keep before reloading.
+6. Add extra notes. Edits are saved on this device and restored after reload. Switching apps or tabs keeps the active editor intact.
 7. **basic** or **complete** copies text and opens a readable preview with an optional WhatsApp link. Complete includes performance annotations. Both include composition notes. No message is sent automatically.
 
-**Undo / redo:** buttons or Ctrl/Cmd+Z and Ctrl/Cmd+Shift+Z. History is held in memory (last 100 edits); nearby note keystrokes form one undo step. Clearing notation requires confirmation and is undoable. It retains the structure, composition type, and notes.
+**Undo / redo:** buttons or Ctrl/Cmd+Z and Ctrl/Cmd+Shift+Z. History is held in memory (last 100 edits); nearby note keystrokes form one undo step. **clear** removes only the selected bol's vibhag (or current entry vibhag when nothing is selected), retaining all other rows, structure and notes; it is undoable. Entry resumes in that emptied row. **⌫** removes just the primary selected bol, or the last bol in the current row, and is undoable. **clear all** asks for confirmation, then resets bols, tags, notes, composition type, structure, selection, drafts and undo/redo history. The empty composition replaces the saved document.
 
 ## Rhythm semantics
 
@@ -53,12 +53,12 @@ Hide **subSubMatra** with × and restore with **+ subSubMatra**. Hiding controls
 | `js/tags.js` | Central extensible definitions, exclusivity, human-readable labels |
 | `js/state.js` | Controlled updates and undo/redo |
 | `js/renderer.js` | DOM creation, notation groups, inspector and tag state |
-| `js/persistence.js` | Start a fresh composition and retire old autosave keys |
+| `js/persistence.js` | Restore and save the current composition locally |
 | `js/export.js` | Pure notation export and progressive clipboard helper |
 | `js/layout.js` | Proportional portrait layout sizing |
 | `js/app.js` | UI event orchestration |
 
-The user's request to reset on reload supersedes the original brief's autosave requirement. The editor no longer restores or writes compositions to localStorage or sessionStorage. Each startup removes only the former app keys `kaidanotes.composition.v1` and `kaidanotes.composition.v1.before-v2`, then creates an empty Kaida with the default Tintal structure. Other applications' storage is untouched. Bols, tags, notes, custom structure, selection, drafts, and undo history all reset on reload. Editing, undo/redo, and Basic/Complete export work normally within the active page, including when browser storage is unavailable. The schema validation/conversion helpers remain independently available but are not used to restore old browser data.
+The latest user request restores local autosave. `js/persistence.js` saves edits to this app's localStorage key and validates saved compositions on startup. Empty vibhags retain their row numbers. Other applications' storage is untouched. If storage is blocked, editing remains available in memory and the status indicates that copying is needed to keep work. Undo history and selection remain transient.
 
 The user's clarified execution mapping supersedes the original brief's neutral color labels:
 
@@ -95,7 +95,7 @@ npm test
 npm run check
 ```
 
-Tests use the built-in Node test runner. They cover the brief's cases A–E, randomized boundary edits, local scope, sequence identity, arbitrary structures, compound entry, invalid moves, selection, tag exclusivity, export, fresh-session startup, scoped cleanup of old data, schema recovery, and undo/redo.
+Tests use the built-in Node test runner. They cover the brief's cases A–E, randomized boundary edits, local scope, sequence identity, arbitrary structures, compound entry, invalid moves, selection, tag exclusivity, export, local restoration, scoped deletion, full reset, schema recovery, and undo/redo.
 
 Append `?debug=1` to show bol addresses. In this mode only, `kaidaDebug.snapshot()` returns a copy of the current composition and `kaidaDebug.exportJSON()` returns formatted JSON. Debug APIs cannot mutate editor state.
 
@@ -111,6 +111,6 @@ No compilation is required for deployment. `package.json` and Node.js are develo
 
 GitHub Pages supplies its own HTTP caching headers (observed `max-age=600`). A scoped, **network-only** service worker in `sw.js` bypasses those cached copies for the HTML document, all JavaScript modules, CSS, the drum image, and favicon. It uses a unique request URL and `fetch(..., { cache: 'no-store' })`, and returns `Cache-Control: no-store`. It never uses Cache Storage or an offline fallback. The worker's own update check uses `updateViaCache: 'none'`.
 
-On first activation, the entire document is replaced once before the editor starts. Every subsequent visit/reload fetches fresh resources. Returning from another phone app/tab, or restoring a page from back/forward history, also replaces the entire page with a unique URL. There is no timed reload while actively editing. Every such reload now starts an empty composition, including automatic reloads on returning to the tab. Copy notation before leaving/reloading if you want to keep it. An Internet connection is required when opening or returning to the editor. A failed fresh load offers retry instead of silently using an old application.
+On first activation, the document is replaced once before the editor starts. Subsequent explicit visits/reloads fetch fresh resources and restore the saved composition. Returning from another app/tab or back/forward history does not reload the page. Worker updates do not interrupt an active editor. There is no timed reload. An Internet connection is needed for a fresh navigation, but switching back to the existing editor does not trigger network loading.
 
 This requires HTTPS (or localhost) and service worker support in the browser. A browser still displaying a version from **before** this mechanism was installed needs one initial visit using a new query URL, e.g. `?update=always-fresh`; afterwards the mechanism handles reloads automatically. It does not clear other sites' storage or change GitHub's CDN configuration. Implementation references: [MDN request cache](https://developer.mozilla.org/en-US/docs/Web/API/Request/cache), [service worker registration and updateViaCache](https://developer.mozilla.org/en-US/docs/Web/API/ServiceWorkerContainer/register).

@@ -151,24 +151,6 @@ test('complete export uses human-readable tags; basic excludes tags and both inc
   }
 });
 
-test('each page starts empty, removes only old app data and never reads or writes a saved document', () => {
-  const map = new Map([[STORAGE_KEY, JSON.stringify(phrase('Dha Dha Ti Ti'))], [LEGACY_BACKUP_KEY, '{broken'], ['another-app', 'keep']]);
-  const storage = {
-    removeItem: key => map.delete(key),
-    getItem() { throw new Error('must not restore data'); },
-    setItem() { throw new Error('must not persist data'); },
-  };
-  const first = startComposition(storage);
-  assert.equal(first.bols.length, 0);
-  assert.equal(first.notes, '');
-  assert.equal(first.compositionType, 'kaida');
-  assert.deepEqual([...map.entries()], [['another-app', 'keep']]);
-  const second = startComposition(storage);
-  assert.notEqual(second.id, first.id);
-  assert.notEqual(second.bols, first.bols);
-  assert.equal(second.bols.length, 0);
-});
-
 test('schema defaults recover duplicate IDs, bad addresses and missing tags safely', () => {
   const c = sanitizeComposition({ bols: [{ text: 'Dha', id: 'same', position: { matra: -1 } }, { text: 'Ti', id: 'same', order: 1 }, null], vibhagStructure: [4, -3, '4'] });
   assert.equal(c.bols.length, 2);

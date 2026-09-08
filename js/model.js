@@ -22,6 +22,33 @@ function appendSingleBol(composition, text, forceVibhag) {
   return { ...composition, bols: [...composition.bols, bol] };
 }
 
+// Keep empty vibhags and surrounding rows in place when deleting/refilling.
+export function appendToVibhag(composition, text, vibhag) {
+  const row = composition.bols.filter(b => b.position.vibhag === vibhag);
+  const appended = appendBol({ ...composition, bols: row }, text).bols.map(b => ({ ...b, position: { ...b.position, vibhag } }));
+  const bols = [...composition.bols.filter(b => b.position.vibhag < vibhag), ...appended, ...composition.bols.filter(b => b.position.vibhag > vibhag)];
+  return { ...composition, bols: bols.map((b, i) => ({ ...b, order: i + 1 })), ui: { ...composition.ui, entryVibhag: vibhag } };
+}
+
+export function clearVibhag(composition, vibhag) {
+  return { ...composition, bols: composition.bols.filter(b => b.position.vibhag !== vibhag), ui: { ...composition.ui, entryVibhag: vibhag } };
+}
+
+export function deleteBol(composition, bolId) {
+  const target = composition.bols.find(b => b.id === bolId);
+  if (!target) return composition;
+  const row = normalizePositions(composition.bols.filter(b => b.position.vibhag === target.position.vibhag && b.id !== bolId));
+  const byId = new Map(row.map(b => [b.id, { ...b, position: { ...b.position, vibhag: target.position.vibhag } }]));
+  return { ...composition, bols: composition.bols.filter(b => b.id !== bolId).map(b => byId.get(b.id) ?? b), ui: { ...composition.ui, entryVibhag: target.position.vibhag } };
+}
+
+function normalizeRetainingVibhags(bols) {
+  const normalized = normalizePositions(bols);
+  // Preserve valid nondecreasing row numbers, including intentionally empty rows.
+  if (bols.some((b, i) => i && b.position.vibhag < bols[i - 1].position.vibhag)) return normalized;
+  return normalized.map((b, i) => ({ ...b, position: { ...b.position, vibhag: bols[i].position.vibhag } }));
+}
+
 export function replaceBol(composition, selectedBolId, text) {
   // Correction changes just one recited syllable, never its identity or address.
   if (expandBolSequence(text).length !== 1 || !text.trim()) return composition;
@@ -67,5 +94,5 @@ export function sanitizeComposition(raw) {
   return { schemaVersion: 2, id: typeof raw.id === 'string' ? raw.id : fresh.id,
     compositionType: COMPOSITION_TYPES.includes(raw.compositionType) ? raw.compositionType : 'kaida',
     vibhagStructure: structure, talaName: recognizeTala(structure), notes: typeof raw.notes === 'string' ? raw.notes : '',
-    bols: expandLegacyCompounds(normalizePositions(bols)), ui: { showSubSubMatra: raw.ui?.showSubSubMatra !== false } };
+    bols: expandLegacyCompounds(normalizeRetainingVibhags(bols)), ui: { showSubSubMatra: raw.ui?.showSubSubMatra !== false, ...(Number.isSafeInteger(raw.ui?.entryVibhag) && raw.ui.entryVibhag > 0 ? { entryVibhag: raw.ui.entryVibhag } : {}) } };
 }

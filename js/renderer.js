@@ -54,7 +54,7 @@ export function renderNotation(container, composition, selection, debug = false,
     if (!rows.has(vibhag)) rows.set(vibhag, []);
     rows.get(vibhag).push(bol);
   }
-  const count = Math.max(composition.vibhagStructure.length, composition.bols.at(-1)?.position.vibhag ?? 1);
+  const count = Math.max(composition.vibhagStructure.length, composition.bols.at(-1)?.position.vibhag ?? 1, composition.ui.entryVibhag ?? 1);
   for (let vibhag = 1; vibhag <= count; vibhag++) {
     const row = element('div', 'vibhag-row');
     row.setAttribute('aria-label', `Vibhag ${vibhag}`);

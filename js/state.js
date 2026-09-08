@@ -21,6 +21,9 @@ export function createStore(initial, onSave = () => {}) {
       }
       composition = next; future = []; previousKey = coalesceKey; previousTime = now; emit(); return true;
     },
+    reset(next) {
+      composition = next; past = []; future = []; previousKey = null; previousTime = 0; emit();
+    },
     undo() {
       if (!past.length) return;
       future.push(composition); composition = past.pop(); previousKey = null; emit();

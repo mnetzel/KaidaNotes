@@ -1,8 +1,8 @@
-import { appendBol, replaceBol, recognizeTala } from './model.js';
+import { createComposition, appendToVibhag, clearVibhag, deleteBol, replaceBol, recognizeTala } from './model.js';
 import { moveSelectedAtLevel } from './rhythm.js';
 import { createSelection, createBolInteraction, clickNotationBol, setMultiSelect, getPrimarySelection } from './selection.js';
 import { applyTagToSelection } from './tags.js';
-import { startComposition } from './persistence.js';
+import { startComposition, saveComposition } from './persistence.js';
 import { createStore } from './state.js';
 import { renderNotation, renderInspector } from './renderer.js';
 import { exportBasic, exportComplete, shareText } from './export.js';
@@ -17,7 +17,17 @@ let structureDraft = null;
 let nextVibhag = false;
 let toastTimeout;
 const debug = new URLSearchParams(location.search).get('debug') === '1';
-const store = createStore(startComposition());
+const store = createStore(startComposition(), composition => {
+  $('#session-status').textContent = saveComposition(composition) ? 'Saved on this device' : 'Storage unavailable — copy to keep';
+});
+function currentVibhag() {
+  return store.composition.bols.find(b => b.id === getPrimarySelection(selection))?.position.vibhag
+    ?? store.composition.ui.entryVibhag ?? store.composition.bols.at(-1)?.position.vibhag ?? 1;
+}
+function currentBol() {
+  return store.composition.bols.find(b => b.id === getPrimarySelection(selection))
+    ?? store.composition.bols.filter(b => b.position.vibhag === currentVibhag()).at(-1);
+}
 fitPortraitLayout();
 
 function toast(message) {
@@ -42,10 +52,11 @@ function render() {
   $('#select-more').setAttribute('aria-pressed', String(selection.multi));
   $('#select-more').textContent = selection.multi ? '✓ select more' : 'select more';
   $('#next-vibhag').setAttribute('aria-pressed', String(nextVibhag));
-  $('#entry-status').textContent = nextVibhag ? 'Next bol starts a new vibhag' : composition.bols.length ? `${composition.bols.length} bols · V${composition.bols.at(-1).position.vibhag}` : 'Tap a bol to begin';
+  $('#entry-status').textContent = nextVibhag ? 'Next bol starts a new vibhag' : composition.bols.length ? `${composition.bols.length} bols · V${currentVibhag()}` : 'Tap a bol to begin';
   $('#undo').disabled = !store.canUndo;
   $('#redo').disabled = !store.canRedo;
-  $('#clear-bols').disabled = !composition.bols.length;
+  $('#clear-bols').disabled = !composition.bols.some(b => b.position.vibhag === currentVibhag());
+  $('#backspace-bol').disabled = !currentBol();
   if ($('#extra-notes').value !== composition.notes) $('#extra-notes').value = composition.notes;
   renderNotation($('#notation'), composition, selection, debug, interaction.editingId);
   renderInspector(composition, selection, interaction.editingId);
@@ -68,25 +79,41 @@ document.querySelectorAll('[data-bol]').forEach(button => button.addEventListene
     render();
     return;
   }
-  const composition = appendBol(store.composition, button.dataset.bol, nextVibhag);
+  const vibhag = (store.composition.ui.entryVibhag ?? store.composition.bols.at(-1)?.position.vibhag ?? 1) + (nextVibhag && store.composition.bols.length ? 1 : 0);
+  const composition = appendToVibhag(store.composition, button.dataset.bol, vibhag);
   interaction = createBolInteraction();
-  selection = { ...selection, ids: [composition.bols.at(-1).id] };
+  selection = { ...selection, ids: [composition.bols.filter(b => b.position.vibhag === vibhag).at(-1).id] };
   nextVibhag = false;
   store.update(() => composition);
 }));
 
 $('#next-vibhag').addEventListener('click', () => { interaction = createBolInteraction(); nextVibhag = true; render(); });
 $('#clear-bols').addEventListener('click', () => {
+  const vibhag = currentVibhag();
+  selection = createSelection(); interaction = createBolInteraction(); nextVibhag = false;
+  store.update(composition => clearVibhag(composition, vibhag));
+  toast(`Vibhag ${vibhag} cleared. Undo is available.`);
+});
+$('#backspace-bol').addEventListener('click', () => {
+  const target = currentBol();
+  if (!target) return;
+  const previous = store.composition.bols.filter(b => b.position.vibhag === target.position.vibhag && b.order < target.order).at(-1);
+  selection = { ...selection, ids: previous ? [previous.id] : [] };
+  interaction = createBolInteraction(); nextVibhag = false;
+  store.update(composition => deleteBol(composition, target.id));
+});
+$('#clear-all').addEventListener('click', () => {
   $('#clear-dialog').returnValue = '';
   $('#clear-dialog').showModal();
 });
 $('#clear-dialog').addEventListener('close', () => {
   if ($('#clear-dialog').returnValue !== 'clear') return;
-  nextVibhag = false;
-  selection = createSelection();
-  interaction = createBolInteraction();
-  store.update(composition => ({ ...composition, bols: [] }));
-  toast('Bols cleared. Undo is available.');
+  nextVibhag = false; structureDraft = null;
+  selection = createSelection(); interaction = createBolInteraction();
+  $('#toast').hidden = true; clearTimeout(toastTimeout);
+  store.reset(createComposition());
+  $('#notation').scrollLeft = 0;
+  toast('New empty Kaida. App reset.');
 });
 
 document.querySelectorAll('[data-length]').forEach(button => button.addEventListener('click', () => {

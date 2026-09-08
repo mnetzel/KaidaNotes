@@ -47,8 +47,10 @@
 
     <section class="keyboard" aria-label="Bol keyboard and execution tags">
       <div class="entry-actions">
+        <button type="button" id="backspace-bol" class="purple" aria-label="Delete current bol">⌫</button>
         <button type="button" id="next-vibhag" class="purple" aria-pressed="false">next vibhag</button>
         <button type="button" id="clear-bols" class="purple">clear</button>
+        <button type="button" id="clear-all" class="purple">clear all</button>
       </div>
       <div class="open-close" aria-label="Open or close execution">
         <button type="button" class="purple" data-tag-group="openClose" data-tag="open">open</button>
@@ -132,7 +134,7 @@
         <button type="button" id="redo" aria-label="Redo" title="Redo (Ctrl / Cmd + Shift + Z)">↷ <span>redo</span></button>
       </div>
       <span id="entry-status" role="status">Tap a bol to begin</span>
-      <span id="session-status">Clears on reload</span>
+      <span id="session-status">Saved on this device</span>
     </div>
 
     <section id="notation" class="notation" aria-label="Composition notation"></section>
@@ -155,13 +157,13 @@
         <button type="button" data-share="complete" aria-label="Share complete notation"><svg viewBox="0 0 32 32" aria-hidden="true"><use href="#whatsapp-mark"/></svg><span>complete</span></button>
       </div>
     </section>
-    <footer>KaidaNotes <span>•</span> Copy your notation before reloading.</footer>
+    <footer>KaidaNotes <span>•</span> Your notation stays on this device.</footer>
     <noscript>KaidaNotes needs JavaScript enabled to edit notation.</noscript>
   </main>
   <dialog id="clear-dialog" aria-labelledby="clear-title">
-    <h2 id="clear-title">Clear the bol sequence?</h2>
-    <p>The bols and their execution tags will be removed. Your rhythm structure and extra notes will stay. You can undo this.</p>
-    <form method="dialog" class="dialog-actions"><button value="cancel" autofocus>keep notation</button><button value="clear" class="purple">clear bols</button></form>
+    <h2 id="clear-title">Reset the entire app?</h2>
+    <p>Clear all bols, tags, notes, structure settings and undo history. This starts a new, empty Kaida.</p>
+    <form method="dialog" class="dialog-actions"><button value="cancel" autofocus>keep notation</button><button value="clear" class="purple">clear all</button></form>
   </dialog>
   <dialog id="share-dialog" aria-labelledby="share-title">
     <h2 id="share-title">Basic notation</h2>
