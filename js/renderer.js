@@ -14,17 +14,19 @@ export function bolColor(bol) {
   return color ? `var(--${color}${color === 'purple' ? '-strong' : ''})` : '';
 }
 
-function bolButton(bol, selection, debug) {
+function bolButton(bol, selection, debug, editingId) {
+  const editing = bol.id === editingId;
   const selected = selection.ids.includes(bol.id);
   const primary = getPrimarySelection(selection) === bol.id;
-  const button = element('button', `notation-bol${selected ? ' selected' : ''}${primary ? ' primary' : ''}${bol.text.length > 5 ? ' compound' : ''}`);
+  const button = element('button', `notation-bol${selected ? ' selected' : ''}${primary ? ' primary' : ''}${editing ? ' editing' : ''}${bol.text.length > 5 ? ' compound' : ''}`);
   button.type = 'button';
   button.dataset.bolId = bol.id;
   button.setAttribute('aria-pressed', String(selected));
   const labels = tagLabels(bol.tags);
   button.setAttribute('aria-label', `${bol.text}, bol ${bol.order}, ${LEVELS.map(level => `${level} ${bol.position[level]}`).join(', ')}${labels.length ? `, ${labels.join(', ')}` : ''}${primary ? ', primary selection' : ''}`);
   button.title = labels.join(' · ') || `${bol.text} — select to annotate`;
-  const text = element('span', 'notation-text', bol.text);
+  if (editing) button.setAttribute('aria-label', `Replace ${bol.text}, bol ${bol.order}: choose a new bol on the keyboard`);
+  const text = element('span', 'notation-text', editing ? '\u00a0' : bol.text);
   text.style.color = bolColor(bol);
   button.append(text);
   const markers = element('span', 'tag-markers');
@@ -36,12 +38,12 @@ function bolButton(bol, selection, debug) {
   if (bol.tags.bayanDirection) markers.append(element('span', 'execution', bol.tags.bayanDirection === 'up' ? '↑' : '↓'));
   if (bol.tags.openClose) markers.append(element('span', 'execution', bol.tags.openClose === 'open' ? '○' : '×'));
   if (bol.tags.extra.length) markers.append(element('span', 'execution', '+'));
-  if (markers.childNodes.length) button.append(markers);
+  if (!editing && markers.childNodes.length) button.append(markers);
   if (debug) button.append(element('small', 'address-debug', LEVELS.map(level => bol.position[level]).join(':')));
   return button;
 }
 
-export function renderNotation(container, composition, selection, debug = false) {
+export function renderNotation(container, composition, selection, debug = false, editingId = null) {
   const focused = document.activeElement?.dataset.bolId;
   const fragment = document.createDocumentFragment();
   if (!composition.bols.length) fragment.append(element('p', 'notation-empty', 'Tap the drum keyboard to start your composition.'));
@@ -62,7 +64,11 @@ export function renderNotation(container, composition, selection, debug = false)
     const label = element('div', 'vibhag-label');
     label.append(element('span', 'count', expected ?? (actual || '–')));
     label.title = `Vibhag ${vibhag}${expected ? ` · ${expected} matras in structure` : ''}`;
-    if (expected && actual > expected) label.append(element('small', '', `${actual} entered`));
+    if (expected && actual > expected) {
+      label.classList.add('overfull');
+      label.setAttribute('aria-label', `Vibhag ${vibhag}: ${actual} matras entered, target ${expected} exceeded`);
+      label.title += ` · ${actual} entered — target exceeded`;
+    }
     row.append(label);
     const matras = element('div', 'matras');
     let matra = null;
@@ -77,7 +83,7 @@ export function renderNotation(container, composition, selection, debug = false)
         separator.setAttribute('aria-hidden', 'true');
         matra.append(separator);
       }
-      matra.append(bolButton(bol, selection, debug));
+      matra.append(bolButton(bol, selection, debug, editingId));
       previous = bol;
     }
     for (let i = actual; i < (expected ?? (actual || 1)); i++) {
@@ -92,11 +98,12 @@ export function renderNotation(container, composition, selection, debug = false)
   if (focused) [...container.querySelectorAll('[data-bol-id]')].find(node => node.dataset.bolId === focused)?.focus({ preventScroll: true });
 }
 
-export function renderInspector(composition, selection) {
+export function renderInspector(composition, selection, editingId = null) {
   const primaryId = getPrimarySelection(selection);
   const bol = composition.bols.find(value => value.id === primaryId);
   const preview = document.querySelector('#selected-bol');
-  preview.textContent = bol?.text ?? '—';
+  preview.textContent = editingId ? '\u00a0' : (bol?.text ?? '—');
+  preview.classList.toggle('editing', !!editingId);
   preview.classList.toggle('compound', (bol?.text.length ?? 0) > 5);
   preview.style.color = bol ? bolColor(bol) : '';
   document.querySelector('#selection-count').textContent = selection.ids.length > 1 ? `${selection.ids.length} selected · last is anchor` : '';
@@ -115,7 +122,7 @@ export function renderInspector(composition, selection) {
       button.dataset.direction = direction;
       button.setAttribute('aria-label', `${level} ${direction}`);
       button.title = direction === 'left' ? `Join the previous ${level} through this bol` : `Start a new ${level} at this bol`;
-      button.disabled = !bol || !canMoveBoundary(composition.bols, level, direction, primaryId);
+      button.disabled = !!editingId || !bol || !canMoveBoundary(composition.bols, level, direction, primaryId);
       group.append(button);
     }
     group.append(element('span', 'address-label', level === 'vibhag' ? 'vibhāg' : level));
@@ -131,13 +138,13 @@ export function renderInspector(composition, selection) {
   if (focusKey) container.querySelector(`[data-level="${focusKey.level}"][data-direction="${focusKey.direction}"]`)?.focus({ preventScroll: true });
   document.querySelector('#show-subsub').hidden = composition.ui.showSubSubMatra;
   const help = document.querySelector('#selection-help');
-  help.textContent = bol ? (tagLabels(bol.tags).join(' · ') || '← join the previous group · → start a group at this bol. Drum controls add execution tags.') : 'Select a bol below the drums to edit its rhythm and execution.';
+  help.textContent = editingId ? `Replace ${bol?.text}: tap one bol on the drum keyboard, or cancel.` : bol ? (tagLabels(bol.tags).join(' · ') || 'Tap again: select all matching bols. Third tap: replace this bol.') : 'Tap a bol: select it. Again: select all matching bols. Third tap: replace it.';
 
   const selected = composition.bols.filter(value => selection.ids.includes(value.id));
   document.querySelectorAll('[data-tag-group]').forEach(button => {
     const { tagGroup, tag } = button.dataset;
     const matches = selected.filter(value => value.tags[tagGroup] === tag).length;
-    button.disabled = !selected.length;
+    button.disabled = !!editingId || !selected.length;
     button.setAttribute('aria-pressed', matches && matches < selected.length ? 'mixed' : String(!!matches));
     button.title = `${tagDefinition(tagGroup, tag)?.label ?? tag}${selected.length ? ' — apply to selection' : ' — select a bol first'}`;
   });

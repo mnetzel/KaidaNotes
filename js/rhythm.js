@@ -110,11 +110,10 @@ export function vibhagLength(structure, vibhag) {
   return structure.length ? structure[(vibhag - 1) % structure.length] : null;
 }
 
-export function nextPosition(bols, structure, forceVibhag = false) {
+export function nextPosition(bols, _structure, forceVibhag = false) {
   if (!bols.length) return firstPosition();
   const last = bols.at(-1).position;
-  const length = vibhagLength(structure, last.vibhag);
-  if (forceVibhag || (length && last.matra >= length)) {
+  if (forceVibhag) {
     return { ...firstPosition(), vibhag: last.vibhag + 1 };
   }
   return { ...firstPosition(), vibhag: last.vibhag, matra: last.matra + 1 };

@@ -17,7 +17,7 @@ Open <http://localhost:4173/KaidaNotes/>. Any static HTTP server also works. Ser
 1. Choose Kaida, Palta, Rela, or Part Practice. An empty Tintal sheet is ready initially.
 2. Tap structure numbers to create a new draft, then **done**. `4 4 4 4` is recognized as Tintal. **clear** beside the numbers only clears the draft; **done** with an empty draft enables free-form entry.
 3. Tap bols on the drum keyboard. Compound buttons are shortcuts for sequential individual taps: **GheGhe** enters `Ghe Ghe`, **TeTe** enters `Te Te`, **TeReKeTe** enters `Te Re Ke Te`, and **TaKe** enters `Ta Ke`. Each resulting bol has its own permanent ID and order and can be selected, grouped, and tagged independently. A shortcut is one undo step. Reverse buttons retain the same recited syllables; they do not guess an unspecified fingering. **next vibhag** applies to the first bol of the shortcut, with normal entry continuing for the remaining bols.
-4. Select a rendered bol. Yellow marks selection; the underline identifies the primary anchor. **select more** toggles multiple selection; the most recently selected bol anchors rhythm edits.
+4. Tap a rendered bol once to select it, twice to select every identical bol in the composition, and a third time to open a blank replacement slot at the tapped position. Choose a single bol on the keyboard to replace it; compound shortcuts are disabled during replacement. The replacement retains its ID, rhythm, tags and note, and supports undo. **cancel replacement**, Escape, or selecting another bol leaves the original intact. Consecutive taps have no time limit; using another control restarts the count. Yellow marks selection; the underline identifies the primary anchor. **select more** toggles manual multiple selection; the last selected bol anchors rhythm edits. Selecting all matches keeps the tapped bol as anchor.
 5. Use the rhythm arrows, drum zones, finger buttons, bayan arrows, and **open / close**. Tags apply to all selected bols. Clicking a tag active on the whole selection removes it. Applying a different choice replaces that group's value. Mixed selections are exposed as `aria-pressed="mixed"`.
 6. Add extra notes. Edits exist only in the current page's memory. Reloading starts a new, empty composition; copy/share anything you want to keep before reloading.
 7. **basic** or **complete** copies text and opens a readable preview with an optional WhatsApp link. Complete includes performance annotations. Both include composition notes. No message is sent automatically.
@@ -37,7 +37,7 @@ The rhythm module derives one boundary depth before each bol. It edits these bou
 
 For example, enter `Dha Te Re Ke Te` in a five-matra vibhag. Select `Re`, `Ke`, then the last `Te`, using **matra ←** each time. The result is `| Dha | Te, Re, Ke, Te |`. Select `Re` and use **subMatra ←** for `| Dha | Te/Re, Ke, Te |`.
 
-The configured lengths guide automatic entry: the next bol advances one matra, wrapping to the next vibhag at the configured length. The structure repeats for additional cycles; vibhag addresses continue upward. In free form, use **next vibhag** explicitly. Manual grouping may temporarily contain more matras than the target structure, which is labeled `N entered` beside that row. Committing a different structure preserves the transcribed grouping and sequence, so it can be corrected deliberately. Empty slots are visual guides and are not exported as invented rests.
+Each keyboard entry advances one matra within the current vibhag, even beyond its configured length. Only **next vibhag** makes the next entry start a new vibhag; repeated presses before entry have the same effect as one press. A target of 4 remains 4 when entering 5, 6 or more matras, and its circle turns red on overflow. The structure repeats for additional vibhags; their addresses continue upward. Committing a different structure preserves the transcribed grouping and sequence, so it can be corrected deliberately. Empty slots are visual guides and are not exported as invented rests.
 
 Hide **subSubMatra** with × and restore with **+ subSubMatra**. Hiding controls never removes or changes rhythmic data.
 
@@ -55,6 +55,7 @@ Hide **subSubMatra** with × and restore with **+ subSubMatra**. Hiding controls
 | `js/renderer.js` | DOM creation, notation groups, inspector and tag state |
 | `js/persistence.js` | Start a fresh composition and retire old autosave keys |
 | `js/export.js` | Pure notation export and progressive clipboard helper |
+| `js/layout.js` | Proportional portrait layout sizing |
 | `js/app.js` | UI event orchestration |
 
 The user's request to reset on reload supersedes the original brief's autosave requirement. The editor no longer restores or writes compositions to localStorage or sessionStorage. Each startup removes only the former app keys `kaidanotes.composition.v1` and `kaidanotes.composition.v1.before-v2`, then creates an empty Kaida with the default Tintal structure. Other applications' storage is untouched. Bols, tags, notes, custom structure, selection, drafts, and undo history all reset on reload. Editing, undo/redo, and Basic/Complete export work normally within the active page, including when browser storage is unavailable. The schema validation/conversion helpers remain independently available but are not used to restore old browser data.
@@ -65,7 +66,7 @@ The user's clarified execution mapping supersedes the original brief's neutral c
 - Red = **membrane vibration control with right finger 4**, stored separately in `tags.membraneControl`. It adds one red dot without changing the bol's color, fingering, or text. It can coexist with any articulation.
 - Finger choices display digits (or digit pairs), never dots. Selecting right finger 4 as part of a fingering does not automatically enable membrane control.
 
-All controls are real buttons with visible focus and accessible names. The portrait phone layout keeps the four type buttons on one row, compacts the drum keyboard, labels the technique controls, fits a typical four-matra vibhag across the screen, and presents rhythm edits as horizontal rows with large arrow buttons. More complex notation can scroll horizontally.
+All controls are real buttons with visible focus and accessible names. The portrait phone layout proportionally scales the complete 840-pixel design to the available width, preserving drum overlays, finger controls, the horizontal inspector, and notes/share placement. A typical four-matra vibhag fits across the screen; longer notation scrolls horizontally within its panel. Resizing or rotating recalculates the scale without resetting the composition.
 
 ## Tala recognition
 

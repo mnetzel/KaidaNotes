@@ -1,20 +1,24 @@
-import { appendBol, recognizeTala } from './model.js';
+import { appendBol, replaceBol, recognizeTala } from './model.js';
 import { moveSelectedAtLevel } from './rhythm.js';
-import { createSelection, selectBol, setMultiSelect, getPrimarySelection } from './selection.js';
+import { createSelection, createBolInteraction, clickNotationBol, setMultiSelect, getPrimarySelection } from './selection.js';
 import { applyTagToSelection } from './tags.js';
 import { startComposition } from './persistence.js';
 import { createStore } from './state.js';
 import { renderNotation, renderInspector } from './renderer.js';
 import { exportBasic, exportComplete, shareText } from './export.js';
 import { matchTala } from './talas.js';
+import { expandBolSequence } from './keyboard.js';
+import { fitPortraitLayout } from './layout.js';
 
 const $ = selector => document.querySelector(selector);
 let selection = createSelection();
+let interaction = createBolInteraction();
 let structureDraft = null;
 let nextVibhag = false;
 let toastTimeout;
 const debug = new URLSearchParams(location.search).get('debug') === '1';
 const store = createStore(startComposition());
+fitPortraitLayout();
 
 function toast(message) {
   clearTimeout(toastTimeout);
@@ -27,6 +31,7 @@ function render() {
   const composition = store.composition;
   const validIds = new Set(composition.bols.map(bol => bol.id));
   selection = { ...selection, ids: selection.ids.filter(id => validIds.has(id)) };
+  if (interaction.id && !validIds.has(interaction.id)) interaction = createBolInteraction();
   document.querySelectorAll('[data-type]').forEach(button => button.setAttribute('aria-pressed', String(button.dataset.type === composition.compositionType)));
   $('#tala-name').textContent = recognizeTala(composition.vibhagStructure) || 'Free form';
   const talaMatch = matchTala(composition.vibhagStructure);
@@ -42,8 +47,12 @@ function render() {
   $('#redo').disabled = !store.canRedo;
   $('#clear-bols').disabled = !composition.bols.length;
   if ($('#extra-notes').value !== composition.notes) $('#extra-notes').value = composition.notes;
-  renderNotation($('#notation'), composition, selection, debug);
-  renderInspector(composition, selection);
+  renderNotation($('#notation'), composition, selection, debug, interaction.editingId);
+  renderInspector(composition, selection, interaction.editingId);
+  $('#cancel-replacement').hidden = !interaction.editingId;
+  document.querySelectorAll('[data-bol]').forEach(button => {
+    button.disabled = !!interaction.editingId && expandBolSequence(button.dataset.bol).length !== 1;
+  });
 }
 
 store.subscribe(render);
@@ -52,13 +61,21 @@ document.querySelectorAll('[data-type]').forEach(button => button.addEventListen
 }));
 
 document.querySelectorAll('[data-bol]').forEach(button => button.addEventListener('click', () => {
+  if (interaction.editingId) {
+    const selectedBolId = interaction.editingId;
+    interaction = createBolInteraction();
+    store.update(composition => replaceBol(composition, selectedBolId, button.dataset.bol));
+    render();
+    return;
+  }
   const composition = appendBol(store.composition, button.dataset.bol, nextVibhag);
+  interaction = createBolInteraction();
   selection = { ...selection, ids: [composition.bols.at(-1).id] };
   nextVibhag = false;
   store.update(() => composition);
 }));
 
-$('#next-vibhag').addEventListener('click', () => { nextVibhag = !nextVibhag; render(); });
+$('#next-vibhag').addEventListener('click', () => { interaction = createBolInteraction(); nextVibhag = true; render(); });
 $('#clear-bols').addEventListener('click', () => {
   $('#clear-dialog').returnValue = '';
   $('#clear-dialog').showModal();
@@ -67,6 +84,7 @@ $('#clear-dialog').addEventListener('close', () => {
   if ($('#clear-dialog').returnValue !== 'clear') return;
   nextVibhag = false;
   selection = createSelection();
+  interaction = createBolInteraction();
   store.update(composition => ({ ...composition, bols: [] }));
   toast('Bols cleared. Undo is available.');
 });
@@ -87,10 +105,19 @@ $('#structure-done').addEventListener('click', () => {
 $('#notation').addEventListener('click', event => {
   const button = event.target.closest('[data-bol-id]');
   if (!button) return;
-  selection = selectBol(selection, button.dataset.bolId);
+  ({ selection, interaction } = clickNotationBol(selection, interaction, store.composition.bols, button.dataset.bolId));
   render();
 });
-$('#select-more').addEventListener('click', () => { selection = setMultiSelect(selection, !selection.multi); render(); });
+$('#select-more').addEventListener('click', () => { interaction = createBolInteraction(); selection = setMultiSelect(selection, !selection.multi); render(); });
+$('#cancel-replacement').addEventListener('click', () => { interaction = createBolInteraction(); render(); });
+// A tap sequence consists of consecutive taps on the same notation button,
+// independent of timing. Other controls restart the count, but typing a
+// replacement must retain the pending target until its keyboard handler runs.
+document.addEventListener('click', event => {
+  if (!event.target.closest('#notation') && event.target.closest('button, textarea')) {
+    interaction = { ...interaction, id: null, clicks: 0 };
+  }
+}, true);
 document.querySelectorAll('[data-tag-group]').forEach(button => button.addEventListener('click', () => {
   store.update(composition => ({ ...composition, bols: applyTagToSelection(composition.bols, selection.ids, button.dataset.tagGroup, button.dataset.tag) }));
 }));
@@ -115,11 +142,12 @@ $('#extra-notes').addEventListener('input', event => {
   store.update(composition => ({ ...composition, notes }), 'notes');
 });
 
-function undo() { nextVibhag = false; store.undo(); }
-function redo() { nextVibhag = false; store.redo(); }
+function undo() { nextVibhag = false; interaction = createBolInteraction(); store.undo(); render(); }
+function redo() { nextVibhag = false; interaction = createBolInteraction(); store.redo(); render(); }
 $('#undo').addEventListener('click', undo);
 $('#redo').addEventListener('click', redo);
 document.addEventListener('keydown', event => {
+  if (event.key === 'Escape' && interaction.editingId) { interaction = createBolInteraction(); render(); return; }
   if (!(event.ctrlKey || event.metaKey) || event.altKey || $('dialog[open]')) return;
   if (event.key.toLowerCase() === 'z') {
     event.preventDefault();

@@ -1,25 +1,30 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createComposition, appendBol, sanitizeComposition, recognizeTala } from '../js/model.js';
-import { LEVELS, moveBoundary, normalizePositions, validateRhythm, getParentScope, canMoveBoundary, comparePosition } from '../js/rhythm.js';
+import { LEVELS, moveBoundary, normalizePositions, validateRhythm, getParentScope, canMoveBoundary, comparePosition, vibhagLength } from '../js/rhythm.js';
 import { applyTagToSelection } from '../js/tags.js';
 import { selectBol, createSelection, getPrimarySelection, setMultiSelect } from '../js/selection.js';
 import { exportBasic, exportComplete } from '../js/export.js';
 import { startComposition, STORAGE_KEY, LEGACY_BACKUP_KEY } from '../js/persistence.js';
 import { createStore } from '../js/state.js';
 
-const phrase = (text, structure = [4, 4, 4, 4]) => text.split(' ').reduce((c, bol) => appendBol(c, bol), { ...createComposition(), vibhagStructure: structure });
+// Structural fixtures explicitly simulate a next-vibhag tap at each target boundary.
+const phrase = (text, structure = [4, 4, 4, 4]) => text.split(' ').reduce((c, bol) => {
+  const last = c.bols.at(-1);
+  const next = !!last && last.position.matra >= vibhagLength(structure, last.position.vibhag);
+  return appendBol(c, bol, next);
+}, { ...createComposition(), vibhagStructure: structure });
 const addresses = bols => bols.map(bol => LEVELS.map(level => bol.position[level]).join(':'));
 const move = (composition, index, level, direction) => ({ ...composition, bols: moveBoundary(composition.bols, level, direction, composition.bols[index].id) });
 
-test('Case A: four matras, stable IDs, compound expansion, and auto advance', () => {
+test('Case A: four matras, stable IDs, compound expansion, and overflow within the same vibhag', () => {
   let c = phrase('Dha Dha Ti Ti');
   assert.deepEqual(addresses(c.bols), ['1:1:1:1', '1:2:1:1', '1:3:1:1', '1:4:1:1']);
   const original = c.bols.map(b => ({ id: b.id, order: b.order, text: b.text }));
   c = appendBol(c, 'TeRe / KeTe');
   assert.deepEqual(c.bols.slice(4).map(b => b.text), ['Te', 'Re', 'Ke', 'Te']);
   assert.equal(c.bols.length, 8);
-  assert.equal(addresses(c.bols).at(-1), '2:4:1:1');
+  assert.equal(addresses(c.bols).at(-1), '1:8:1:1');
   assert.deepEqual(c.bols.slice(0, 4).map(b => ({ id: b.id, order: b.order, text: b.text })), original);
   assert.equal(new Set(c.bols.map(b => b.id)).size, 8);
 });
@@ -30,7 +35,7 @@ test('next vibhag forces a boundary, also after a full vibhag and on an empty sh
   assert.equal(addresses(appendBol(createComposition(), 'Dha', true).bols)[0], '1:1:1:1');
 });
 
-test('arbitrary structures guide entry and repeat on later cycles', () => {
+test('arbitrary structures with explicit next-vibhag entry and later cycles', () => {
   const c = phrase('Dha Dha Dha Ta Ta Ti Ti Ti Ti Na', [3, 2, 4]);
   assert.deepEqual(addresses(c.bols), ['1:1:1:1', '1:2:1:1', '1:3:1:1', '2:1:1:1', '2:2:1:1', '3:1:1:1', '3:2:1:1', '3:3:1:1', '3:4:1:1', '4:1:1:1']);
   assert.equal(recognizeTala([3, 2, 4]), 'Custom');

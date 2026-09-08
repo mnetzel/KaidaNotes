@@ -95,6 +95,7 @@ button[aria-pressed="true"] { box-shadow: inset 0 0 0 3px var(--purple-strong); 
 .vibhag-row { display: flex; align-items: stretch; gap: 26px; min-height: 88px; margin-bottom: 10px; min-width: min-content; }
 .vibhag-label { flex: 0 0 68px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; }
 .vibhag-label .count { display: grid; place-items: center; width: 54px; height: 54px; border-radius: 50%; background: var(--lavender); font-size: 30px; }
+.vibhag-label.overfull .count { color: var(--red); background: #ffe4e7; box-shadow: inset 0 0 0 2px var(--red); }
 .vibhag-label small { font-size: 12px; color: #716575; white-space: nowrap; }
 .matras { display: flex; align-items: stretch; flex: 1; }
 .matra { display: flex; flex: 1 0 auto; align-items: center; justify-content: center; border-right: 3px solid var(--blue); padding: 3px 9px; min-width: 95px; gap: 2px; }
@@ -106,6 +107,8 @@ button[aria-pressed="true"] { box-shadow: inset 0 0 0 3px var(--purple-strong); 
 .notation-bol.selected { background: var(--yellow); }
 .notation-bol[aria-pressed="true"] { box-shadow: none; outline: 2px solid #bf921a; outline-offset: -2px; }
 .notation-bol.primary::after { content: ''; position: absolute; bottom: 2px; width: 18px; height: 3px; background: #9e7200; left: calc(50% - 9px); border-radius: 2px; }
+.notation-bol.editing, #selected-bol.editing { min-width: 70px; outline: 3px dashed #9e7200; outline-offset: -3px; }
+#cancel-replacement { margin: 0 45px 8px; padding: 6px 14px; background: var(--yellow); font-size: 16px; }
 .tag-markers { display: flex; justify-content: flex-end; font: 13px/1.2 Arial, sans-serif; gap: 3px; min-height: 0; }
 .finger-left { color: #1611e7; }
 .finger-right, .membrane-control-marker { color: #d41528; }
@@ -170,88 +173,18 @@ dialog p { font-size: 16px; line-height: 1.5; color: #706276; }
   .notes-share { padding-inline: 35px; }
 }
 @media (max-width: 600px) {
-  .composition-types { display: grid; grid-template-columns: 1fr 1fr .85fr 1.8fr; padding: 8px; gap: 4px; }
-  .composition-types button { min-width: 0; font-size: clamp(17px, 4.7vw, 23px); border-width: 3px; border-radius: 10px; padding: 4px 2px; }
-  .keyboard { aspect-ratio: auto; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; padding: 8px 8px 0; background-size: cover; background-position: center; }
-  .keyboard > * { position: static; }
-  .entry-actions { grid-column: 1 / 3; grid-row: 1; gap: 5px; }
-  .entry-actions button { font-size: clamp(17px, 4.6vw, 23px); padding: 6px 8px; border-radius: 10px; }
-  .open-close { grid-column: 3; grid-row: 1; display: flex; justify-content: flex-end; gap: 4px; }
-  .open-close button { flex: 1; min-width: 44px; font-size: clamp(14px, 3.8vw, 19px); padding: 3px 2px; border-radius: 9px; }
-  .bol-keys { gap: 4px; align-items: stretch; }
-  .bol-keys button { min-width: 0; min-height: 44px; font-size: 33px; }
-  .key-gap { display: none; }
-  .left-keys { grid-column: 1; grid-row: 2; align-self: start; }
-  .center-keys { grid-column: 2; grid-row: 2; }
-  .right-keys { grid-column: 3; grid-row: 2; align-self: start; }
-  .bayan-direction { grid-column: 1; grid-row: 2; align-self: end; gap: 6px; }
-  .bayan-direction button { height: 88px; width: 44px; font-size: 66px; }
-  .compound-keys { grid-column: 1 / 3; grid-row: 3; grid-template-columns: 1fr 1fr; gap: 5px; }
-  .compound-keys button { font-size: 25px; }
-  .compound-keys button:nth-child(odd) { font-size: 18px; }
-  .compound-keys small { font-size: 14px; }
-  .compound-right { grid-column: 3; grid-row: 3; gap: 5px; }
-  .compound-right button { font-size: 22px; }
-  .strike-zones { grid-column: 1 / 4; grid-row: 4; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 7px; padding: 0; }
-  .zone { position: relative; left: auto; top: auto; width: 100%; height: 48px; transform: none; border-radius: 12px; opacity: 1; padding: 4px; }
-  .zone:disabled { opacity: .8; }
-  .zone-label { display: block; color: #111; font-size: 13px; font-weight: 600; line-height: 1.15; }
-  .zone-purple .zone-label, .zone-red .zone-label { color: white; }
-  .zone[aria-pressed="true"] { outline-offset: 1px; outline-width: 2px; }
-  .zone[aria-pressed="true"]::after { display: none; }
-  .fingers { gap: 6px; }
-  .fingers button { min-height: 48px; min-width: 44px; font-size: 20px; padding: 10px 8px; border-radius: 16px 16px 0 0; }
-  .fingers small { font-size: 12px; }
-  .left-fingers { grid-column: 1 / 3; justify-self: start; }
-  .left-fingers button:last-child { margin-left: 0; }
-  .right-fingers { grid-column: 2 / 4; justify-self: end; grid-row: 5; }
-  .left-fingers { grid-row: 5; }
-  .structure-bar { display: grid; grid-template-columns: 1fr auto; padding: 10px 8px 4px; gap: 8px; }
-  .structure-builder { grid-column: 1 / -1; min-width: 0; }
-  .structure-lengths { gap: 4px; }
-  .structure-lengths button { width: 44px; height: 44px; font-size: 27px; }
-  .structure-controls { justify-content: space-between; gap: 4px; }
-  .structure-actions { flex-direction: row; margin-left: 0; gap: 4px; }
-  .structure-actions button { min-height: 44px; min-width: 44px; font-size: 14px; padding: 5px; }
-  .structure-label { font-size: 14px; padding: 0; text-align: left; }
+  /* Scale the complete design, preserving every control's position on the drums. */
+  .app { width: 840px; max-width: none; margin: 0; zoom: var(--portrait-scale, .45); }
+  .composition-types { padding: 18px 38px 14px; }
+  .composition-types button { font-size: 42px; }
+  .entry-actions button, .open-close button { font-size: 41px; }
+  .bol-keys button { font-size: 49px; }
   #structure-draft:empty { display: none; }
-  .tala { min-width: 0; gap: 2px; }
-  #tala-name { font-size: 25px; overflow-wrap: anywhere; }
-  #structure-summary { font-size: 12px; }
-  #tala-alternatives { font-size: 11px; max-width: 220px; }
-  #select-more { font-size: 17px; padding: 7px 10px; }
-  .utility-bar { display: grid; grid-template-columns: auto 1fr; padding: 0 8px; gap: 0 6px; }
-  #entry-status { text-align: right; }
-  #session-status { grid-column: 1 / -1; font-size: 11px; }
-  .notation { padding: 12px 8px 18px; min-height: 0; }
-  .notation-empty { margin: 0 0 12px 0; font-size: 13px; }
-  .vibhag-row { gap: 6px; min-height: 60px; min-width: 0; margin-bottom: 6px; }
-  .vibhag-label { flex-basis: 32px; }
-  .vibhag-label .count { width: 32px; height: 32px; font-size: 21px; }
-  .matras { min-width: 0; }
-  .matra { min-width: 56px; flex: 1 1 0; flex-wrap: wrap; align-content: center; padding: 2px; gap: 0; border-right-width: 2px; }
-  .notation-bol { min-height: 44px; min-width: 44px; padding: 3px; }
-  .notation-text { font-size: clamp(25px, 7.7vw, 32px); }
-  .tag-markers { font-size: 12px; }
-  .inspector { padding: 12px 14px 0; gap: 8px; flex-wrap: wrap; }
-  .selected-preview { flex: 1 0 100%; display: flex; justify-content: center; align-items: center; gap: 12px; margin-bottom: 6px; }
-  #selected-bol { font-size: 34px; padding: 5px 14px; }
-  #selection-count { min-height: 0; }
-  .address-controls { display: grid; grid-template-columns: 1fr; gap: 6px; }
-  .address-group { grid-template-columns: minmax(0, 1fr) 28px 44px 44px; grid-template-rows: 44px; gap: 6px; padding-right: 36px; }
-  .address-number { grid-column: 2; grid-row: 1; font-size: 32px; }
-  .address-arrow { height: 44px; min-width: 44px; font-size: 32px; grid-row: 1; }
-  .address-arrow[data-direction="left"] { grid-column: 3; }
-  .address-arrow[data-direction="right"] { grid-column: 4; }
-  .address-label { grid-column: 1; grid-row: 1; font-size: 16px; text-align: left; }
-  .hide-subsub { bottom: 6px; right: 0; min-height: 32px; min-width: 30px; font-size: 22px; }
-  .selection-help { margin: 14px 15px 0; }
-  .notes-share { padding: 20px 16px; flex-direction: column; gap: 18px; }
-  .notes-field { width: 100%; }
-  #extra-notes { font-size: 20px; }
-  .share-actions { gap: 38px; }
-  .share-actions svg { width: 64px; height: 64px; }
-  footer { font-size: 11px; gap: 6px; }
+  .utility-bar { min-height: 32px; }
+  .notation { padding: 20px 42px; min-height: 0; }
+  .vibhag-row { min-height: 80px; margin-bottom: 8px; }
+  .notes-share { padding: 24px 62px 20px; }
+  footer { padding: 10px 20px 16px; }
 }
 @media print {
   body { background: white; }

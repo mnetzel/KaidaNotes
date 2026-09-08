@@ -22,6 +22,14 @@ function appendSingleBol(composition, text, forceVibhag) {
   return { ...composition, bols: [...composition.bols, bol] };
 }
 
+export function replaceBol(composition, selectedBolId, text) {
+  // Correction changes just one recited syllable, never its identity or address.
+  if (expandBolSequence(text).length !== 1 || !text.trim()) return composition;
+  const target = composition.bols.find(bol => bol.id === selectedBolId);
+  if (!target || target.text === text) return composition;
+  return { ...composition, bols: composition.bols.map(bol => bol.id === selectedBolId ? { ...bol, text } : bol) };
+}
+
 function expandLegacyCompounds(bols) {
   if (!bols.some(bol => expandBolSequence(bol.text).length > 1)) return bols;
   const edges = deriveBoundaries(bols);
