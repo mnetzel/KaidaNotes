@@ -45,6 +45,8 @@ function bolButton(bol, selection, debug, editingId) {
 
 export function renderNotation(container, composition, selection, debug = false, editingId = null) {
   const focused = document.activeElement?.dataset.bolId;
+  // Every row uses the same columns, independent of its bol count or overflow.
+  container.style.setProperty('--matra-columns', String(Math.max(1, ...composition.vibhagStructure, composition.vibhagStructure.length ? 1 : 4)));
   const fragment = document.createDocumentFragment();
   if (!composition.bols.length) fragment.append(element('p', 'notation-empty', 'Tap the drum keyboard to start your composition.'));
   const rows = new Map();
@@ -94,6 +96,9 @@ export function renderNotation(container, composition, selection, debug = false,
     row.append(matras);
     fragment.append(row);
   }
+  fragment.querySelectorAll('.matra').forEach(cell => {
+    cell.classList.toggle('dense', cell.querySelectorAll('.notation-bol').length > 1);
+  });
   container.replaceChildren(fragment);
   if (focused) [...container.querySelectorAll('[data-bol-id]')].find(node => node.dataset.bolId === focused)?.focus({ preventScroll: true });
 }

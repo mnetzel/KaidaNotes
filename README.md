@@ -67,7 +67,7 @@ The user's clarified execution mapping supersedes the original brief's neutral c
 - Red = **membrane vibration control with right finger 4**, stored separately in `tags.membraneControl`. It adds one red dot without changing the bol's color, fingering, or text. It can coexist with any articulation.
 - Finger choices display digits (or digit pairs), never dots. Selecting right finger 4 as part of a fingering does not automatically enable membrane control.
 
-All controls are real buttons with visible focus and accessible names. The portrait phone layout proportionally scales the complete 840-pixel design to the available width, preserving drum overlays, finger controls, the horizontal inspector, and notes/share placement. A typical four-matra vibhag fits across the screen; longer notation scrolls horizontally within its panel. Resizing or rotating recalculates the scale without resetting the composition.
+All controls are real buttons with visible focus and accessible names. The portrait phone layout proportionally scales the complete 840-pixel design to the available width, preserving drum overlays, finger controls, the horizontal inspector, and notes/share placement. All vibhags share equal-width matra columns, so their separators align vertically. Column count follows the longest configured vibhag (four columns in free form), with a minimum readable width. Several bols in a matra use tighter spacing and smaller text; dense groups wrap inside their cell without widening that row. A typical four-matra vibhag fits across the screen; excess matras scroll horizontally within the notation panel. Resizing or rotating recalculates the scale without resetting the composition.
 
 ## Tala recognition
 
