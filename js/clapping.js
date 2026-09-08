@@ -13,18 +13,7 @@ export function renderClapPlot(container, result) {
   const width = Math.max(760, totalMatras * 40 + 64);
   const start = 32, end = width - 32, top = 70;
   const x = matra => start + matra / totalMatras * (end - start);
-  // Reserve enough horizontal space for each label; coincident hits stack vertically.
-  const laneEnds = [];
-  const plotted = hits.map(hit => {
-    const px = x(hit.matra);
-    const halfWidth = Math.max(8, (hit.label || '').length * 6 + 4);
-    const labelX = Math.max(halfWidth, Math.min(width - halfWidth, px));
-    let lane = laneEnds.findIndex(previous => labelX - halfWidth >= previous + 6);
-    if (lane < 0) lane = laneEnds.length;
-    laneEnds[lane] = labelX + halfWidth;
-    return { hit, px, labelX, lane };
-  });
-  const baseline = 166 + Math.max(0, laneEnds.length - 2) * 30;
+  const baseline = 166;
   const gridBottom = baseline + 34;
   const svg = svgNode('svg', { viewBox: `0 0 ${width} ${baseline + 94}`, role: 'img', 'aria-labelledby': 'clap-plot-title clap-plot-description', class: 'clap-plot' });
   svg.append(svgNode('title', { id: 'clap-plot-title' }, 'Claps over one tala cycle'));
@@ -48,14 +37,14 @@ export function renderClapPlot(container, result) {
     offset += length;
   }
   svg.append(svgNode('line', { x1: start, x2: end, y1: baseline, y2: baseline, class: 'clap-baseline' }));
-  plotted.forEach(({ hit, px, labelX, lane }) => {
-    const py = baseline - lane * 30 - (hit.matra === totalMatras ? 12 : 0);
+  svg.append(svgNode('circle', { cx: end, cy: baseline, r: 7, class: 'clap-endpoint' }));
+  hits.forEach(hit => {
+    const px = x(hit.matra), py = baseline;
     const dot = svgNode('circle', { cx: px, cy: py, r: 5, class: 'clap-hit' });
     dot.append(svgNode('title', {}, `Clap ${hit.index}${hit.label ? ': ' + hit.label : ''}: ${(hit.elapsed / 1000).toFixed(3)} s · ${result.snap ? 'snapped ' : ''}matra ${(hit.matra + 1).toFixed(2)}`));
     svg.append(dot);
-    if (hit.label) svg.append(svgNode('text', { x: labelX, y: py - 11, 'text-anchor': 'middle', class: 'clap-bol-label' }, hit.label));
+    if (hit.label) svg.append(svgNode('text', { x: px, y: py - 11, 'text-anchor': 'middle', class: 'clap-bol-label' }, hit.label));
   });
-  svg.append(svgNode('circle', { cx: end, cy: baseline, r: 7, class: 'clap-endpoint' }));
   svg.append(svgNode('text', { x: start, y: 58, class: 'clap-sam-label' }, 'sam'));
   svg.append(svgNode('text', { x: end, y: 58, 'text-anchor': 'end', class: 'clap-sam-label' }, 'next sam'));
   container.replaceChildren(svg);
