@@ -8,6 +8,7 @@ import { renderNotation, renderInspector } from './renderer.js';
 import { exportBasic, exportComplete, shareText } from './export.js';
 import { matchTala } from './talas.js';
 import { expandBolSequence } from './keyboard.js';
+import { createShareLink, readShareLink } from './share-link.js';
 import { fitPortraitLayout } from './layout.js';
 
 const $ = selector => document.querySelector(selector);
@@ -16,6 +17,7 @@ let interaction = createBolInteraction();
 let structureDraft = null;
 let nextVibhag = false;
 let toastTimeout;
+let shareRequest = 0;
 const debug = new URLSearchParams(location.search).get('debug') === '1';
 const store = createStore(startComposition(), composition => {
   $('#session-status').textContent = saveComposition(composition) ? 'Saved on this device' : 'Storage unavailable — copy to keep';
@@ -111,6 +113,7 @@ $('#clear-dialog').addEventListener('close', () => {
   nextVibhag = false; structureDraft = null;
   selection = createSelection(); interaction = createBolInteraction();
   $('#toast').hidden = true; clearTimeout(toastTimeout);
+  $('#link-status').hidden = true;
   store.reset(createComposition());
   $('#notation').scrollLeft = 0;
   toast('New empty Kaida. App reset.');
@@ -185,17 +188,31 @@ document.addEventListener('keydown', event => {
 // Reuse the same icon for both share buttons.
 $('[data-share="basic"] svg path').id = 'whatsapp-mark';
 document.querySelectorAll('[data-share]').forEach(button => button.addEventListener('click', async () => {
-  const complete = button.dataset.share === 'complete';
-  const text = complete ? exportComplete(store.composition) : exportBasic(store.composition);
-  $('#share-title').textContent = complete ? 'Complete notation' : 'Basic notation';
-  $('#share-preview').value = text;
-  $('#whatsapp-link').href = `https://wa.me/?text=${encodeURIComponent(text)}`;
-  $('#copy-status').textContent = 'Copying…';
+  const request = ++shareRequest;
+  const kind = button.dataset.share;
+  const snapshot = structuredClone(store.composition);
+  $('#share-title').textContent = kind === 'link' ? 'Share Kaida link' : kind === 'complete' ? 'Complete notation' : 'Basic notation';
+  $('#share-details').hidden = kind !== 'link';
+  $('#share-preview').value = '';
+  $('#copy-again').disabled = true;
+  $('#copy-again').textContent = kind === 'link' ? 'copy link' : 'copy text';
+  $('#whatsapp-link').hidden = true;
+  $('#whatsapp-link').removeAttribute('href');
+  $('#copy-status').textContent = kind === 'link' ? 'Creating link…' : 'Copying…';
   $('#share-dialog').showModal();
-  const copied = await shareText(text);
-  $('#copy-status').textContent = copied ? 'Copied. Ready to paste or share.' : 'Select the text and copy it, or try copy text below.';
-  if (copied) toast('Copied');
-  else { $('#share-preview').focus(); $('#share-preview').select(); }
+  try {
+    const text = kind === 'link' ? await createShareLink(snapshot, location.href) : kind === 'complete' ? exportComplete(snapshot) : exportBasic(snapshot);
+    if (request !== shareRequest) return;
+    $('#share-preview').value = text;
+    $('#copy-again').disabled = false;
+    $('#whatsapp-link').href = `https://wa.me/?text=${encodeURIComponent(text)}`;
+    $('#whatsapp-link').hidden = false;
+    const copied = await shareText(text);
+    if (request !== shareRequest) return;
+    $('#copy-status').textContent = copied ? 'Copied. Ready to paste or share.' : 'Use the copy button, or select and copy the text below.';
+    if (kind === 'link' && text.length > 8000) $('#copy-status').textContent += ' This is a long link; make sure your messenger sends it in full.';
+    if (!copied) { $('#share-preview').focus(); $('#share-preview').select(); }
+  } catch (error) { if (request === shareRequest) $('#copy-status').textContent = error.message; }
 }));
 $('#copy-again').addEventListener('click', async () => {
   const copied = await shareText($('#share-preview').value);
@@ -203,6 +220,29 @@ $('#copy-again').addEventListener('click', async () => {
   if (!copied) { $('#share-preview').focus(); $('#share-preview').select(); }
 });
 $('#close-share').addEventListener('click', () => $('#share-dialog').close());
+$('#share-dialog').addEventListener('close', () => { shareRequest++; });
+
+async function openSharedKaida() {
+  const hash = location.hash;
+  if (!hash.startsWith('#kaida=')) return;
+  try {
+    const composition = await readShareLink(hash);
+    if (location.hash !== hash) return;
+    selection = createSelection(); interaction = createBolInteraction();
+    structureDraft = null; nextVibhag = false;
+    store.update(() => composition);
+    const url = new URL(location.href); url.hash = '';
+    history.replaceState(null, '', url.href);
+    $('#link-status').textContent = 'Shared Kaida loaded. You can edit it and send a new link. Undo restores the previous composition.';
+    $('#link-status').hidden = false;
+  } catch (error) {
+    if (location.hash !== hash) return;
+    $('#link-status').textContent = error.message + ' Your saved composition has not been changed.';
+    $('#link-status').hidden = false;
+  }
+}
+window.addEventListener('hashchange', openSharedKaida);
+await openSharedKaida();
 
 render();
 if (debug) Object.defineProperty(window, 'kaidaDebug', { value: Object.freeze({

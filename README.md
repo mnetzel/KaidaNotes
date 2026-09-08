@@ -20,7 +20,7 @@ Open <http://localhost:4173/KaidaNotes/>. Any static HTTP server also works. Ser
 4. Tap a rendered bol once to select it, twice to select every identical bol in the composition, and a third time to open a blank replacement slot at the tapped position. Choose a single bol on the keyboard to replace it; compound shortcuts are disabled during replacement. The replacement retains its ID, rhythm, tags and note, and supports undo. **cancel replacement**, Escape, or selecting another bol leaves the original intact. Consecutive taps have no time limit; using another control restarts the count. Yellow marks selection; the underline identifies the primary anchor. **select more** toggles manual multiple selection; the last selected bol anchors rhythm edits. Selecting all matches keeps the tapped bol as anchor.
 5. Use the rhythm arrows, drum zones, finger buttons, bayan arrows, and **open / close**. Tags apply to all selected bols. Clicking a tag active on the whole selection removes it. Applying a different choice replaces that group's value. Mixed selections are exposed as `aria-pressed="mixed"`.
 6. Add extra notes. Edits are saved on this device and restored after reload. Switching apps or tabs keeps the active editor intact.
-7. **basic** or **complete** copies text and opens a readable preview with an optional WhatsApp link. Complete includes performance annotations. Both include composition notes. No message is sent automatically.
+7. **link** creates an editable snapshot to copy or send through WhatsApp. The recipient opens the composition, edits it, and creates a new link to send back. **basic** or **complete** copies text and opens a readable preview with an optional WhatsApp link. Complete includes performance annotations. Both include composition notes. No message is sent automatically.
 
 **Undo / redo:** buttons or Ctrl/Cmd+Z and Ctrl/Cmd+Shift+Z. History is held in memory (last 100 edits); nearby note keystrokes form one undo step. **clear** removes only the selected bol's vibhag (or current entry vibhag when nothing is selected), retaining all other rows, structure and notes; it is undoable. Entry resumes in that emptied row. **⌫** removes just the primary selected bol, or the last bol in the current row, and is undoable. **clear all** asks for confirmation, then resets bols, tags, notes, composition type, structure, selection, drafts and undo/redo history. The empty composition replaces the saved document.
 
@@ -54,6 +54,7 @@ The optional **subSubMatra** controls start hidden on each page load, including 
 | `js/state.js` | Controlled updates and undo/redo |
 | `js/renderer.js` | DOM creation, notation groups, inspector and tag state |
 | `js/persistence.js` | Restore and save the current composition locally |
+| `js/share-link.js` | Versioned compressed links and validated import |
 | `js/export.js` | Pure notation export and progressive clipboard helper |
 | `js/layout.js` | Proportional portrait layout sizing |
 | `js/app.js` | UI event orchestration |
@@ -114,3 +115,13 @@ GitHub Pages supplies its own HTTP caching headers (observed `max-age=600`). A s
 On first activation, the document is replaced once before the editor starts. Subsequent explicit visits/reloads fetch fresh resources and restore the saved composition. Returning from another app/tab or back/forward history does not reload the page. Worker updates do not interrupt an active editor. There is no timed reload. An Internet connection is needed for a fresh navigation, but switching back to the existing editor does not trigger network loading.
 
 This requires HTTPS (or localhost) and service worker support in the browser. A browser still displaying a version from **before** this mechanism was installed needs one initial visit using a new query URL, e.g. `?update=always-fresh`; afterwards the mechanism handles reloads automatically. It does not clear other sites' storage or change GitHub's CDN configuration. Implementation references: [MDN request cache](https://developer.mozilla.org/en-US/docs/Web/API/Request/cache), [service worker registration and updateViaCache](https://developer.mozilla.org/en-US/docs/Web/API/ServiceWorkerContainer/register).
+
+## Share an editable Kaida
+
+Use **link** beside the text sharing buttons, then **copy link** or **open WhatsApp**. Each link contains the complete composition as a compressed, versioned snapshot: stable IDs and order, individual bols, all four rhythm levels, vibhag structure, type, tags/colors, membrane-control markers, finger annotations, individual and composition notes, and saved UI settings. It does not contain transient selection or undo history. An incoming link restores the shared visibility setting; ordinary reloads still start with sub-submatra controls collapsed.
+
+The URL ends with `#kaida=1.<gzip-base64url>`. Encoding uses the browser's [Compression Streams API](https://developer.mozilla.org/en-US/docs/Web/API/CompressionStream). The data resides in the link, with no database or link-shortening service. Anyone receiving the complete link can open its snapshot. Edits do not change an already sent link; create another link to send a revision.
+
+Incoming links load automatically and save locally. Undo can restore the previous local composition during that session. After import, the payload is removed from the address bar so a reload preserves subsequent edits instead of reimporting the original snapshot. Use the **link** button to share again. Invalid, unsupported, truncated or oversized links show an error without replacing the local composition. The codec rejects validation that would silently change document contents.
+
+The implementation bounds decoded JSON to 1 MB, composition size to 10,000 bols/vibhags on import, and generated URLs to 64,000 characters. Links over 8,000 characters show a reminder to send the complete address; messaging applications may impose their own limits. No content is truncated to fit. Compression/decompression requires a browser supporting CompressionStream and DecompressionStream.

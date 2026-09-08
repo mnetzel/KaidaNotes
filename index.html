@@ -153,10 +153,12 @@
         <label for="extra-notes">extra notes</label>
       </div>
       <div class="share-actions">
+        <button type="button" data-share="link" aria-label="Share editable Kaida link"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M13 19a6 6 0 0 0 8 0l6-6a6 6 0 0 0-8-8l-4 4M19 13a6 6 0 0 0-8 0l-6 6a6 6 0 0 0 8 8l4-4" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg><span>link</span></button>
         <button type="button" data-share="basic" aria-label="Share basic notation"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M27.1 4.9A15.3 15.3 0 0 0 3.2 23.3L1 31l7.9-2.1A15.3 15.3 0 0 0 31 15.3c0-4-1.5-7.6-3.9-10.4ZM16 28.1c-2.3 0-4.5-.6-6.5-1.8l-.5-.3-4.7 1.3 1.3-4.5-.3-.5A12.5 12.5 0 1 1 16 28.1Zm7-9.3c-.4-.2-2.2-1.1-2.6-1.2-.3-.1-.6-.2-.8.2-.3.4-1 1.2-1.2 1.4-.2.3-.4.3-.8.1-2.1-1-3.5-2.2-4.8-4.3-.4-.6.4-.6 1.1-2 .1-.2.1-.5 0-.7l-1.1-2.7c-.3-.7-.6-.6-.8-.6h-.7c-.3 0-.7.1-1 .5s-1.3 1.3-1.3 3.1 1.4 3.5 1.6 3.7c.2.3 2.7 4.1 6.5 5.7 2.4 1 3.4 1.1 4.6.9.7-.1 2.2-.9 2.5-1.8.3-.9.3-1.7.2-1.8-.1-.2-.3-.3-.7-.5Z"/></svg><span>basic</span></button>
         <button type="button" data-share="complete" aria-label="Share complete notation"><svg viewBox="0 0 32 32" aria-hidden="true"><use href="#whatsapp-mark"/></svg><span>complete</span></button>
       </div>
     </section>
+    <p id="link-status" class="warning" role="status" hidden></p>
     <footer>KaidaNotes <span>•</span> Your notation stays on this device.</footer>
     <noscript>KaidaNotes needs JavaScript enabled to edit notation.</noscript>
   </main>
@@ -168,6 +170,7 @@
   <dialog id="share-dialog" aria-labelledby="share-title">
     <h2 id="share-title">Basic notation</h2>
     <p id="copy-status" role="status"></p>
+    <p id="share-details" hidden>Opens an editable copy with all bols, rhythm, tags and notes. After editing, create a new link to send your changes.</p>
     <textarea id="share-preview" readonly aria-label="Notation to copy" rows="10"></textarea>
     <div class="dialog-actions"><button type="button" id="copy-again" class="yellow">copy text</button><a id="whatsapp-link" target="_blank" rel="noopener noreferrer">open WhatsApp ↗</a><button type="button" id="close-share">done</button></div>
   </dialog>
