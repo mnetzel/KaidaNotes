@@ -105,3 +105,11 @@ The app uses relative asset URLs and supports the `/KaidaNotes/` project path. T
 GitHub Pages is enabled with **GitHub Actions** as its source. The live application is <https://mnetzel.github.io/KaidaNotes/>. Push to `main` to validate and publish changes automatically. Alternatively, serve the repository root using GitHub Pages' branch publishing; `.nojekyll` is included.
 
 No compilation is required for deployment. `package.json` and Node.js are development conveniences only. No analytics, server communication, audio timing, playback, accounts, or synchronization are implemented in this MVP.
+
+## Always load fresh
+
+GitHub Pages supplies its own HTTP caching headers (observed `max-age=600`). A scoped, **network-only** service worker in `sw.js` bypasses those cached copies for the HTML document, all JavaScript modules, CSS, the drum image, and favicon. It uses a unique request URL and `fetch(..., { cache: 'no-store' })`, and returns `Cache-Control: no-store`. It never uses Cache Storage or an offline fallback. The worker's own update check uses `updateViaCache: 'none'`.
+
+On first activation, the entire document is replaced once before the editor starts. Every subsequent visit/reload fetches fresh resources. Returning from another phone app/tab, or restoring a page from back/forward history, also replaces the entire page with a unique URL. There is no timed reload while actively editing. Autosaved composition data and the legacy backup remain in localStorage; only transient selection and undo history reset on page navigation, as before. An Internet connection is required when opening or returning to the editor. A failed fresh load offers retry instead of silently using an old application.
+
+This requires HTTPS (or localhost) and service worker support in the browser. A browser still displaying a version from **before** this mechanism was installed needs one initial visit using a new query URL, e.g. `?update=always-fresh`; afterwards the mechanism handles reloads automatically. It does not clear other sites' storage or change GitHub's CDN configuration. Implementation references: [MDN request cache](https://developer.mozilla.org/en-US/docs/Web/API/Request/cache), [service worker registration and updateViaCache](https://developer.mozilla.org/en-US/docs/Web/API/ServiceWorkerContainer/register).

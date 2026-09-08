@@ -13,7 +13,7 @@ createServer(async (request, response) => {
     if (path !== root && !path.startsWith(root + sep)) { response.writeHead(403).end(); return; }
     const info = await stat(path);
     const target = info.isDirectory() ? resolve(path, 'index.html') : path;
-    if (!['index.html', 'css', 'js', 'assets'].some(name => target === resolve(root, name) || target.startsWith(resolve(root, name) + sep))) {
+    if (!['index.html', 'sw.js', 'css', 'js', 'assets'].some(name => target === resolve(root, name) || target.startsWith(resolve(root, name) + sep))) {
       response.writeHead(404).end(); return;
     }
     response.writeHead(200, { 'Content-Type': `${types[extname(target)] || 'application/octet-stream'}${['.html', '.css', '.js', '.json'].includes(extname(target)) ? '; charset=utf-8' : ''}`, 'Cache-Control': 'no-store' });

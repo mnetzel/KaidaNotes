@@ -15,6 +15,8 @@
 }
 * { box-sizing: border-box; }
 body { margin: 0; }
+.fresh-status { max-width: 840px; margin: 16px auto; padding: 12px 16px; font-size: 14px; line-height: 1.5; }
+.fresh-status button { margin-left: 8px; padding: 8px 16px; background: var(--purple); }
 button, textarea, a { -webkit-tap-highlight-color: transparent; }
 button, textarea { font: inherit; }
 button { min-height: 44px; border: 0; border-radius: 10px; color: inherit; cursor: pointer; touch-action: manipulation; }

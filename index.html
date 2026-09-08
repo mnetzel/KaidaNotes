@@ -8,10 +8,36 @@
   <title>KaidaNotes — Tabla notation</title>
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="css/app.css">
-  <script type="module" src="js/app.js"></script>
+  <script type="module">
+    try {
+      const loader = new URL('js/fresh.js', location.href);
+      loader.searchParams.set('_fresh', crypto.randomUUID());
+      const { prepareFreshPage } = await import(loader.href);
+      if (await prepareFreshPage()) {
+        await import('./js/app.js');
+        document.querySelector('main').inert = false;
+        document.querySelector('#fresh-status').hidden = true;
+      }
+    } catch (error) {
+      const status = document.querySelector('#fresh-status');
+      status.textContent = 'Could not open the latest KaidaNotes. Check your connection, then retry. Your saved notation is unchanged. ';
+      status.setAttribute('role', 'alert');
+      const retry = document.createElement('button');
+      retry.type = 'button';
+      retry.textContent = 'retry';
+      retry.addEventListener('click', () => {
+        const url = new URL(location.href);
+        url.searchParams.set('_reload', crypto.randomUUID());
+        location.replace(url.href);
+      });
+      status.append(retry);
+      console.error('KaidaNotes startup:', error);
+    }
+  </script>
 </head>
 <body>
-  <main class="app" aria-label="KaidaNotes composition editor">
+  <p id="fresh-status" class="fresh-status" role="status">Loading the latest KaidaNotes…</p>
+  <main class="app" aria-label="KaidaNotes composition editor" inert>
     <header class="composition-types" aria-label="Composition type">
       <button type="button" data-type="kaida" aria-pressed="true">Kaida</button>
       <button type="button" data-type="palta" aria-pressed="false">Palta</button>

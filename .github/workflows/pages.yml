@@ -22,7 +22,7 @@ jobs:
       - name: Assemble static site
         run: |
           mkdir _site
-          cp index.html _site/
+          cp index.html sw.js _site/
           cp -r css js _site/
           mkdir _site/assets
           cp assets/tabla.jpg assets/favicon.svg _site/assets/
