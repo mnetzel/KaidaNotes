@@ -10,7 +10,7 @@ const element = (tag, className, text) => {
 };
 
 export function bolColor(bol) {
-  const color = tagDefinition('strikeZone', bol.tags.strikeZone)?.color;
+  const color = tagDefinition('dayanArticulation', bol.tags.dayanArticulation)?.color;
   return color ? `var(--${color}${color === 'purple' ? '-strong' : ''})` : '';
 }
 
@@ -30,8 +30,9 @@ function bolButton(bol, selection, debug) {
   const markers = element('span', 'tag-markers');
   markers.setAttribute('aria-hidden', 'true');
   for (const [group, cls] of [['leftHandFinger', 'finger-left'], ['rightHandFinger', 'finger-right']]) {
-    if (bol.tags[group]) markers.append(element('span', cls, `●${bol.tags[group].replaceAll('-and-', '+')}`));
+    if (bol.tags[group]) markers.append(element('span', cls, bol.tags[group].replaceAll('-and-', '+')));
   }
+  if (bol.tags.membraneControl === 'right-4') markers.append(element('span', 'membrane-control-marker', '●'));
   if (bol.tags.bayanDirection) markers.append(element('span', 'execution', bol.tags.bayanDirection === 'up' ? '↑' : '↓'));
   if (bol.tags.openClose) markers.append(element('span', 'execution', bol.tags.openClose === 'open' ? '○' : '×'));
   if (bol.tags.extra.length) markers.append(element('span', 'execution', '+'));

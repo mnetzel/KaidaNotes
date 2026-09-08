@@ -6,6 +6,7 @@ import { loadComposition, saveComposition } from './persistence.js';
 import { createStore } from './state.js';
 import { renderNotation, renderInspector } from './renderer.js';
 import { exportBasic, exportComplete, shareText } from './export.js';
+import { matchTala } from './talas.js';
 
 const $ = selector => document.querySelector(selector);
 const loaded = loadComposition();
@@ -34,6 +35,8 @@ function render() {
   selection = { ...selection, ids: selection.ids.filter(id => validIds.has(id)) };
   document.querySelectorAll('[data-type]').forEach(button => button.setAttribute('aria-pressed', String(button.dataset.type === composition.compositionType)));
   $('#tala-name').textContent = recognizeTala(composition.vibhagStructure) || 'Free form';
+  const talaMatch = matchTala(composition.vibhagStructure);
+  $('#tala-alternatives').textContent = talaMatch?.alternatives.length ? `Same grouping: ${talaMatch.alternatives.join(', ')}` : '';
   $('#structure-summary').textContent = composition.vibhagStructure.join(' · ') || 'Set a structure above';
   $('#structure-draft').textContent = structureDraft === null ? '' : (structureDraft.length ? `${structureDraft.join(' · ')} — done to apply` : 'Draft cleared — add lengths or use done');
   $('#structure-done').disabled = structureDraft === null;

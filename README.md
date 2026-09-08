@@ -16,7 +16,7 @@ Open <http://localhost:4173/KaidaNotes/>. Any static HTTP server also works. Ser
 
 1. Choose Kaida, Palta, Rela, or Part Practice. An empty Tintal sheet is ready initially.
 2. Tap structure numbers to create a new draft, then **done**. `4 4 4 4` is recognized as Tintal. **clear** beside the numbers only clears the draft; **done** with an empty draft enables free-form entry.
-3. Tap bols on the drum keyboard. Each click appends one token with its own permanent ID and order, including compound and reverse labels. **next vibhag** arms a boundary for the next bol; clicking again cancels it. Repeated boundary clicks never create empty vibhags.
+3. Tap bols on the drum keyboard. Compound buttons are shortcuts for sequential individual taps: **GheGhe** enters `Ghe Ghe`, **TeTe** enters `Te Te`, **TeReKeTe** enters `Te Re Ke Te`, and **TaKe** enters `Ta Ke`. Each resulting bol has its own permanent ID and order and can be selected, grouped, and tagged independently. A shortcut is one undo step. Reverse buttons retain the same recited syllables; they do not guess an unspecified fingering. **next vibhag** applies to the first bol of the shortcut, with normal entry continuing for the remaining bols.
 4. Select a rendered bol. Yellow marks selection; the underline identifies the primary anchor. **select more** toggles multiple selection; the most recently selected bol anchors rhythm edits.
 5. Use the rhythm arrows, drum zones, finger buttons, bayan arrows, and **open / close**. Tags apply to all selected bols. Clicking a tag active on the whole selection removes it. Applying a different choice replaces that group's value. Mixed selections are exposed as `aria-pressed="mixed"`.
 6. Add extra notes. Meaningful edits save to this browser on this device. If saving fails, the page shows a persistent warning.
@@ -46,6 +46,8 @@ Hide **subSubMatra** with × and restore with **+ subSubMatra**. Hiding controls
 | Module | Responsibility |
 | --- | --- |
 | `js/model.js` | Factories, stable IDs, schema defaults, tala recognition |
+| `js/keyboard.js` | Compound shortcuts expanded into individual bols |
+| `js/talas.js` | Common tala structures and shared-structure alternatives |
 | `js/rhythm.js` | Pure boundary operations, normalization, validation, entry cursor |
 | `js/selection.js` | Transient selection and primary anchor |
 | `js/tags.js` | Central extensible definitions, exclusivity, human-readable labels |
@@ -55,11 +57,35 @@ Hide **subSubMatra** with × and restore with **+ subSubMatra**. Hiding controls
 | `js/export.js` | Pure notation export and progressive clipboard helper |
 | `js/app.js` | UI event orchestration |
 
-Storage key: `kaidanotes.composition.v1`. A malformed or unsupported document produces a usable empty sheet and a warning; the original stored value is not replaced until an edit. Known schema fields are sanitized. Selection, structure drafts, pending entry boundaries, and undo history are transient. Persistence is isolated so a future remote adapter can replace it without changing rhythm logic.
+Storage key remains `kaidanotes.composition.v1` for continuity; the current document schema is version 2. Version 1 documents migrate automatically, with the original backed up at `kaidanotes.composition.v1.before-v2`. Old color tags gain their musical meanings. Old compound tokens expand within their existing matra as subdivisions, preserving previously edited parent groups; their annotations are copied to the component bols and the first component retains the original ID. Sequence order is renumbered once during expansion, preserving recited order. Migrated IDs are saved immediately and stay stable on reload. New shortcut entry uses the same advancement as separate taps. A malformed or unsupported document produces an empty sheet and a warning, retaining the stored original until an edit. Selection, drafts, pending boundaries, and undo history remain transient.
 
-Zone labels deliberately remain neutral (orange/green/blue/purple/red zone), since the PDF does not identify all musical names. Change definitions in `tags.js` when the intended names are confirmed. Strike color, selection, finger markers, direction, and open/close state remain independent. All controls are real buttons with visible focus and accessible names.
+The user's clarified execution mapping supersedes the original brief's neutral color labels:
 
-The supplied tabla image is extracted from the user's design PDF and stored locally as `assets/tabla.jpg`; there are no third-party asset or font requests. Narrow screens rearrange the drum controls into a touch-friendly grid. Notation can scroll horizontally.
+- Orange = **sur**, blue = **kinar**, green = **syahi**, purple = **open tin**. These mutually exclusive choices are stored in `tags.dayanArticulation` and color the bol text.
+- Red = **membrane vibration control with right finger 4**, stored separately in `tags.membraneControl`. It adds one red dot without changing the bol's color, fingering, or text. It can coexist with any articulation.
+- Finger choices display digits (or digit pairs), never dots. Selecting right finger 4 as part of a fingering does not automatically enable membrane control.
+
+All controls are real buttons with visible focus and accessible names. The portrait phone layout keeps the four type buttons on one row, compacts the drum keyboard, labels the technique controls, fits a typical four-matra vibhag across the screen, and presents rhythm edits as horizontal rows with large arrow buttons. More complex notation can scroll horizontally.
+
+## Tala recognition
+
+Recognition uses the complete vibhag pattern, not just the beat count:
+
+| Main suggestion | Pattern | Other supported names sharing this grouping |
+| --- | --- | --- |
+| Tintal | 4–4–4–4 | Tilwara, Sitarkhani, Panjabi |
+| Kaherwa | 4–4 | Dhumali |
+| Dadra | 3–3 | |
+| Rupak | 3–2–2 | Pashto |
+| Jhaptal | 2–3–2–3 | |
+| Ektal | 2–2–2–2–2–2 | Chautal |
+| Deepchandi | 3–4–3–4 | Jhumra |
+| Dhamar | 5–2–3–4 | |
+| Sultal | 2–2–2–2–2 | |
+
+The main suggestion appears above the notation and in exports; matching alternatives are shown beside it because a grouping alone cannot uniquely identify a theka. Unknown patterns remain Custom. Structure references: [DigiTabla's tala reference](https://digitabla.com/reference/tals-and-thekas/extended-list/).
+
+The supplied tabla image is extracted from the user's design PDF and stored locally as `assets/tabla.jpg`; there are no third-party asset or font requests.
 
 ## Verification
 
@@ -76,6 +102,6 @@ Append `?debug=1` to show bol addresses. In this mode only, `kaidaDebug.snapshot
 
 The app uses relative asset URLs and supports the `/KaidaNotes/` project path. The workflow validates the application, assembles only public app assets, and deploys on pushes to `main`.
 
-Enable **Settings → Pages → Build and deployment → Source: GitHub Actions** in `mnetzel/KaidaNotes`. Run the workflow or push to `main`. The expected address is <https://mnetzel.github.io/KaidaNotes/> once the deployment succeeds. Alternatively, serve the repository root from `main` using GitHub Pages' branch publishing. `.nojekyll` is included.
+GitHub Pages is enabled with **GitHub Actions** as its source. The live application is <https://mnetzel.github.io/KaidaNotes/>. Push to `main` to validate and publish changes automatically. Alternatively, serve the repository root using GitHub Pages' branch publishing; `.nojekyll` is included.
 
 No compilation is required for deployment. `package.json` and Node.js are development conveniences only. No analytics, server communication, audio timing, playback, accounts, or synchronization are implemented in this MVP.

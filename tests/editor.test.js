@@ -12,16 +12,16 @@ const phrase = (text, structure = [4, 4, 4, 4]) => text.split(' ').reduce((c, bo
 const addresses = bols => bols.map(bol => LEVELS.map(level => bol.position[level]).join(':'));
 const move = (composition, index, level, direction) => ({ ...composition, bols: moveBoundary(composition.bols, level, direction, composition.bols[index].id) });
 
-test('Case A: four matras, stable IDs, one compound token, and auto advance', () => {
+test('Case A: four matras, stable IDs, compound expansion, and auto advance', () => {
   let c = phrase('Dha Dha Ti Ti');
   assert.deepEqual(addresses(c.bols), ['1:1:1:1', '1:2:1:1', '1:3:1:1', '1:4:1:1']);
   const original = c.bols.map(b => ({ id: b.id, order: b.order, text: b.text }));
   c = appendBol(c, 'TeRe / KeTe');
-  assert.equal(c.bols.at(-1).text, 'TeRe / KeTe');
-  assert.equal(c.bols.length, 5);
-  assert.equal(addresses(c.bols).at(-1), '2:1:1:1');
+  assert.deepEqual(c.bols.slice(4).map(b => b.text), ['Te', 'Re', 'Ke', 'Te']);
+  assert.equal(c.bols.length, 8);
+  assert.equal(addresses(c.bols).at(-1), '2:4:1:1');
   assert.deepEqual(c.bols.slice(0, 4).map(b => ({ id: b.id, order: b.order, text: b.text })), original);
-  assert.equal(new Set(c.bols.map(b => b.id)).size, 5);
+  assert.equal(new Set(c.bols.map(b => b.id)).size, 8);
 });
 
 test('next vibhag forces a boundary, also after a full vibhag and on an empty sheet', () => {
@@ -135,11 +135,11 @@ test('last selected bol is primary; deselect and exit multi-selection are determ
 
 test('complete export uses human-readable tags; basic excludes tags and both include notes', () => {
   let c = phrase('Dha Ti');
-  c.bols = applyTagToSelection(c.bols, [c.bols[0].id], 'strikeZone', 'zone-orange');
+  c.bols = applyTagToSelection(c.bols, [c.bols[0].id], 'dayanArticulation', 'sur');
   c.bols = applyTagToSelection(c.bols, [c.bols[0].id], 'openClose', 'open');
   c.notes = 'Play slowly first.';
-  assert.match(exportComplete(c), /Dha\{orange zone; open\}/);
-  assert.doesNotMatch(exportBasic(c), /orange|open/);
+  assert.match(exportComplete(c), /Dha\{sur; open\}/);
+  assert.doesNotMatch(exportBasic(c), /sur|open/);
   for (const value of [exportBasic(c), exportComplete(c)]) {
     assert.match(value, /Notes:\nPlay slowly first\./);
     assert.doesNotMatch(value, /bol-|composition-|zone-orange|schemaVersion/);

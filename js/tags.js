@@ -1,24 +1,27 @@
 export const TAGS = {
-  strikeZone: [
-    { id: 'zone-orange', label: 'orange zone', color: 'orange' },
-    { id: 'zone-green', label: 'green zone', color: 'green' },
-    { id: 'zone-blue', label: 'blue zone', color: 'blue' },
-    { id: 'zone-purple', label: 'purple zone', color: 'purple' },
-    { id: 'zone-red', label: 'red zone', color: 'red' },
+  dayanArticulation: [
+    { id: 'sur', label: 'sur', color: 'orange' },
+    { id: 'syahi', label: 'syahi', color: 'green' },
+    { id: 'kinar', label: 'kinar', color: 'blue' },
+    { id: 'open-tin', label: 'open tin', color: 'purple' },
   ],
+  membraneControl: [{ id: 'right-4', label: 'membrane control: right finger 4' }],
   leftHandFinger: [{ id: '4-and-3', label: 'left fingers 4 and 3' }, { id: '2', label: 'left finger 2' }],
   rightHandFinger: [{ id: '2', label: 'right finger 2' }, { id: '3-and-4', label: 'right fingers 3 and 4' }, { id: '3', label: 'right finger 3' }],
   bayanDirection: [{ id: 'up', label: 'bayan up' }, { id: 'down', label: 'bayan down' }],
   openClose: [{ id: 'open', label: 'open' }, { id: 'close', label: 'close' }],
 };
 
-export const emptyTags = () => ({ strikeZone: null, leftHandFinger: null, rightHandFinger: null, bayanDirection: null, openClose: null, extra: [] });
+export const emptyTags = () => ({ dayanArticulation: null, membraneControl: null, leftHandFinger: null, rightHandFinger: null, bayanDirection: null, openClose: null, extra: [] });
 export const tagDefinition = (group, id) => TAGS[group]?.find(tag => tag.id === id);
 
 export function sanitizeTags(value) {
   const tags = emptyTags();
   if (!value || typeof value !== 'object') return tags;
   for (const group of Object.keys(TAGS)) if (tagDefinition(group, value[group])) tags[group] = value[group];
+  const legacyZones = { 'zone-orange': 'sur', 'zone-green': 'syahi', 'zone-blue': 'kinar', 'zone-purple': 'open-tin' };
+  if (!tags.dayanArticulation && legacyZones[value.strikeZone]) tags.dayanArticulation = legacyZones[value.strikeZone];
+  if (value.strikeZone === 'zone-red') tags.membraneControl = 'right-4';
   tags.extra = Array.isArray(value.extra) ? [...new Set(value.extra.filter(x => typeof x === 'string').map(x => x.slice(0, 120)))] : [];
   return tags;
 }
