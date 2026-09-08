@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#dab2e7">
+  <meta name="description" content="Write, group and annotate tabla compositions. Your notation is saved on this device, ready to copy and share.">
+  <title>KaidaNotes — Tabla notation</title>
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="css/app.css">
+  <script type="module" src="js/app.js"></script>
+</head>
+<body>
+  <main class="app" aria-label="KaidaNotes composition editor">
+    <header class="composition-types" aria-label="Composition type">
+      <button type="button" data-type="kaida" aria-pressed="true">Kaida</button>
+      <button type="button" data-type="palta" aria-pressed="false">Palta</button>
+      <button type="button" data-type="rela" aria-pressed="false">Rela</button>
+      <button type="button" data-type="part-practice" aria-pressed="false">Part Practice</button>
+    </header>
+
+    <section class="keyboard" aria-label="Bol keyboard and execution tags">
+      <div class="entry-actions">
+        <button type="button" id="next-vibhag" class="purple" aria-pressed="false">next vibhag</button>
+        <button type="button" id="clear-bols" class="purple">clear</button>
+      </div>
+      <div class="open-close" aria-label="Open or close execution">
+        <button type="button" class="purple" data-tag-group="openClose" data-tag="open">open</button>
+        <button type="button" class="purple" data-tag-group="openClose" data-tag="close">close</button>
+      </div>
+      <div class="bol-keys left-keys">
+        <button type="button" data-bol="Ghe">Ghe</button>
+        <button type="button" data-bol="Ke">Ke</button>
+        <button type="button" data-bol="Ki">Ki</button>
+      </div>
+      <div class="bol-keys center-keys">
+        <button type="button" data-bol="Dha">Dha</button>
+        <button type="button" data-bol="Dhin">Dhin</button>
+        <button type="button" data-bol="Dhig">Dhig</button>
+        <span class="key-gap" aria-hidden="true"></span>
+        <button type="button" data-bol="Ta">Ta</button>
+        <button type="button" data-bol="Na">Na</button>
+      </div>
+      <div class="bol-keys right-keys">
+        <button type="button" data-bol="Te">Te</button>
+        <button type="button" data-bol="Re">Re</button>
+        <button type="button" data-bol="Ti">Ti</button>
+        <button type="button" data-bol="Tin">Tin</button>
+      </div>
+      <div class="bayan-direction" aria-label="Bayan direction">
+        <button type="button" data-tag-group="bayanDirection" data-tag="up" aria-label="Bayan up">↑</button>
+        <button type="button" data-tag-group="bayanDirection" data-tag="down" aria-label="Bayan down">↓</button>
+      </div>
+      <div class="compound-keys">
+        <button type="button" data-bol="GheGhe">GheGhe</button>
+        <button type="button" data-bol="TeTe">TeTe</button>
+        <button type="button" data-bol="GheGhe (reverse)">GheGhe<small>(reverse)</small></button>
+        <button type="button" data-bol="TeTe (reverse)">TeTe<small>(reverse)</small></button>
+      </div>
+      <div class="compound-right">
+        <button type="button" data-bol="TeRe / KeTe">TeRe<br>KeTe</button>
+        <button type="button" data-bol="TaKe">TaKe</button>
+      </div>
+      <div class="strike-zones" aria-label="Strike zones">
+        <button type="button" class="zone zone-orange" data-tag-group="strikeZone" data-tag="zone-orange" aria-label="Orange strike zone"></button>
+        <button type="button" class="zone zone-green" data-tag-group="strikeZone" data-tag="zone-green" aria-label="Green strike zone"></button>
+        <button type="button" class="zone zone-blue" data-tag-group="strikeZone" data-tag="zone-blue" aria-label="Blue strike zone"></button>
+        <button type="button" class="zone zone-purple" data-tag-group="strikeZone" data-tag="zone-purple" aria-label="Purple strike zone"></button>
+        <button type="button" class="zone zone-red" data-tag-group="strikeZone" data-tag="zone-red" aria-label="Red strike zone"></button>
+      </div>
+      <div class="fingers left-fingers" aria-label="Left hand fingers">
+        <button type="button" data-tag-group="leftHandFinger" data-tag="4-and-3">4 <small>and</small> 3</button>
+        <button type="button" data-tag-group="leftHandFinger" data-tag="2">2</button>
+      </div>
+      <div class="fingers right-fingers" aria-label="Right hand fingers">
+        <button type="button" data-tag-group="rightHandFinger" data-tag="2">2</button>
+        <button type="button" data-tag-group="rightHandFinger" data-tag="3-and-4">3 <small>and</small> 4</button>
+        <button type="button" data-tag-group="rightHandFinger" data-tag="3">3</button>
+      </div>
+    </section>
+
+    <section class="structure-bar" aria-label="Rhythmic structure">
+      <div class="structure-builder">
+        <span class="structure-label">vibhāg structure</span>
+        <div class="structure-controls">
+          <div class="structure-lengths" aria-label="Append vibhag length">
+            <button type="button" data-length="5" aria-label="Add 5 matras">5</button>
+            <button type="button" data-length="4" aria-label="Add 4 matras">4</button>
+            <button type="button" data-length="3" aria-label="Add 3 matras">3</button>
+            <button type="button" data-length="2" aria-label="Add 2 matras">2</button>
+          </div>
+          <div class="structure-actions">
+            <button type="button" id="structure-done">done</button>
+            <button type="button" id="structure-clear" aria-label="Clear structure draft">clear</button>
+          </div>
+        </div>
+        <output id="structure-draft" aria-live="polite"></output>
+      </div>
+      <div class="tala"><span id="tala-name">Tintal</span><span id="structure-summary">4 · 4 · 4 · 4</span></div>
+      <button type="button" id="select-more" class="yellow" aria-pressed="false">select more</button>
+    </section>
+
+    <div class="utility-bar">
+      <div class="history-actions">
+        <button type="button" id="undo" aria-label="Undo" title="Undo (Ctrl / Cmd + Z)">↶ <span>undo</span></button>
+        <button type="button" id="redo" aria-label="Redo" title="Redo (Ctrl / Cmd + Shift + Z)">↷ <span>redo</span></button>
+      </div>
+      <span id="entry-status" role="status">Tap a bol to begin</span>
+      <span id="save-status" role="status">Saved on this device</span>
+    </div>
+    <p id="storage-warning" class="warning" role="alert" hidden></p>
+
+    <section id="notation" class="notation" aria-label="Composition notation"></section>
+
+    <section class="inspector" aria-label="Selected bol rhythm">
+      <div class="selected-preview"><span id="selected-bol" class="notation-text">—</span><span id="selection-count"></span></div>
+      <div id="address-controls" class="address-controls"></div>
+      <button type="button" id="show-subsub" class="subsub-restore" hidden>+ subSubMatra</button>
+    </section>
+    <p id="selection-help" class="selection-help">Select a bol below the drums to edit its rhythm and execution.</p>
+
+    <section class="notes-share" aria-label="Notes and sharing">
+      <div class="notes-field">
+        <textarea id="extra-notes" aria-label="Extra notes" placeholder="Add a reminder from your lesson…" rows="3"></textarea>
+        <label for="extra-notes">extra notes</label>
+      </div>
+      <div class="share-actions">
+        <button type="button" data-share="basic" aria-label="Share basic notation"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M27.1 4.9A15.3 15.3 0 0 0 3.2 23.3L1 31l7.9-2.1A15.3 15.3 0 0 0 31 15.3c0-4-1.5-7.6-3.9-10.4ZM16 28.1c-2.3 0-4.5-.6-6.5-1.8l-.5-.3-4.7 1.3 1.3-4.5-.3-.5A12.5 12.5 0 1 1 16 28.1Zm7-9.3c-.4-.2-2.2-1.1-2.6-1.2-.3-.1-.6-.2-.8.2-.3.4-1 1.2-1.2 1.4-.2.3-.4.3-.8.1-2.1-1-3.5-2.2-4.8-4.3-.4-.6.4-.6 1.1-2 .1-.2.1-.5 0-.7l-1.1-2.7c-.3-.7-.6-.6-.8-.6h-.7c-.3 0-.7.1-1 .5s-1.3 1.3-1.3 3.1 1.4 3.5 1.6 3.7c.2.3 2.7 4.1 6.5 5.7 2.4 1 3.4 1.1 4.6.9.7-.1 2.2-.9 2.5-1.8.3-.9.3-1.7.2-1.8-.1-.2-.3-.3-.7-.5Z"/></svg><span>basic</span></button>
+        <button type="button" data-share="complete" aria-label="Share complete notation"><svg viewBox="0 0 32 32" aria-hidden="true"><use href="#whatsapp-mark"/></svg><span>complete</span></button>
+      </div>
+    </section>
+    <footer>KaidaNotes <span>•</span> Your lesson, saved on this device.</footer>
+    <noscript>KaidaNotes needs JavaScript enabled to edit and save notation.</noscript>
+  </main>
+  <dialog id="clear-dialog" aria-labelledby="clear-title">
+    <h2 id="clear-title">Clear the bol sequence?</h2>
+    <p>The bols and their execution tags will be removed. Your rhythm structure and extra notes will stay. You can undo this.</p>
+    <form method="dialog" class="dialog-actions"><button value="cancel" autofocus>keep notation</button><button value="clear" class="purple">clear bols</button></form>
+  </dialog>
+  <dialog id="share-dialog" aria-labelledby="share-title">
+    <h2 id="share-title">Basic notation</h2>
+    <p id="copy-status" role="status"></p>
+    <textarea id="share-preview" readonly aria-label="Notation to copy" rows="10"></textarea>
+    <div class="dialog-actions"><button type="button" id="copy-again" class="yellow">copy text</button><a id="whatsapp-link" target="_blank" rel="noopener noreferrer">open WhatsApp ↗</a><button type="button" id="close-share">done</button></div>
+  </dialog>
+  <div id="toast" class="toast" role="status" hidden></div>
+</body>
+</html>

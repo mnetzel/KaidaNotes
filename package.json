@@ -1,0 +1,13 @@
+{
+  "name": "kaidanotes",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "A browser-local tabla composition editor",
+  "scripts": {
+    "start": "node scripts/serve.js",
+    "test": "node --test tests/*.test.js",
+    "check": "node scripts/check.js"
+  },
+  "engines": { "node": ">=22" }
+}
