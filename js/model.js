@@ -49,8 +49,9 @@ export function deleteBol(composition, bolId) {
 function normalizeRetainingVibhags(bols) {
   const normalized = normalizePositions(bols);
   // Preserve valid nondecreasing row numbers, including intentionally empty rows.
-  if (bols.some((b, i) => i && b.position.vibhag < bols[i - 1].position.vibhag)) return normalized;
-  return normalized.map((b, i) => ({ ...b, position: { ...b.position, vibhag: bols[i].position.vibhag } }));
+  if (bols.some((b, i) => i && (b.position.vibhag < bols[i - 1].position.vibhag || (b.position.vibhag === bols[i - 1].position.vibhag && b.position.matra < bols[i - 1].position.matra)))) return normalized;
+  return normalized.map((b, i) => ({ ...b, position: { ...b.position, vibhag: bols[i].position.vibhag,
+    matra: bols[i].position.matra } }));
 }
 
 export function replaceBol(composition, selectedBolId, text) {

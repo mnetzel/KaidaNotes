@@ -1,4 +1,4 @@
-import { createComposition, appendToVibhag, clearVibhag, deleteBol, replaceBol, recognizeTala } from './model.js';
+import { createComposition, clearVibhag, deleteBol, replaceBol, recognizeTala } from './model.js';
 import { moveSelectedAtLevel } from './rhythm.js';
 import { createSelection, createBolInteraction, clickNotationBol, setMultiSelect, getPrimarySelection } from './selection.js';
 import { applyTagToSelection } from './tags.js';
@@ -9,6 +9,7 @@ import { exportBasic, exportComplete, shareText } from './export.js';
 import { matchTala } from './talas.js';
 import { expandBolSequence } from './keyboard.js';
 import { createShareLink, readShareLink } from './share-link.js';
+import { endCursor, insertAtCursor } from './cursor.js';
 import { fitPortraitLayout } from './layout.js';
 
 const $ = selector => document.querySelector(selector);
@@ -16,6 +17,8 @@ let selection = createSelection();
 let interaction = createBolInteraction();
 let structureDraft = null;
 let nextVibhag = false;
+let entryCursor = null;
+const cursor = () => entryCursor ?? endCursor(store.composition);
 let toastTimeout;
 let shareRequest = 0;
 const debug = new URLSearchParams(location.search).get('debug') === '1';
@@ -24,7 +27,7 @@ const store = createStore(startComposition(), composition => {
 });
 function currentVibhag() {
   return store.composition.bols.find(b => b.id === getPrimarySelection(selection))?.position.vibhag
-    ?? store.composition.ui.entryVibhag ?? store.composition.bols.at(-1)?.position.vibhag ?? 1;
+    ?? cursor().vibhag;
 }
 function currentBol() {
   return store.composition.bols.find(b => b.id === getPrimarySelection(selection))
@@ -54,13 +57,14 @@ function render() {
   $('#select-more').setAttribute('aria-pressed', String(selection.multi));
   $('#select-more').textContent = selection.multi ? '✓ select more' : 'select more';
   $('#next-vibhag').setAttribute('aria-pressed', String(nextVibhag));
-  $('#entry-status').textContent = nextVibhag ? 'Next bol starts a new vibhag' : composition.bols.length ? `${composition.bols.length} bols · V${currentVibhag()}` : 'Tap a bol to begin';
+  $('#entry-status').textContent = interaction.editingId ? 'Replace selected bol' : `Next bol: V${cursor().vibhag} · matra ${cursor().matra}`;
+  $('#delete-selected-bol').disabled = !getPrimarySelection(selection);
   $('#undo').disabled = !store.canUndo;
   $('#redo').disabled = !store.canRedo;
   $('#clear-bols').disabled = !composition.bols.some(b => b.position.vibhag === currentVibhag());
   $('#backspace-bol').disabled = !currentBol();
   if ($('#extra-notes').value !== composition.notes) $('#extra-notes').value = composition.notes;
-  renderNotation($('#notation'), composition, selection, debug, interaction.editingId);
+  renderNotation($('#notation'), composition, selection, debug, interaction.editingId, interaction.editingId ? null : cursor());
   renderInspector(composition, selection, interaction.editingId);
   $('#cancel-replacement').hidden = !interaction.editingId;
   document.querySelectorAll('[data-bol]').forEach(button => {
@@ -76,23 +80,31 @@ document.querySelectorAll('[data-type]').forEach(button => button.addEventListen
 document.querySelectorAll('[data-bol]').forEach(button => button.addEventListener('click', () => {
   if (interaction.editingId) {
     const selectedBolId = interaction.editingId;
-    interaction = createBolInteraction();
+    interaction = createBolInteraction(); entryCursor = null; nextVibhag = false;
     store.update(composition => replaceBol(composition, selectedBolId, button.dataset.bol));
     render();
     return;
   }
-  const vibhag = (store.composition.ui.entryVibhag ?? store.composition.bols.at(-1)?.position.vibhag ?? 1) + (nextVibhag && store.composition.bols.length ? 1 : 0);
-  const composition = appendToVibhag(store.composition, button.dataset.bol, vibhag);
+  const target = cursor();
+  const oldIds = new Set(store.composition.bols.map(b => b.id));
+  const composition = insertAtCursor(store.composition, button.dataset.bol, target);
   interaction = createBolInteraction();
-  selection = { ...selection, ids: [composition.bols.filter(b => b.position.vibhag === vibhag).at(-1).id] };
-  nextVibhag = false;
+  selection = { ...selection, ids: composition.bols.filter(b => !oldIds.has(b.id)).slice(-1).map(b => b.id) };
+  nextVibhag = false; entryCursor = null;
   store.update(() => composition);
 }));
 
-$('#next-vibhag').addEventListener('click', () => { interaction = createBolInteraction(); nextVibhag = true; render(); });
+$('#next-vibhag').addEventListener('click', () => {
+  if (!nextVibhag) {
+    const vibhag = cursor().vibhag + (store.composition.bols.length ? 1 : 0);
+    entryCursor = { vibhag, matra: (store.composition.bols.filter(b => b.position.vibhag === vibhag).at(-1)?.position.matra ?? 0) + 1 };
+  }
+  interaction = createBolInteraction(); nextVibhag = true; render();
+});
 $('#clear-bols').addEventListener('click', () => {
   const vibhag = currentVibhag();
   selection = createSelection(); interaction = createBolInteraction(); nextVibhag = false;
+  entryCursor = { vibhag, matra: 1 };
   store.update(composition => clearVibhag(composition, vibhag));
   toast(`Vibhag ${vibhag} cleared. Undo is available.`);
 });
@@ -102,7 +114,15 @@ $('#backspace-bol').addEventListener('click', () => {
   const previous = store.composition.bols.filter(b => b.position.vibhag === target.position.vibhag && b.order < target.order).at(-1);
   selection = { ...selection, ids: previous ? [previous.id] : [] };
   interaction = createBolInteraction(); nextVibhag = false;
+  entryCursor = null;
   store.update(composition => deleteBol(composition, target.id));
+});
+$('#delete-selected-bol').addEventListener('click', () => {
+  const id = getPrimarySelection(selection);
+  if (!id) return;
+  selection = createSelection(); interaction = createBolInteraction();
+  entryCursor = null; nextVibhag = false;
+  store.update(composition => deleteBol(composition, id));
 });
 $('#clear-all').addEventListener('click', () => {
   $('#clear-dialog').returnValue = '';
@@ -110,7 +130,7 @@ $('#clear-all').addEventListener('click', () => {
 });
 $('#clear-dialog').addEventListener('close', () => {
   if ($('#clear-dialog').returnValue !== 'clear') return;
-  nextVibhag = false; structureDraft = null;
+  nextVibhag = false; structureDraft = null; entryCursor = null;
   selection = createSelection(); interaction = createBolInteraction();
   $('#toast').hidden = true; clearTimeout(toastTimeout);
   $('#link-status').hidden = true;
@@ -127,12 +147,18 @@ $('#structure-clear').addEventListener('click', () => { structureDraft = []; ren
 $('#structure-done').addEventListener('click', () => {
   if (structureDraft === null) return;
   const structure = [...structureDraft];
-  structureDraft = null;
+  structureDraft = null; entryCursor = null; nextVibhag = false;
   store.update(composition => ({ ...composition, vibhagStructure: structure, talaName: recognizeTala(structure) }));
   render();
 });
 
 $('#notation').addEventListener('click', event => {
+  const empty = event.target.closest('[data-empty-matra]');
+  if (empty) {
+    entryCursor = { vibhag: Number(empty.dataset.vibhag), matra: Number(empty.dataset.emptyMatra) };
+    nextVibhag = false; selection = createSelection(); interaction = createBolInteraction();
+    render(); return;
+  }
   const button = event.target.closest('[data-bol-id]');
   if (!button) return;
   ({ selection, interaction } = clickNotationBol(selection, interaction, store.composition.bols, button.dataset.bolId));
@@ -161,6 +187,7 @@ $('#address-controls').addEventListener('click', event => {
     return;
   }
   if (!button.dataset.level) return;
+  entryCursor = null; nextVibhag = false;
   store.update(composition => moveSelectedAtLevel({ composition, selectedBolId: getPrimarySelection(selection), level: button.dataset.level, direction: button.dataset.direction }));
 });
 $('#show-subsub').addEventListener('click', () => {
@@ -172,8 +199,8 @@ $('#extra-notes').addEventListener('input', event => {
   store.update(composition => ({ ...composition, notes }), 'notes');
 });
 
-function undo() { nextVibhag = false; interaction = createBolInteraction(); store.undo(); render(); }
-function redo() { nextVibhag = false; interaction = createBolInteraction(); store.redo(); render(); }
+function undo() { entryCursor = null; nextVibhag = false; interaction = createBolInteraction(); store.undo(); render(); }
+function redo() { entryCursor = null; nextVibhag = false; interaction = createBolInteraction(); store.redo(); render(); }
 $('#undo').addEventListener('click', undo);
 $('#redo').addEventListener('click', redo);
 document.addEventListener('keydown', event => {
@@ -229,7 +256,7 @@ async function openSharedKaida() {
     const composition = await readShareLink(hash);
     if (location.hash !== hash) return;
     selection = createSelection(); interaction = createBolInteraction();
-    structureDraft = null; nextVibhag = false;
+    structureDraft = null; nextVibhag = false; entryCursor = null;
     store.update(() => composition);
     const url = new URL(location.href); url.hash = '';
     history.replaceState(null, '', url.href);

@@ -205,3 +205,10 @@ dialog p { font-size: 16px; line-height: 1.5; color: #706276; }
 .share-actions button { min-width: 76px; }
 .share-actions svg { width: 76px; height: 76px; }
 [data-share="link"] { color: #7b32a0; }
+
+.selection-actions { display: flex; flex-direction: column; gap: 6px; }
+#delete-selected-bol { padding: 6px 10px; font-size: 17px; white-space: nowrap; }
+button.empty-matra { background: transparent; border-radius: 0; min-height: 68px; }
+.empty-matra.entry-cursor { opacity: 1; outline: 3px solid var(--red); outline-offset: -6px; }
+.notation-bol.editing { outline-color: var(--red); }
+@media print { .selection-actions { display: none; } .entry-cursor { outline: none !important; } }

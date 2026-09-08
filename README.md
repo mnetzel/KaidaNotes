@@ -125,3 +125,11 @@ The URL ends with `#kaida=1.<gzip-base64url>`. Encoding uses the browser's [Comp
 Incoming links load automatically and save locally. Undo can restore the previous local composition during that session. After import, the payload is removed from the address bar so a reload preserves subsequent edits instead of reimporting the original snapshot. Use the **link** button to share again. Invalid, unsupported, truncated or oversized links show an error without replacing the local composition. The codec rejects validation that would silently change document contents.
 
 The implementation bounds decoded JSON to 1 MB, composition size to 10,000 bols/vibhags on import, and generated URLs to 64,000 characters. Links over 8,000 characters show a reminder to send the complete address; messaging applications may impose their own limits. No content is truncated to fit. Compression/decompression requires a browser supporting CompressionStream and DecompressionStream.
+
+## Entry cursor
+
+A red outline marks the empty matra where the next keyboard entry will go. By default this is after the final bol of the whole composition, regardless of a previously stored entry vibhag. Rhythm edits, replacement, deletion, undo/redo, structure changes, and imported compositions recalculate that endpoint. Selecting an existing bol is independent of the entry cursor.
+
+Click an empty matra to place the cursor there for the next entry. The app preserves intentionally empty matras before it, including across saving and sharing; text export renders their empty columns. After inserting a bol or shortcut, the cursor returns to the global end. Grouped shortcuts occupy one matra; a multi-matra shortcut preserves order by shifting a following occupied matra only if necessary. **next vibhag** shows the destination in advance. **clear** initially places the cursor in the cleared row for refilling.
+
+**Delete Selected Bol**, below **select more**, deletes only the primary selected bol (also when multiple bols are selected) and is disabled when nothing is selected. Undo restores it. The existing backspace button remains available. The cursor itself is transient and is not part of the shared notation.

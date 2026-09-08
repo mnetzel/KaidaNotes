@@ -43,7 +43,7 @@ function bolButton(bol, selection, debug, editingId) {
   return button;
 }
 
-export function renderNotation(container, composition, selection, debug = false, editingId = null) {
+export function renderNotation(container, composition, selection, debug = false, editingId = null, cursor = null) {
   const focused = document.activeElement?.dataset.bolId;
   // Every row uses the same columns, independent of its bol count or overflow.
   container.style.setProperty('--matra-columns', String(Math.max(1, ...composition.vibhagStructure, composition.vibhagStructure.length ? 1 : 4)));
@@ -56,7 +56,7 @@ export function renderNotation(container, composition, selection, debug = false,
     if (!rows.has(vibhag)) rows.set(vibhag, []);
     rows.get(vibhag).push(bol);
   }
-  const count = Math.max(composition.vibhagStructure.length, composition.bols.at(-1)?.position.vibhag ?? 1, composition.ui.entryVibhag ?? 1);
+  const count = Math.max(composition.vibhagStructure.length, composition.bols.at(-1)?.position.vibhag ?? 1, cursor?.vibhag ?? 1);
   for (let vibhag = 1; vibhag <= count; vibhag++) {
     const row = element('div', 'vibhag-row');
     row.setAttribute('aria-label', `Vibhag ${vibhag}`);
@@ -73,21 +73,33 @@ export function renderNotation(container, composition, selection, debug = false,
     }
     row.append(label);
     const matras = element('div', 'matras');
+    const cells = new Map();
     let matra = null;
     let previous = null;
     for (const bol of bols) {
       if (!previous || bol.position.matra !== previous.position.matra) {
         matra = element('div', 'matra');
         matra.setAttribute('aria-label', `Matra ${bol.position.matra}`);
-        matras.append(matra);
+        cells.set(bol.position.matra, matra);
       }
       matra.append(bolButton(bol, selection, debug, editingId));
       previous = bol;
     }
-    for (let i = actual; i < (expected ?? (actual || 1)); i++) {
-      const empty = element('div', 'matra empty-matra');
-      empty.setAttribute('aria-label', `Matra ${i + 1}, empty`);
-      matras.append(empty);
+    const visibleMatras = Math.max(expected ?? (actual || 1), actual, cursor?.vibhag === vibhag ? cursor.matra : 0);
+    for (let i = 1; i <= visibleMatras; i++) {
+      const cell = cells.get(i) ?? element('button', 'matra empty-matra');
+      if (!cells.has(i)) {
+        cell.type = 'button';
+        cell.dataset.emptyMatra = i;
+        cell.dataset.vibhag = vibhag;
+        cell.setAttribute('aria-label', `Vibhag ${vibhag}, matra ${i}, empty: place entry cursor here`);
+      }
+      if (cursor?.vibhag === vibhag && cursor.matra === i) {
+        cell.classList.add('entry-cursor');
+        cell.setAttribute('aria-current', 'location');
+        cell.title = 'The next bol will appear here';
+      }
+      matras.append(cell);
     }
     row.append(matras);
     fragment.append(row);
@@ -96,6 +108,18 @@ export function renderNotation(container, composition, selection, debug = false,
     cell.classList.toggle('dense', cell.querySelectorAll('.notation-bol').length > 1);
   });
   container.replaceChildren(fragment);
+  const cursorKey = cursor ? `${cursor.vibhag}:${cursor.matra}` : '';
+  if (container.dataset.cursor !== cursorKey) {
+    container.dataset.cursor = cursorKey;
+    const marker = container.querySelector('.entry-cursor');
+    if (marker) {
+      const panel = container.getBoundingClientRect();
+      const rect = marker.getBoundingClientRect();
+      const scale = panel.width / container.offsetWidth || 1;
+      if (rect.right > panel.right) container.scrollLeft += (rect.right - panel.right) / scale;
+      else if (rect.left < panel.left) container.scrollLeft -= (panel.left - rect.left) / scale;
+    }
+  }
   if (focused) [...container.querySelectorAll('[data-bol-id]')].find(node => node.dataset.bolId === focused)?.focus({ preventScroll: true });
 }
 

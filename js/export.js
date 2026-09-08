@@ -11,8 +11,8 @@ export function exportNotation(composition, complete = false) {
     const p = bol.position;
     if (!previous || p.vibhag !== previous.vibhag) {
       if (row) lines.push(`${row} |`);
-      row = `V${p.vibhag}: | `;
-    } else if (p.matra !== previous.matra) row += ' | ';
+      row = `V${p.vibhag}: | ` + ' | '.repeat(p.matra - 1);
+    } else if (p.matra !== previous.matra) row += ' | '.repeat(p.matra - previous.matra);
     // Bols inside one matra form one continuous written phrase.
     row += bol.text;
     if (complete) {
