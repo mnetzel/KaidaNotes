@@ -12,10 +12,10 @@ test('entry exceeds the target without changing it; only explicit next-vibhag ad
   assert.ok(c.bols.every(b => b.position.vibhag === 1));
   assert.deepEqual(c.bols.map(b => b.position.matra), [1,2,3,4,5,6,7,8,9,10]);
   c = appendBol(c, 'TeReKeTe', true);
-  assert.deepEqual(c.bols.slice(-4).map(b => b.position), [1,2,3,4].map(matra => ({vibhag:2, matra, subMatra:1, subSubMatra:1})));
+  assert.deepEqual(c.bols.slice(-4).map(b => b.position), [1,2,3,4].map(subMatra => ({vibhag:2, matra:1, subMatra, subSubMatra:1})));
   c = appendBol(c, 'Ta');
   assert.equal(c.bols.at(-1).position.vibhag, 2);
-  assert.equal(c.bols.at(-1).position.matra, 5);
+  assert.equal(c.bols.at(-1).position.matra, 2);
 });
 
 test('three consecutive taps select one, all exact matches across vibhags, then one replacement', () => {

@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { appendBol, createComposition, sanitizeComposition } from '../js/model.js';
-import { BOL_SEQUENCES } from '../js/keyboard.js';
+import { BOL_SEQUENCES, SINGLE_MATRA_SHORTCUTS } from '../js/keyboard.js';
 import { applyTagToSelection, sanitizeTags } from '../js/tags.js';
 import { bolColor } from '../js/renderer.js';
 import { recognizeTala, matchTala } from '../js/talas.js';
@@ -12,12 +12,16 @@ import { startComposition } from '../js/persistence.js';
 
 const withoutIds = composition => composition.bols.map(({ id, ...bol }) => bol);
 
-test('every compound button behaves like individual taps, including crossing vibhags', () => {
+test('shortcuts retain independent bols and selected shortcuts occupy one matra', () => {
   for (const [label, sequence] of Object.entries(BOL_SEQUENCES)) {
     for (const forced of [false, true]) {
       const start = ['Dha', 'Dha', 'Ti'].reduce((c, b) => appendBol(c, b), createComposition());
       const compound = appendBol(start, label, forced);
       const taps = sequence.reduce((c, b, i) => appendBol(c, b, forced && i === 0), start);
+      if (SINGLE_MATRA_SHORTCUTS.has(label)) {
+        const first = taps.bols[3].position;
+        taps.bols.slice(3).forEach((bol, index) => { bol.position = { ...first, subMatra: index + 1 }; });
+      }
       assert.deepEqual(withoutIds(compound), withoutIds(taps), `${label}, next vibhag=${forced}`);
       assert.ok(validateRhythm(compound.bols));
       assert.deepEqual(compound.bols.slice(0, 3), start.bols);

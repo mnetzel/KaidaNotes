@@ -24,7 +24,7 @@ test('Case A: four matras, stable IDs, compound expansion, and overflow within t
   c = appendBol(c, 'TeRe / KeTe');
   assert.deepEqual(c.bols.slice(4).map(b => b.text), ['Te', 'Re', 'Ke', 'Te']);
   assert.equal(c.bols.length, 8);
-  assert.equal(addresses(c.bols).at(-1), '1:8:1:1');
+  assert.equal(addresses(c.bols).at(-1), '1:5:4:1');
   assert.deepEqual(c.bols.slice(0, 4).map(b => ({ id: b.id, order: b.order, text: b.text })), original);
   assert.equal(new Set(c.bols.map(b => b.id)).size, 8);
 });

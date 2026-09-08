@@ -1,4 +1,4 @@
-// Shortcuts are recited bol sequences. Each item is entered like a single tap.
+// Each shortcut expands to independent bols. Selected shortcuts share one matra.
 export const BOL_SEQUENCES = {
   GheGhe: ['Ghe', 'Ghe'],
   'GheGhe (reverse)': ['Ghe', 'Ghe'],
@@ -12,3 +12,5 @@ export const BOL_SEQUENCES = {
 };
 
 export const expandBolSequence = label => [...(BOL_SEQUENCES[label] ?? [label])];
+
+export const SINGLE_MATRA_SHORTCUTS = new Set(['TeTe', 'TeReKeTe', 'TeRe / KeTe', 'TaKe', 'TeRe', 'KeTe']);

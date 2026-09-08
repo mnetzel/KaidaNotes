@@ -6,7 +6,7 @@ import { createStore } from '../js/state.js';
 
 const sheet = () => {
   let c = createComposition();
-  for (const v of [1,2,3]) c = appendToVibhag(c, 'TeReKeTe', v);
+  for (const v of [1,2,3]) for (const bol of ['Te','Re','Ke','Te']) c = appendToVibhag(c, bol, v);
   return { ...c, notes: 'Keep notes', compositionType: 'rela' };
 };
 test('clear one vibhag preserves other rows, metadata and structure; refill stays in that row', () => {

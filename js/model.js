@@ -1,6 +1,6 @@
 import { normalizePositions, nextPosition, LEVELS, deriveBoundaries, positionsFromBoundaries } from './rhythm.js';
 import { emptyTags, sanitizeTags } from './tags.js';
-import { expandBolSequence } from './keyboard.js';
+import { expandBolSequence, SINGLE_MATRA_SHORTCUTS } from './keyboard.js';
 import { recognizeTala } from './talas.js';
 export { recognizeTala } from './talas.js';
 
@@ -13,12 +13,16 @@ export function createComposition() {
 }
 
 export function appendBol(composition, text, forceVibhag = false) {
-  return expandBolSequence(text).reduce((current, bol, index) => appendSingleBol(current, bol, forceVibhag && index === 0), composition);
+  return expandBolSequence(text).reduce((current, bol, index) => appendSingleBol(current, bol, forceVibhag && index === 0, SINGLE_MATRA_SHORTCUTS.has(text) && index > 0), composition);
 }
 
-function appendSingleBol(composition, text, forceVibhag) {
+function appendSingleBol(composition, text, forceVibhag, sameMatra = false) {
+  const previous = composition.bols.at(-1)?.position;
+  const position = sameMatra && previous
+    ? { ...previous, subMatra: previous.subMatra + 1, subSubMatra: 1 }
+    : nextPosition(composition.bols, composition.vibhagStructure, forceVibhag);
   const bol = { id: id('bol'), order: (composition.bols.at(-1)?.order ?? 0) + 1, text,
-    position: nextPosition(composition.bols, composition.vibhagStructure, forceVibhag), tags: emptyTags(), note: '' };
+    position, tags: emptyTags(), note: '' };
   return { ...composition, bols: [...composition.bols, bol] };
 }
 
