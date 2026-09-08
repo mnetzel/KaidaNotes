@@ -9,7 +9,7 @@ export const id = prefix => `${prefix}-${globalThis.crypto?.randomUUID?.() ?? `$
 
 export function createComposition() {
   return { schemaVersion: 2, id: id('composition'), compositionType: 'kaida', talaName: 'Tintal',
-    vibhagStructure: [4, 4, 4, 4], notes: '', bols: [], ui: { showSubSubMatra: true } };
+    vibhagStructure: [4, 4, 4, 4], notes: '', bols: [], ui: { showSubSubMatra: false } };
 }
 
 export function appendBol(composition, text, forceVibhag = false) {
@@ -94,5 +94,5 @@ export function sanitizeComposition(raw) {
   return { schemaVersion: 2, id: typeof raw.id === 'string' ? raw.id : fresh.id,
     compositionType: COMPOSITION_TYPES.includes(raw.compositionType) ? raw.compositionType : 'kaida',
     vibhagStructure: structure, talaName: recognizeTala(structure), notes: typeof raw.notes === 'string' ? raw.notes : '',
-    bols: expandLegacyCompounds(normalizeRetainingVibhags(bols)), ui: { showSubSubMatra: raw.ui?.showSubSubMatra !== false, ...(Number.isSafeInteger(raw.ui?.entryVibhag) && raw.ui.entryVibhag > 0 ? { entryVibhag: raw.ui.entryVibhag } : {}) } };
+    bols: expandLegacyCompounds(normalizeRetainingVibhags(bols)), ui: { showSubSubMatra: raw.ui?.showSubSubMatra === true, ...(Number.isSafeInteger(raw.ui?.entryVibhag) && raw.ui.entryVibhag > 0 ? { entryVibhag: raw.ui.entryVibhag } : {}) } };
 }

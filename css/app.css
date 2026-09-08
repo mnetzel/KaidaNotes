@@ -22,7 +22,7 @@ button, textarea { font: inherit; }
 button { min-height: 44px; border: 0; border-radius: 10px; color: inherit; cursor: pointer; touch-action: manipulation; }
 button:hover:not(:disabled) { filter: brightness(.96); }
 button:active:not(:disabled) { transform: translateY(1px); }
-button:disabled { cursor: default; opacity: .38; }
+button:disabled { cursor: default; opacity: 1; color: #857b89; }
 button:focus-visible, a:focus-visible, textarea:focus-visible { outline: 3px solid #59227d; outline-offset: 4px; }
 button[aria-pressed="true"] { box-shadow: inset 0 0 0 3px var(--purple-strong); }
 [hidden] { display: none !important; }
@@ -38,7 +38,7 @@ button[aria-pressed="true"] { box-shadow: inset 0 0 0 3px var(--purple-strong); 
 .entry-actions button[aria-pressed="true"] { background: var(--yellow); }
 .open-close { position: absolute; top: 13.7%; right: 3%; display: flex; gap: 12px; }
 .bol-keys { position: absolute; display: flex; flex-direction: column; align-items: center; gap: 8px; }
-.bol-keys button { background: #ffffffe8; border-radius: 13px; font-size: clamp(30px, 5.9vw, 49px); line-height: 1; min-height: 47px; padding: 0 7px 2px; min-width: 86px; }
+.bol-keys button { background: #ffffff; border-radius: 13px; font-size: clamp(30px, 5.9vw, 49px); line-height: 1; min-height: 47px; padding: 0 7px 2px; min-width: 86px; }
 .left-keys { left: 6.3%; top: 10.5%; }
 .left-keys button { min-width: 108px; }
 .center-keys { left: 24%; top: 10.5%; }
@@ -46,9 +46,9 @@ button[aria-pressed="true"] { box-shadow: inset 0 0 0 3px var(--purple-strong); 
 .key-gap { height: 24px; }
 .right-keys { left: 49%; top: 16%; }
 .bayan-direction { position: absolute; left: 4.2%; top: 44.5%; display: flex; gap: 12px; }
-.bayan-direction button { width: 63px; height: 146px; background: #ffffffde; font-size: 118px; line-height: 1; padding: 0; font-family: Arial, sans-serif; }
+.bayan-direction button { width: 63px; height: 146px; background: #ffffff; font-size: 118px; line-height: 1; padding: 0; font-family: Arial, sans-serif; }
 .compound-keys { position: absolute; left: 23.2%; top: 63.5%; display: grid; grid-template-columns: 88px 88px; gap: 8px; }
-.compound-keys button, .compound-right button { background: #ffffffe8; line-height: 1.05; padding: 5px; min-height: 48px; font-size: 23px; }
+.compound-keys button, .compound-right button { background: #ffffff; line-height: 1.05; padding: 5px; min-height: 48px; font-size: 23px; }
 .compound-keys button:nth-child(odd) { font-size: 18px; }
 .compound-keys small { display: block; font-size: 16px; }
 .compound-right { position: absolute; left: 49%; top: 58.5%; display: grid; gap: 12px; }
@@ -65,7 +65,7 @@ button[aria-pressed="true"] { box-shadow: inset 0 0 0 3px var(--purple-strong); 
 .zone-purple { background: #ad08cf; width: 11%; height: 8%; left: 87%; top: 70%; border-radius: 45%; transform: rotate(-6deg); }
 .zone-red { background: #ff2535; width: 5.2%; height: 7%; left: 94%; top: 60%; border-radius: 50%; }
 .fingers { position: absolute; bottom: 0; display: flex; align-items: end; gap: 16px; }
-.fingers button { padding: 22px 14px; min-height: 106px; border-radius: 30px 30px 0 0; background: #ffffffe0; font-size: 25px; }
+.fingers button { padding: 22px 14px; min-height: 106px; border-radius: 30px 30px 0 0; background: #ffffff; font-size: 25px; }
 .fingers small { font-size: 15px; }
 .left-fingers { left: 5.5%; color: #1611e7; }
 .left-fingers button:last-child { margin-left: 9px; }
@@ -128,7 +128,7 @@ button[aria-pressed="true"] { box-shadow: inset 0 0 0 3px var(--purple-strong); 
 .address-arrow { min-width: 64px; background: var(--yellow); height: 49px; border-radius: 3px; font-size: 44px; line-height: 1; padding: 0 5px 4px; }
 .address-label { grid-column: 1 / 3; font-size: 18px; text-align: center; }
 .hide-subsub { position: absolute; right: 0; bottom: -41px; min-height: 34px; min-width: 38px; border-radius: 3px; background: var(--yellow); font-size: 24px; }
-.subsub-restore { font-size: 12px; background: transparent; color: #7a6481; align-self: flex-end; }
+.subsub-restore { font-size: 24px; background: var(--yellow); color: inherit; align-self: flex-end; min-width: 38px; min-height: 34px; padding: 0; border-radius: 3px; }
 .selection-help { margin: 28px 45px 12px; font-size: 13px; color: #7d6f83; line-height: 1.5; min-height: 20px; }
 .notes-share { display: flex; gap: 28px; padding: 32px 62px 28px; align-items: center; }
 .notes-field { flex: 1; min-width: 0; }

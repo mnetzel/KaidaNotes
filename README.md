@@ -39,7 +39,7 @@ For example, enter `Dha Te Re Ke Te` in a five-matra vibhag. Select `Re`, `Ke`, 
 
 Each keyboard entry advances one matra within the current vibhag, even beyond its configured length. Only **next vibhag** makes the next entry start a new vibhag; repeated presses before entry have the same effect as one press. A target of 4 remains 4 when entering 5, 6 or more matras, and its circle turns red on overflow. The structure repeats for additional vibhags; their addresses continue upward. Committing a different structure preserves the transcribed grouping and sequence, so it can be corrected deliberately. Empty slots are visual guides and are not exported as invented rests.
 
-Hide **subSubMatra** with × and restore with **+ subSubMatra**. Hiding controls never removes or changes rhythmic data.
+The optional **subSubMatra** controls start hidden on each page load, including when restoring a saved composition. Show them with the small **+** icon and hide them with **×**. Hiding controls never removes or changes rhythmic data. Disabled controls keep opaque backgrounds and use muted text to indicate their state.
 
 ## Architecture
 
