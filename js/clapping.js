@@ -35,7 +35,8 @@ export function renderClapPlot(container, result, byVibhag = false) {
   const baseline = 246;
   const handY = { right: 146, left: baseline, unassigned: 196 };
   const gridBottom = baseline + 34;
-  const svg = svgNode('svg', { viewBox: `0 0 ${width} ${baseline + 94}`, role: 'img', 'aria-labelledby': `clap-plot-title${suffix} clap-plot-description${suffix}`, class: 'clap-plot' });
+  const paddingX = 48, paddingY = 24;
+  const svg = svgNode('svg', { viewBox: `-${paddingX} -${paddingY} ${width + paddingX * 2} ${baseline + 94 + paddingY * 2}`, role: 'img', 'aria-labelledby': `clap-plot-title${suffix} clap-plot-description${suffix}`, class: 'clap-plot' });
   svg.append(svgNode('title', { id: 'clap-plot-title' + suffix }, 'Claps over one tala cycle'));
   svg.append(svgNode('desc', { id: 'clap-plot-description' + suffix }, `${hits.length} hits over ${(duration / 1000).toFixed(2)} seconds. ${totalMatras} equal matras grouped ${structure.join(', ')}. The last tap marks the next sam and is excluded from the hit count.`));
   let offset = 0;
