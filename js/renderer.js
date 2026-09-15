@@ -11,6 +11,42 @@ const element = (tag, className, text) => {
 
 export { bolColor } from './tags.js';
 
+// Measure in layout pixels, so portrait zoom and presentation scaling do not
+// shrink the notation twice. Only crowded matras need a smaller font.
+export function fitNotation(container) {
+  if (!container.clientWidth) return;
+  for (const cell of container.querySelectorAll('.matra:not(.empty-matra)')) {
+    const bols = [...cell.querySelectorAll('.notation-bol')];
+    cell.style.removeProperty('--bol-size');
+    const style = getComputedStyle(cell);
+    const available = cell.clientWidth - parseFloat(style.paddingLeft) - parseFloat(style.paddingRight);
+    const gap = (parseFloat(style.columnGap) || 0) * Math.max(0, bols.length - 1);
+    const widths = bols.map(bol => parseFloat(getComputedStyle(bol).width));
+    const fixed = bols.reduce((sum, bol) => {
+      const style = getComputedStyle(bol);
+      return sum + parseFloat(style.paddingLeft) + parseFloat(style.paddingRight);
+    }, gap);
+    const required = widths.reduce((sum, width) => sum + width, gap);
+    if (required > available && available > gap) {
+      // A small reserve covers integer rounding of the measured widths.
+      cell.style.setProperty('--bol-size', `${Math.max(1, 50 * (available - fixed - 2) / (required - fixed))}px`);
+    }
+  }
+}
+
+const notationObservers = new WeakMap();
+function watchNotation(container) {
+  // Detached presentation sheets are fitted by their own stage observer.
+  if (!container.isConnected) return;
+  if (!notationObservers.has(container)) {
+    const observer = new ResizeObserver(() => fitNotation(container));
+    observer.observe(container);
+    notationObservers.set(container, observer);
+    document.fonts.ready.then(() => fitNotation(container));
+  }
+  fitNotation(container);
+}
+
 function bolButton(bol, selection, debug, editingId) {
   const editing = bol.id === editingId;
   const selected = selection.ids.includes(bol.id);
@@ -117,6 +153,7 @@ export function renderNotation(container, composition, selection, debug = false,
     cell.classList.toggle('dense', cell.querySelectorAll('.notation-bol').length > 1);
   });
   container.replaceChildren(fragment);
+  watchNotation(container);
   const cursorKey = cursor ? `${cursor.vibhag}:${cursor.matra}` : '';
   if (container.dataset.cursor !== cursorKey) {
     container.dataset.cursor = cursorKey;

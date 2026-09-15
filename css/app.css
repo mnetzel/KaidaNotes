@@ -89,14 +89,14 @@ button[aria-pressed="true"] { box-shadow: inset 0 0 0 3px var(--purple-strong); 
 #entry-status { flex: 1; }
 #session-status { font-size: 12px; text-align: right; }
 .warning { margin: 10px 30px; padding: 12px 16px; background: #fff2c6; border-radius: 8px; line-height: 1.5; font-size: 14px; }
-.notation { padding: 28px 42px 34px; overflow-x: auto; min-height: 350px; }
-.vibhag-row { display: flex; align-items: stretch; gap: 26px; min-height: 88px; margin-bottom: 10px; min-width: 0; }
-.vibhag-label { flex: 0 0 68px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; }
-.vibhag-label .count { display: grid; place-items: center; width: 54px; height: 54px; border-radius: 50%; background: var(--lavender); font-size: 30px; }
+.notation { padding: 28px 12px 34px; overflow-x: auto; min-height: 350px; }
+.vibhag-row { display: flex; align-items: stretch; gap: 4px; min-height: 88px; margin-bottom: 10px; min-width: 0; }
+.vibhag-label { flex: 0 0 32px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; }
+.vibhag-label .count { display: grid; place-items: center; width: 30px; height: 30px; border-radius: 50%; background: var(--lavender); font-size: 20px; }
 .vibhag-label.overfull .count { color: var(--red); background: #ffe4e7; box-shadow: inset 0 0 0 2px var(--red); }
 .vibhag-label small { font-size: 12px; color: #716575; white-space: nowrap; }
 .matras { display: grid; grid-auto-flow: column; grid-auto-columns: max(110px, calc(100% / var(--matra-columns, 4))); align-items: stretch; flex: 1; min-width: 0; }
-.matra { display: flex; flex-wrap: wrap; align-items: center; align-content: center; justify-content: center; border-right: 3px solid var(--blue); padding: 3px 4px; min-width: 0; gap: 2px; }
+.matra { display: flex; flex-wrap: nowrap; align-items: center; align-content: center; justify-content: center; border-right: 3px solid var(--blue); padding: 3px 4px; min-width: 0; gap: 2px; }
 .matra.dense { column-gap: 0; }
 .matra.dense .notation-bol { min-width: 0; min-height: 56px; padding: 4px 0; }
 .matra.dense .notation-text { font-size: inherit; }
@@ -258,8 +258,8 @@ button.empty-matra { background: transparent; border-radius: 0; min-height: 68px
 #presentation-content { position: absolute; top: 0; width: 840px; transform-origin: top left; background: white; }
 #presentation-content h1 { margin: 8px 24px 4px; text-align: center; font: 32px 'Iosevka', monospace; }
 .presentation-structure { text-align: center; margin: 0 0 12px; font-size: 22px; }
-#presentation-content .notation { padding: 8px 30px; min-height: 0; overflow: visible; }
-#presentation-content .vibhag-row { min-height: 68px; margin-bottom: 4px; gap: 12px; }
+#presentation-content .notation { padding: 8px 12px; min-height: 0; overflow: visible; }
+#presentation-content .vibhag-row { min-height: 68px; margin-bottom: 4px; gap: 4px; }
 #presentation-content .notation-bol { display: inline-flex; align-items: center; min-height: 56px; }
 #presentation-content .empty-matra { min-height: 56px; }
 #presentation-content .clap-plot { width: 100%; min-width: 0; }
@@ -272,7 +272,7 @@ button.empty-matra { background: transparent; border-radius: 0; min-height: 68px
 
 
 /* Fixed annotation slots, with no visible slot borders. */
-.notation .notation-bol { padding: 4px 3px; min-width: 0; min-height: 0; font-size: 50px; }
+.notation .notation-bol { flex: none; padding: 4px 3px; min-width: 0; min-height: 0; font-size: var(--bol-size, 50px); }
 .notation .matra.dense .notation-bol { padding: 4px 0; min-height: 0; }
 .bol-display {
   --side-slot: 0px;

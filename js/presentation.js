@@ -1,4 +1,4 @@
-import { renderNotation } from './renderer.js';
+import { renderNotation, fitNotation } from './renderer.js';
 import { createSelection } from './selection.js';
 import { clapDisplay } from './clap-data.js';
 import { renderClapPlot } from './clapping.js';
@@ -9,6 +9,8 @@ export function setupPresentation(getComposition) {
   const content = document.querySelector('#presentation-content');
   const fit = () => {
     if (!dialog.open) return;
+    const notation = content.querySelector('.notation');
+    if (notation) fitNotation(notation);
     const scale = Math.min(stage.clientWidth / content.offsetWidth, stage.clientHeight / content.offsetHeight, 1);
     content.style.transform = `scale(${scale})`;
     content.style.left = `${Math.max(0, (stage.clientWidth - content.offsetWidth * scale) / 2)}px`;
@@ -51,6 +53,7 @@ export function setupPresentation(getComposition) {
       content.append(notes);
     }
     dialog.showModal();
+    fitNotation(notation);
     // Expand exceptionally wide notation before scaling the entire sheet to fit.
     const overflow = Math.max(0, notation.scrollWidth - notation.clientWidth);
     if (overflow) content.style.width = `${840 + overflow}` + 'px';
