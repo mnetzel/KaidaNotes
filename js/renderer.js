@@ -1,6 +1,6 @@
 import { LEVELS, canMoveBoundary, canJoinNextMatra, vibhagLength } from './rhythm.js';
 import { getPrimarySelection } from './selection.js';
-import { tagDefinition, tagLabels } from './tags.js';
+import { tagDefinition, tagLabels, bolColor } from './tags.js';
 
 const element = (tag, className, text) => {
   const node = document.createElement(tag);
@@ -9,10 +9,7 @@ const element = (tag, className, text) => {
   return node;
 };
 
-export function bolColor(bol) {
-  const color = tagDefinition('dayanArticulation', bol.tags.dayanArticulation)?.color;
-  return color ? `var(--${color}${color === 'purple' ? '-strong' : ''})` : '';
-}
+export { bolColor } from './tags.js';
 
 function bolButton(bol, selection, debug, editingId) {
   const editing = bol.id === editingId;

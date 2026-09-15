@@ -1,3 +1,4 @@
+import { bolColor } from './tags.js';
 // Timings belong to one measured cycle, independent of notation editing.
 export function analyzeClaps(timestamps, structure) {
   if (!structure.length || structure.some(n => !Number.isSafeInteger(n) || n < 1)) throw new Error('Set a vibhag structure before clapping.');
@@ -25,6 +26,7 @@ export function clapDisplay(capture, bols = []) {
   const result = analyzeClaps(capture.timestamps, capture.structure);
   return { ...result, snap: capture.snap, hits: result.hits.map(hit => ({ ...hit,
     label: soundingBols[hit.index - 1]?.text || '',
+    color: bolColor(soundingBols[hit.index - 1]) || '#141018',
     hands: ['right', 'left'].filter(hand => soundingBols[hit.index - 1]?.tags?.[hand + 'HandFinger']),
     matra: capture.snap ? Math.round(hit.matra * 2) / 2 : hit.matra,
   })) };

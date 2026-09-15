@@ -47,10 +47,11 @@ export function renderClapPlot(container, result) {
     const hands = hit.hands?.length ? hit.hands : ['unassigned'];
     for (const hand of hands) {
       const px = x(hit.matra), py = handY[hand];
-      const dot = svgNode('circle', { cx: px, cy: py, r: 5, class: 'clap-hit' + (hand === 'unassigned' ? ' clap-hit-unassigned' : ''), 'data-hand': hand });
+      const dot = svgNode('circle', { cx: px, cy: py, r: 8, class: 'clap-hit' + (hand === 'unassigned' ? ' clap-hit-unassigned' : ''), 'data-hand': hand });
+      dot.style.fill = hit.color || '#141018';
       dot.append(svgNode('title', {}, `Clap ${hit.index}${hit.label ? ': ' + hit.label : ''} · ${hand === 'unassigned' ? 'hand not marked' : hand + ' hand'} · ${(hit.elapsed / 1000).toFixed(3)} s · ${result.snap ? 'snapped ' : ''}matra ${(hit.matra + 1).toFixed(2)}`));
       svg.append(dot);
-      if (hit.label) svg.append(svgNode('text', { x: px, y: py - 11, 'text-anchor': 'middle', class: 'clap-bol-label' }, hit.label));
+      if (hit.label) svg.append(svgNode('text', { x: px, y: py - 15, 'text-anchor': 'middle', class: 'clap-bol-label' }, hit.label));
     }
   });
   svg.append(svgNode('text', { x: start, y: 58, class: 'clap-sam-label' }, 'sam'));

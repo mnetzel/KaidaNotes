@@ -37,3 +37,8 @@ export function applyTagToSelection(bols, ids, group, value) {
 export function tagLabels(tags) {
   return [...Object.keys(TAGS).map(group => tagDefinition(group, tags[group])?.label).filter(Boolean), ...(tags.extra || [])];
 }
+
+export function bolColor(bol) {
+  const color = tagDefinition('dayanArticulation', bol?.tags?.dayanArticulation)?.color;
+  return color ? `var(--${color}${color === 'purple' ? '-strong' : ''})` : '';
+}
