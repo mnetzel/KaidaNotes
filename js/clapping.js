@@ -112,7 +112,7 @@ export function setupClapping(getComposition, updateComposition) {
   const snapButton = document.querySelector('#clap-snap');
   const viewButton = document.querySelector('#clap-view');
   const blocksButton = document.querySelector('#clap-blocks');
-  let blocks = false;
+  let blocks = true;
   let byVibhag = true;
   let lastCapture, lastBols;
   let recording = false, times = [], structure = [], name = '';
@@ -122,7 +122,7 @@ export function setupClapping(getComposition, updateComposition) {
   };
   const reset = () => {
     setIdle(); times = []; structure = []; name = '';
-    blocks = false; blocksButton.setAttribute('aria-pressed', 'false');
+    blocks = true; blocksButton.setAttribute('aria-pressed', 'true');
     byVibhag = true; viewButton.setAttribute('aria-pressed', 'true');
     resultPanel.hidden = true; resultActions.hidden = true;
     document.querySelector('#clap-plot-container').replaceChildren();
