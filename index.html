@@ -8,6 +8,7 @@
   <title>KaidaNotes — Tabla notation</title>
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="css/app.css">
+  <link rel="stylesheet" href="css/keyboard.css">
   <script type="module">
     try {
       const loader = new URL('js/fresh.js', location.href);
@@ -61,7 +62,7 @@
     <section class="keyboard" aria-label="Bol keyboard and execution tags">
       <div class="entry-actions">
         <button type="button" id="backspace-bol" class="purple" aria-label="Delete current bol">⌫</button>
-        <button type="button" id="next-vibhag" class="purple" aria-pressed="false">next vibhag</button>
+        <button type="button" id="next-vibhag" class="purple" aria-pressed="false" title="Next vibhag" aria-label="Next vibhag">vibhag</button>
         <button type="button" id="clear-bols" class="purple">clear</button>
         <button type="button" id="clear-all" class="purple">clear all</button>
       </div>
@@ -89,8 +90,8 @@
         <button type="button" data-bol="Tin">Tin</button>
       </div>
       <div class="bayan-direction" aria-label="Bayan direction">
-        <button type="button" data-tag-group="bayanDirection" data-tag="up" aria-label="Bayan up">↑</button>
-        <button type="button" data-tag-group="bayanDirection" data-tag="down" aria-label="Bayan down">↓</button>
+        <button type="button" data-tag-group="bayanDirection" data-tag="up" aria-label="Bayan up">⬆</button>
+        <button type="button" data-tag-group="bayanDirection" data-tag="down" aria-label="Bayan down">⬇</button>
       </div>
       <div class="compound-keys">
         <button type="button" data-bol="TeRe">TeRe</button>
@@ -98,21 +99,21 @@
         <button type="button" data-bol="TaKe">TaKe</button>
       </div>
       <div class="strike-zones" aria-label="Dayan articulation and membrane control">
-        <button type="button" class="zone zone-orange" data-tag-group="dayanArticulation" data-tag="sur" aria-label="Sur"><span class="zone-label">sur</span></button>
-        <button type="button" class="zone zone-green" data-tag-group="dayanArticulation" data-tag="syahi" aria-label="Syahi"><span class="zone-label">syahi</span></button>
-        <button type="button" class="zone zone-blue" data-tag-group="dayanArticulation" data-tag="kinar" aria-label="Kinar"><span class="zone-label">kinar</span></button>
-        <button type="button" class="zone zone-purple" data-tag-group="dayanArticulation" data-tag="open-tin" aria-label="Open tin"><span class="zone-label">open tin</span></button>
-        <button type="button" class="zone zone-red" data-tag-group="membraneControl" data-tag="right-4" aria-label="Membrane control with right finger 4"><span class="zone-label">control 4</span></button>
+        <button type="button" class="zone zone-orange" data-tag-group="dayanArticulation" data-tag="sur" aria-label="Sur"><svg viewBox="737.3072 338.8797 39.927400000000034 84.59070000000003" aria-hidden="true"><path d="M 741.8234 400.7453 C 738.8722 390.2917 737.3072 379.3248 737.3072 368.0074 C 737.3072 353.8013 738.6568 338.8797 757.3011 338.8797 C 780.0310 338.8797 773.3531 355.5582 773.3531 368.6427 C 773.3531 377.9990 774.7024 387.0435 777.2346 395.6200 C 780.6444 407.1681 780.3575 415.9651 770.3915 423.4704 C 765.3549 427.2634 756.5607 422.7155 750.6403 417.3753 C 744.7822 412.0907 743.8927 408.0771 741.8234 400.7453 Z" fill="var(--sur-color)"/></svg></button>
+        <button type="button" class="zone zone-green" data-tag-group="dayanArticulation" data-tag="syahi" aria-label="Syahi"><svg viewBox="801.1474 368.96130000000005 161.8523 100.7731" aria-hidden="true"><path d="M 953.8435 443.0229 C 954.1902 442.6167 954.5261 442.2082 954.8501 441.7961 C 960.8119 434.2114 962.9583 425.5853 962.9997 415.5331 C 963.1176 386.9556 949.6525 374.3627 932.7750 368.9613 C 915.4871 363.4286 848.6600 363.4286 831.3721 368.9613 C 814.4946 374.3627 801.0295 386.9556 801.1474 415.5331 C 801.1888 425.5856 803.3352 434.2114 809.2970 441.7961 C 815.2586 449.3808 825.0361 455.9248 840.3403 461.8138 C 854.0626 467.0942 868.0680 469.7344 882.0734 469.7344 C 890.4583 469.7344 898.8432 468.7876 907.1671 466.8949 C 906.1506 464.1830 905.5953 461.2593 905.5953 458.2110 C 905.5953 444.0465 917.5575 432.5642 932.3138 432.5642 C 941.1480 432.5642 948.9793 436.6807 953.8435 443.0229 Z" fill="var(--syahi-color)"/></svg></button>
+        <button type="button" class="zone zone-blue" data-tag-group="dayanArticulation" data-tag="kinar" aria-label="Kinar"><svg viewBox="712.7306 436.0735 110.91230000000007 87.82190000000003" aria-hidden="true"><path d="M 726.3836 436.0735 C 756.8938 431.0006 762.1877 441.8454 773.6326 454.8950 C 780.8409 463.1138 789.5208 470.1040 799.1762 476.0032 C 811.5250 483.5482 831.8506 501.6717 823.6429 517.7286 C 814.9136 534.8062 785.4735 533.2313 771.6472 523.8954 C 747.4093 507.5284 727.1218 486.3522 712.7306 461.8501 C 702.6959 444.7659 716.4737 437.7213 726.3836 436.0735 Z" fill="var(--kinar-color)"/></svg></button>
+        <button type="button" class="zone zone-purple" data-tag-group="dayanArticulation" data-tag="open-tin" aria-label="Open tin"><svg viewBox="869.0927 502.05330000000004 74.19999999999993 53.33070000000001" aria-hidden="true"><path d="M 869.0927 505.1895 C 879.9381 506.5621 891.0819 504.7091 902.0806 502.0533 C 916.1473 498.6565 937.7425 498.3904 943.2927 515.5476 C 949.1956 533.7956 932.6648 551.3398 916.4795 555.3840 C 818.9419 579.7569 826.5368 499.8040 869.0927 505.1895 Z" fill="var(--open-stroke-color)"/></svg></button>
+        <button type="button" class="zone zone-red" data-tag-group="membraneControl" data-tag="right-4" aria-label="Membrane control with right finger 4"><svg viewBox="908.5079 435.36 47.61180000000002 45.70190000000002" aria-hidden="true"><path d="M 932.3138 435.3600 C 945.4615 435.3600 956.1197 445.5905 956.1197 458.2110 C 956.1197 470.8314 945.4615 481.0619 932.3138 481.0619 C 919.1662 481.0619 908.5079 470.8314 908.5079 458.2110 C 908.5079 445.5905 919.1662 435.3600 932.3138 435.3600 Z" fill="var(--hold-color)"/></svg></button>
       </div>
-      <div class="pause-keys"><button type="button" data-pause="before" aria-label="Insert pause before selected bol" title="Pause before selected bol" disabled>← —</button><button type="button" data-pause="after" aria-label="Insert pause after selected bol" title="Pause after selected bol" disabled>— →</button></div>
+      <div class="pause-keys"><button type="button" data-pause="before" aria-label="Insert pause before selected bol" title="Pause before selected bol" disabled>←–</button><button type="button" data-pause="after" aria-label="Insert pause after selected bol" title="Pause after selected bol" disabled>–→</button></div>
       <div class="fingers left-fingers" aria-label="Left hand fingers">
-        <button type="button" data-tag-group="leftHandFinger" data-tag="1-5" aria-label="Left whole hand, fingers 1 to 5">1–5</button>
-        <button type="button" data-tag-group="leftHandFinger" data-tag="4-and-3">4 <small>and</small> 3</button>
+        <button type="button" data-tag-group="leftHandFinger" data-tag="1-5" aria-label="Left whole hand, fingers 1 to 5">1-5</button>
+        <button type="button" data-tag-group="leftHandFinger" data-tag="4-and-3">4,3</button>
         <button type="button" data-tag-group="leftHandFinger" data-tag="2">2</button>
       </div>
       <div class="fingers right-fingers" aria-label="Right hand fingers">
         <button type="button" data-tag-group="rightHandFinger" data-tag="2">2</button>
-        <button type="button" data-tag-group="rightHandFinger" data-tag="3-and-4">3 <small>and</small> 4</button>
+        <button type="button" data-tag-group="rightHandFinger" data-tag="3-and-4">3,4</button>
         <button type="button" data-tag-group="rightHandFinger" data-tag="3">3</button>
       </div>
     </section>

@@ -54,7 +54,7 @@ test('membrane control is independent of articulation, fingering, text and rhyth
   bols = applyTagToSelection(bols, ids, 'rightHandFinger', '3');
   assert.ok(bols.every(b => b.tags.membraneControl === 'right-4' && b.tags.rightHandFinger === '3'));
   bols = applyTagToSelection(bols, ids, 'dayanArticulation', 'open-tin');
-  assert.ok(bols.every(b => bolColor(b) === 'var(--purple-strong)' && b.tags.membraneControl === 'right-4'));
+  assert.ok(bols.every(b => bolColor(b) === 'var(--open-stroke-color)' && b.tags.membraneControl === 'right-4'));
   bols = applyTagToSelection(bols, ids, 'membraneControl', 'right-4');
   assert.ok(bols.every(b => b.tags.membraneControl === null && b.tags.dayanArticulation === 'open-tin'));
   assert.deepEqual(bols.map(b => [b.text, b.position]), c.bols.map(b => [b.text, b.position]));

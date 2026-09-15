@@ -1,9 +1,9 @@
 export const TAGS = {
   dayanArticulation: [
-    { id: 'sur', label: 'sur', color: 'orange' },
-    { id: 'syahi', label: 'syahi', color: 'green' },
-    { id: 'kinar', label: 'kinar', color: 'blue' },
-    { id: 'open-tin', label: 'open tin', color: 'purple' },
+    { id: 'sur', label: 'sur', color: 'orange', colorToken: 'sur-color' },
+    { id: 'syahi', label: 'syahi', color: 'green', colorToken: 'syahi-color' },
+    { id: 'kinar', label: 'kinar', color: 'blue', colorToken: 'kinar-color' },
+    { id: 'open-tin', label: 'open tin', color: 'purple', colorToken: 'open-stroke-color' },
   ],
   membraneControl: [{ id: 'right-4', label: 'membrane control: right finger 4' }],
   leftHandFinger: [{ id: '1-5', label: 'left fingers 1–5 (whole hand)' }, { id: '4-and-3', label: 'left fingers 4 and 3' }, { id: '2', label: 'left finger 2' }],
@@ -39,6 +39,6 @@ export function tagLabels(tags) {
 }
 
 export function bolColor(bol) {
-  const color = tagDefinition('dayanArticulation', bol?.tags?.dayanArticulation)?.color;
-  return color ? `var(--${color}${color === 'purple' ? '-strong' : ''})` : '';
+  const color = tagDefinition('dayanArticulation', bol?.tags?.dayanArticulation)?.colorToken;
+  return color ? `var(--${color})` : '';
 }

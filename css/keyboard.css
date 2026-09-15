@@ -1,0 +1,68 @@
+/* Keyboard coordinates and palette from redesign buttons.pdf (965 x 721.4319). */
+@font-face { font-family: 'Iosevka'; src: url('../assets/fonts/Iosevka-Bold.woff2') format('woff2'); font-weight: 700; font-style: normal; font-display: swap; }
+:root {
+  --sur-color: #c77c20;
+  --kinar-color: #2ba5e6;
+  --syahi-color: #66c928;
+  --hold-color: #c71e1e;
+  --open-stroke-color: #7d3deb;
+  --keyboard-button-color: #f3eada;
+}
+.keyboard { aspect-ratio: 965 / 721.4319; container-type: inline-size; }
+.keyboard .entry-actions, .keyboard .open-close, .keyboard .bol-keys,
+.keyboard .bayan-direction, .keyboard .compound-keys, .keyboard .fingers, .keyboard .pause-keys { display: contents; }
+.keyboard button {
+  position: absolute; display: grid; place-items: center; box-sizing: border-box;
+  min-width: 0; min-height: 0; margin: 0; padding: 0;
+  border: 1px solid #000; border-radius: 1.75cqw;
+  background: var(--keyboard-button-color); color: #000; opacity: 1;
+  font: 700 6.2176cqw/1 'Iosevka', monospace;
+  transform: none; box-shadow: none; white-space: nowrap;
+}
+.keyboard button:disabled { color: #766f64; opacity: 1; }
+.keyboard button[aria-pressed="true"] { background: var(--keyboard-button-color); box-shadow: inset 0 0 0 3px #000; }
+.keyboard .fingers button:last-child { margin: 0; }
+.keyboard .zone { border: 0; border-radius: 0; background: transparent; padding: 0; opacity: 1; }
+.keyboard .zone:disabled { opacity: 1; }
+.keyboard .zone svg { width: 100%; height: 100%; overflow: visible; }
+.keyboard .zone[aria-pressed="true"] { background: transparent; outline: 0; box-shadow: none; }
+.keyboard .zone[aria-pressed="true"] svg { filter: drop-shadow(0 0 2px white) drop-shadow(0 0 2px black); }
+.keyboard .zone[aria-pressed="true"]::after { position: absolute; inset: 0; display: grid; place-items: center; color: white; font-size: 3cqw; }
+.keyboard #clear-bols, .keyboard #clear-all { font-size: 2.1cqw; }
+.keyboard .zone-orange { left: 76.40484%; top: 46.97321%; width: 4.13755%; height: 11.72539%; }
+.keyboard .zone-blue { left: 73.85805%; top: 60.44555%; width: 11.49350%; height: 12.17328%; }
+.keyboard .zone-purple { left: 90.06136%; top: 69.59123%; width: 7.68911%; height: 7.39234%; }
+.keyboard .zone-green { left: 83.02040%; top: 51.14291%; width: 16.77225%; height: 13.96848%; }
+.keyboard .zone-red { left: 94.14584%; top: 60.34665%; width: 4.93386%; height: 6.33489%; }
+.keyboard [data-bol="Ke"] { left: 4.42114%; top: 18.27187%; width: 13.96698%; height: 11.04064%; }
+.keyboard [data-tag="close"] { left: 19.97393%; top: 67.34090%; width: 16.75612%; height: 11.04064%; }
+.keyboard [data-bol="Ki"] { left: 4.42114%; top: 30.53913%; width: 13.96698%; height: 11.04064%; }
+.keyboard [data-bol="Ghe"] { left: 4.42114%; top: 6.00461%; width: 13.96698%; height: 11.04064%; }
+.keyboard [data-tag="open"] { left: 4.42114%; top: 67.34090%; width: 13.96698%; height: 11.04064%; }
+.keyboard [data-bol="Dha"] { left: 22.76307%; top: 6.00461%; width: 13.96698%; height: 11.04064%; }
+.keyboard [data-bol="Ta"] { left: 41.10501%; top: 6.00461%; width: 13.96698%; height: 11.04064%; }
+.keyboard [data-bol="Te"] { left: 56.28536%; top: 6.00461%; width: 13.96699%; height: 11.04064%; }
+.keyboard [data-bol="Dhi"] { left: 22.76307%; top: 18.27187%; width: 13.96698%; height: 11.04064%; }
+.keyboard [data-bol="Tin"] { left: 41.10501%; top: 18.27187%; width: 13.96698%; height: 11.04064%; }
+.keyboard [data-bol="Na"] { left: 56.28536%; top: 18.27187%; width: 13.96699%; height: 11.04064%; }
+.keyboard [data-bol="Dhin"] { left: 22.76307%; top: 30.53913%; width: 13.96698%; height: 11.04064%; }
+.keyboard [data-bol="Ti"] { left: 41.10501%; top: 30.53913%; width: 13.96698%; height: 11.04064%; }
+.keyboard [data-bol="Re"] { left: 56.28536%; top: 30.53913%; width: 13.96699%; height: 11.04064%; }
+.keyboard [data-bol="Dhig"] { left: 22.76307%; top: 42.80638%; width: 13.96698%; height: 11.04064%; }
+.keyboard [data-bol="TeRe"] { left: 41.10501%; top: 42.80638%; width: 13.96698%; height: 11.04064%; }
+.keyboard [data-bol="TaKe"] { left: 41.10501%; top: 55.07364%; width: 13.96698%; height: 11.04064%; }
+.keyboard [data-pause="before"] { left: 41.10501%; top: 67.34090%; width: 13.96698%; height: 11.04064%; }
+.keyboard [data-pause="after"] { left: 56.28536%; top: 67.34090%; width: 13.96699%; height: 11.04064%; }
+.keyboard [data-bol="KeTe"] { left: 56.28536%; top: 42.80638%; width: 13.96699%; height: 11.04064%; }
+.keyboard [data-tag="up"] { left: 4.42114%; top: 49.75784%; width: 6.52497%; height: 11.04064%; }
+.keyboard [data-tag="down"] { left: 11.86311%; top: 49.82840%; width: 6.52497%; height: 11.04064%; }
+.keyboard #next-vibhag { left: 74.62733%; top: 6.06858%; width: 21.22563%; height: 11.07836%; }
+.keyboard [data-tag="1-5"] { left: 4.42114%; top: 84.98561%; width: 13.96698%; height: 11.04064%; }
+.keyboard [data-tag="4-and-3"] { left: 19.90340%; top: 84.98561%; width: 13.96699%; height: 11.04064%; }
+.keyboard [data-tag="3-and-4"] { left: 72.60742%; top: 84.98561%; width: 13.96699%; height: 11.04064%; }
+.keyboard .left-fingers [data-tag="2"] { left: 35.29050%; top: 84.98561%; width: 7.85842%; height: 11.04064%; }
+.keyboard .right-fingers [data-tag="2"] { left: 63.28897%; top: 84.98561%; width: 7.85842%; height: 11.04064%; }
+.keyboard .right-fingers [data-tag="3"] { left: 87.99452%; top: 84.98561%; width: 7.85842%; height: 11.04064%; }
+.keyboard #backspace-bol { left: 87.57105%; top: 18.27187%; width: 8.28186%; height: 11.07836%; }
+.keyboard #clear-bols { left: 74.62733%; top: 18.23596%; width: 11.88517%; height: 6.07732%; }
+.keyboard #clear-all { left: 74.62733%; top: 25.65352%; width: 11.88517%; height: 6.07733%; }
