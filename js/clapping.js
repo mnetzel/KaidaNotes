@@ -8,26 +8,44 @@ const svgNode = (tag, attrs = {}, text) => {
   return node;
 };
 
-export function renderClapPlot(container, result) {
+export function renderClapPlot(container, result, byVibhag = false) {
+  if (byVibhag) {
+    let offset = 0;
+    const rows = result.structure.map((length, index) => {
+      const row = document.createElement('div');
+      row.className = 'clap-vibhag-row';
+      const last = index === result.structure.length - 1;
+      const hits = result.hits.filter(hit => hit.matra >= offset && (hit.matra < offset + length || (last && hit.matra === offset + length)))
+        .map(hit => ({ ...hit, matra: hit.matra - offset }));
+      renderClapPlot(row, { ...result, structure: [length], totalMatras: length, hits,
+        rowIndex: index, matraOffset: offset, scaleMatras: Math.max(...result.structure), first: index === 0, last });
+      offset += length;
+      return row;
+    });
+    container.replaceChildren(...rows);
+    return;
+  }
   const { totalMatras, structure, hits, duration } = result;
-  const width = Math.max(760, totalMatras * 40 + 64);
+  const width = Math.max(760, (result.scaleMatras || totalMatras) * 40 + 64);
   const start = 32, end = width - 32, top = 70;
-  const x = matra => start + matra / totalMatras * (end - start);
+  const x = matra => start + matra / (result.scaleMatras || totalMatras) * (end - start);
+  const rowEnd = x(totalMatras);
+  const suffix = result.rowIndex === undefined ? '' : '-' + result.rowIndex;
   const baseline = 246;
   const handY = { right: 146, left: baseline, unassigned: 196 };
   const gridBottom = baseline + 34;
-  const svg = svgNode('svg', { viewBox: `0 0 ${width} ${baseline + 94}`, role: 'img', 'aria-labelledby': 'clap-plot-title clap-plot-description', class: 'clap-plot' });
-  svg.append(svgNode('title', { id: 'clap-plot-title' }, 'Claps over one tala cycle'));
-  svg.append(svgNode('desc', { id: 'clap-plot-description' }, `${hits.length} hits over ${(duration / 1000).toFixed(2)} seconds. ${totalMatras} equal matras grouped ${structure.join(', ')}. The last tap marks the next sam and is excluded from the hit count.`));
+  const svg = svgNode('svg', { viewBox: `0 0 ${width} ${baseline + 94}`, role: 'img', 'aria-labelledby': `clap-plot-title${suffix} clap-plot-description${suffix}`, class: 'clap-plot' });
+  svg.append(svgNode('title', { id: 'clap-plot-title' + suffix }, 'Claps over one tala cycle'));
+  svg.append(svgNode('desc', { id: 'clap-plot-description' + suffix }, `${hits.length} hits over ${(duration / 1000).toFixed(2)} seconds. ${totalMatras} equal matras grouped ${structure.join(', ')}. The last tap marks the next sam and is excluded from the hit count.`));
   let offset = 0;
   structure.forEach((length, i) => {
     svg.append(svgNode('rect', { x: x(offset), y: top, width: x(offset + length) - x(offset), height: gridBottom - top, fill: i % 2 ? '#f8f0fb' : '#f0f4ff' }));
-    svg.append(svgNode('text', { x: x(offset + length / 2), y: 35, 'text-anchor': 'middle', class: 'clap-vibhag-label' }, `V${i + 1} · ${length}`));
+    svg.append(svgNode('text', { x: x(offset + length / 2), y: 35, 'text-anchor': 'middle', class: 'clap-vibhag-label' }, `V${(result.rowIndex ?? i) + 1} · ${length}`));
     offset += length;
   });
   for (let m = 0; m <= totalMatras; m++) {
     svg.append(svgNode('line', { x1: x(m), x2: x(m), y1: top, y2: gridBottom, class: 'clap-matra-line' }));
-    if (m < totalMatras) svg.append(svgNode('text', { x: x(m + .5), y: gridBottom + 24, 'text-anchor': 'middle', class: 'clap-matra-label' }, m + 1));
+    if (m < totalMatras) svg.append(svgNode('text', { x: x(m + .5), y: gridBottom + 24, 'text-anchor': 'middle', class: 'clap-matra-label' }, m + 1 + (result.matraOffset || 0)));
   }
   if (result.snap) {
     for (let q = 1; q < totalMatras * 2; q++) if (q % 2) svg.append(svgNode('line', { x1: x(q / 2), x2: x(q / 2), y1: top, y2: gridBottom, class: 'clap-half-line' }));
@@ -39,9 +57,9 @@ export function renderClapPlot(container, result) {
   }
   for (const [hand, label] of [['right', 'Dayan · right'], ['left', 'Bayan · left']]) {
     const py = handY[hand];
-    svg.append(svgNode('line', { x1: start, x2: end, y1: py, y2: py, class: 'clap-baseline', 'data-hand': hand }));
+    svg.append(svgNode('line', { x1: start, x2: rowEnd, y1: py, y2: py, class: 'clap-baseline', 'data-hand': hand }));
     svg.append(svgNode('text', { x: start, y: py - 36, class: 'clap-hand-label' }, label));
-    svg.append(svgNode('circle', { cx: end, cy: py, r: 7, class: 'clap-endpoint' }));
+    if (result.last !== false) svg.append(svgNode('circle', { cx: rowEnd, cy: py, r: 7, class: 'clap-endpoint' }));
   }
   hits.forEach(hit => {
     const hands = hit.hands?.length ? hit.hands : ['unassigned'];
@@ -49,13 +67,13 @@ export function renderClapPlot(container, result) {
       const px = x(hit.matra), py = handY[hand];
       const dot = svgNode('circle', { cx: px, cy: py, r: 8, class: 'clap-hit' + (hand === 'unassigned' ? ' clap-hit-unassigned' : ''), 'data-hand': hand });
       dot.style.fill = hit.color || '#141018';
-      dot.append(svgNode('title', {}, `Clap ${hit.index}${hit.label ? ': ' + hit.label : ''} · ${hand === 'unassigned' ? 'hand not marked' : hand + ' hand'} · ${(hit.elapsed / 1000).toFixed(3)} s · ${result.snap ? 'snapped ' : ''}matra ${(hit.matra + 1).toFixed(2)}`));
+      dot.append(svgNode('title', {}, `Clap ${hit.index}${hit.label ? ': ' + hit.label : ''} · ${hand === 'unassigned' ? 'hand not marked' : hand + ' hand'} · ${(hit.elapsed / 1000).toFixed(3)} s · ${result.snap ? 'snapped ' : ''}matra ${(hit.matra + 1 + (result.matraOffset || 0)).toFixed(2)}`));
       svg.append(dot);
       if (hit.label) svg.append(svgNode('text', { x: px, y: py - 15, 'text-anchor': 'middle', class: 'clap-bol-label' }, hit.label));
     }
   });
-  svg.append(svgNode('text', { x: start, y: 58, class: 'clap-sam-label' }, 'sam'));
-  svg.append(svgNode('text', { x: end, y: 58, 'text-anchor': 'end', class: 'clap-sam-label' }, 'next sam'));
+  if (result.first !== false) svg.append(svgNode('text', { x: start, y: 58, class: 'clap-sam-label' }, 'sam'));
+  if (result.last !== false) svg.append(svgNode('text', { x: rowEnd, y: 58, 'text-anchor': 'end', class: 'clap-sam-label' }, 'next sam'));
   container.replaceChildren(svg);
   container.style.setProperty('--clap-plot-width', `${width}px`);
 }
@@ -66,6 +84,8 @@ export function setupClapping(getComposition, updateComposition) {
   const status = document.querySelector('#clap-status');
   const resultPanel = document.querySelector('#clap-result');
   const snapButton = document.querySelector('#clap-snap');
+  const viewButton = document.querySelector('#clap-view');
+  let byVibhag = false;
   let lastCapture, lastBols;
   let recording = false, times = [], structure = [], name = '';
   const setIdle = () => {
@@ -74,6 +94,7 @@ export function setupClapping(getComposition, updateComposition) {
   };
   const reset = () => {
     setIdle(); times = []; structure = []; name = '';
+    byVibhag = false; viewButton.setAttribute('aria-pressed', 'false');
     resultPanel.hidden = true;
     document.querySelector('#clap-plot-container').replaceChildren();
     document.querySelector('#clap-summary').textContent = '';
@@ -87,12 +108,19 @@ export function setupClapping(getComposition, updateComposition) {
     lastCapture = capture; lastBols = bols;
     if (!capture) { reset(); return; }
     const result = clapDisplay(capture, bols);
-    renderClapPlot(document.querySelector('#clap-plot-container'), result);
+    renderClapPlot(document.querySelector('#clap-plot-container'), result, byVibhag);
     document.querySelector('#clap-summary').textContent = `${capture.name} · ${capture.structure.join('–')} · ${result.totalMatras} matras · ${result.hits.length} claps · ${(result.duration / 1000).toFixed(2)} s · ${capture.snap ? 'Snap ½ matra' : 'Original timing'}`;
     snapButton.setAttribute('aria-pressed', String(capture.snap));
     resultPanel.hidden = false;
     status.textContent = 'Final clap = next sam (end only). This recording is included in your Kaida link.';
   };
+  viewButton.addEventListener('click', () => {
+    const { clapping: capture, bols } = getComposition();
+    if (recording || !capture) return;
+    byVibhag = !byVibhag;
+    viewButton.setAttribute('aria-pressed', String(byVibhag));
+    renderClapPlot(document.querySelector('#clap-plot-container'), clapDisplay(capture, bols), byVibhag);
+  });
   document.querySelector('#clear-clapping').addEventListener('click', () => {
     reset();
     updateComposition(c => {

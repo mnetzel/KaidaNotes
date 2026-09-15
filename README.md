@@ -153,3 +153,5 @@ Clap dots are labeled in current notation order, skipping pause bols (—). Labe
 The clap plot reads finger annotations only: right-hand fingers put the hit on Dayan, left-hand fingers on Bayan, and both produce two dots at the same time. Unassigned hits remain between the lines; membrane control alone does not indicate a strike. The left **1–5** button marks the whole hand using the existing finger tag field. This visual interpretation never changes recorded times, bol positions, or old annotations.
 
 Clap dots use the same articulation colors as notation bols (including the default dark color) and an 8px radius. Both hand dots share the bol color; unassigned hands retain that color in the middle.
+
+**Vibhags view** toggles between the full tala and one stacked plot per vibhag. Each row retains both hand lines and the same matra width, with continuous matra numbering. Boundary hits belong to the next row; only the last row marks next sam. This display toggle does not alter or save over recording data.
