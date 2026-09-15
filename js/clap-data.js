@@ -31,3 +31,18 @@ export function clapDisplay(capture, bols = []) {
     matra: capture.snap ? Math.round(hit.matra * 2) / 2 : hit.matra,
   })) };
 }
+
+
+// Durations are derived from displayed onsets, never written back to the capture.
+export function clapBlocks(result) {
+  return result.hits.map((hit, index) => ({
+    ...hit, endMatra: result.hits[index + 1]?.matra ?? result.totalMatras,
+  }));
+}
+
+export function blocksInRange(blocks, start, end, last = false) {
+  return blocks.filter(hit => hit.endMatra > start && hit.matra < end ||
+    hit.endMatra === hit.matra && hit.matra >= start && (hit.matra < end || last && hit.matra === end))
+    .map(hit => ({ ...hit, matra: Math.max(start, hit.matra) - start,
+      endMatra: Math.min(end, hit.endMatra) - start }));
+}

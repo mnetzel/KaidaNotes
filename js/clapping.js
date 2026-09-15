@@ -1,4 +1,4 @@
-import { analyzeClaps, clapDisplay } from './clap-data.js';
+import { analyzeClaps, clapDisplay, clapBlocks, blocksInRange } from './clap-data.js';
 export { analyzeClaps } from './clap-data.js';
 
 const svgNode = (tag, attrs = {}, text) => {
@@ -8,17 +8,18 @@ const svgNode = (tag, attrs = {}, text) => {
   return node;
 };
 
-export function renderClapPlot(container, result, byVibhag = false) {
+export function renderClapPlot(container, result, byVibhag = false, blocks = false) {
+  if (blocks && !result.blockIntervals) result = { ...result, hits: clapBlocks(result), blockIntervals: true };
   if (byVibhag) {
     let offset = 0;
     const rows = result.structure.map((length, index) => {
       const row = document.createElement('div');
       row.className = 'clap-vibhag-row';
       const last = index === result.structure.length - 1;
-      const hits = result.hits.filter(hit => hit.matra >= offset && (hit.matra < offset + length || (last && hit.matra === offset + length)))
+      const hits = blocks ? blocksInRange(result.hits, offset, offset + length, last) : result.hits.filter(hit => hit.matra >= offset && (hit.matra < offset + length || (last && hit.matra === offset + length)))
         .map(hit => ({ ...hit, matra: hit.matra - offset }));
       renderClapPlot(row, { ...result, structure: [length], totalMatras: length, hits,
-        rowIndex: index, matraOffset: offset, scaleMatras: Math.max(...result.structure), first: index === 0, last });
+        rowIndex: index, matraOffset: offset, scaleMatras: Math.max(...result.structure), first: index === 0, last }, false, blocks);
       offset += length;
       return row;
     });
@@ -63,7 +64,27 @@ export function renderClapPlot(container, result, byVibhag = false) {
     svg.append(svgNode('text', { x: start, y: py - (stacked ? 72 : 36), class: 'clap-hand-label' }, label));
     if (result.last !== false) svg.append(svgNode('circle', { cx: rowEnd, cy: py, r: 7, class: 'clap-endpoint' }));
   }
-  hits.forEach(hit => {
+  if (blocks) hits.forEach(hit => {
+    const hands = hit.hands?.length ? hit.hands : ['unassigned'];
+    const both = hands.includes('right') && hands.includes('left');
+    const height = both ? 172 : 72;
+    const py = both ? handY.right - 36 : handY[hands[0]] - 36;
+    const left = x(hit.matra), right = x(hit.endMatra);
+    const gap = Math.min(3, Math.max(0, right - left) / 8);
+    const blockWidth = Math.max(2, right - left - gap * 2);
+    const rect = svgNode('rect', { x: left + gap, y: py, width: blockWidth, height,
+      rx: 3, class: 'clap-block', 'data-hands': hands.join(' '), 'data-clap': hit.index });
+    rect.style.fill = hit.color || '#141018';
+    rect.append(svgNode('title', {}, `${hit.label || 'Clap ' + hit.index} · ${hands.join(' + ')} · ${(hit.endMatra - hit.matra).toFixed(2)} matras${hit.endMatra === hit.matra ? ' (coincident after Snap)' : ''}`));
+    svg.append(rect);
+    if (hit.label && blockWidth >= 10) {
+      const fontSize = Math.min(stacked ? 34 : 22, (blockWidth - 6) / (hit.label.length * .65));
+      svg.append(svgNode('text', { x: left + gap + blockWidth / 2, y: py + height / 2,
+        'text-anchor': 'middle', 'dominant-baseline': 'central', class: 'clap-block-label',
+        style: `font-size: ${Math.max(1, fontSize)}px` }, hit.label));
+    }
+  });
+  else hits.forEach(hit => {
     const hands = hit.hands?.length ? hit.hands : ['unassigned'];
     for (const hand of hands) {
       const px = x(hit.matra), py = handY[hand];
@@ -88,6 +109,8 @@ export function setupClapping(getComposition, updateComposition) {
   const resultActions = document.querySelector('#clap-result-actions');
   const snapButton = document.querySelector('#clap-snap');
   const viewButton = document.querySelector('#clap-view');
+  const blocksButton = document.querySelector('#clap-blocks');
+  let blocks = false;
   let byVibhag = true;
   let lastCapture, lastBols;
   let recording = false, times = [], structure = [], name = '';
@@ -97,6 +120,7 @@ export function setupClapping(getComposition, updateComposition) {
   };
   const reset = () => {
     setIdle(); times = []; structure = []; name = '';
+    blocks = false; blocksButton.setAttribute('aria-pressed', 'false');
     byVibhag = true; viewButton.setAttribute('aria-pressed', 'true');
     resultPanel.hidden = true; resultActions.hidden = true;
     document.querySelector('#clap-plot-container').replaceChildren();
@@ -111,19 +135,26 @@ export function setupClapping(getComposition, updateComposition) {
     lastCapture = capture; lastBols = bols;
     if (!capture) { reset(); return; }
     const result = clapDisplay(capture, bols);
-    renderClapPlot(document.querySelector('#clap-plot-container'), result, byVibhag);
+    renderClapPlot(document.querySelector('#clap-plot-container'), result, byVibhag, blocks);
     document.querySelector('#clap-summary').textContent = `${capture.name} · ${capture.structure.join('–')} · ${result.totalMatras} matras · ${result.hits.length} claps · ${(result.duration / 1000).toFixed(2)} s · ${capture.snap ? 'Snap ½ matra' : 'Original timing'}`;
     snapButton.setAttribute('aria-pressed', String(capture.snap));
     viewButton.setAttribute('aria-pressed', String(byVibhag));
     resultPanel.hidden = false; resultActions.hidden = false;
     status.textContent = 'Final clap = next sam (end only). This recording is included in your Kaida link.';
   };
+  blocksButton.addEventListener('click', () => {
+    const { clapping: capture, bols } = getComposition();
+    if (recording || !capture) return;
+    blocks = !blocks;
+    blocksButton.setAttribute('aria-pressed', String(blocks));
+    renderClapPlot(document.querySelector('#clap-plot-container'), clapDisplay(capture, bols), byVibhag, blocks);
+  });
   viewButton.addEventListener('click', () => {
     const { clapping: capture, bols } = getComposition();
     if (recording || !capture) return;
     byVibhag = !byVibhag;
     viewButton.setAttribute('aria-pressed', String(byVibhag));
-    renderClapPlot(document.querySelector('#clap-plot-container'), clapDisplay(capture, bols), byVibhag);
+    renderClapPlot(document.querySelector('#clap-plot-container'), clapDisplay(capture, bols), byVibhag, blocks);
   });
   document.querySelector('#clear-clapping').addEventListener('click', () => {
     reset();
