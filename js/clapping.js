@@ -30,6 +30,7 @@ export function renderClapPlot(container, result, byVibhag = false) {
   const start = 32, end = width - 32, top = 70;
   const x = matra => start + matra / (result.scaleMatras || totalMatras) * (end - start);
   const rowEnd = x(totalMatras);
+  const stacked = result.rowIndex !== undefined;
   const suffix = result.rowIndex === undefined ? '' : '-' + result.rowIndex;
   const baseline = 246;
   const handY = { right: 146, left: baseline, unassigned: 196 };
@@ -58,18 +59,18 @@ export function renderClapPlot(container, result, byVibhag = false) {
   for (const [hand, label] of [['right', 'Dayan · right'], ['left', 'Bayan · left']]) {
     const py = handY[hand];
     svg.append(svgNode('line', { x1: start, x2: rowEnd, y1: py, y2: py, class: 'clap-baseline', 'data-hand': hand }));
-    svg.append(svgNode('text', { x: start, y: py - 36, class: 'clap-hand-label' }, label));
+    svg.append(svgNode('text', { x: start, y: py - (stacked ? 72 : 36), class: 'clap-hand-label' }, label));
     if (result.last !== false) svg.append(svgNode('circle', { cx: rowEnd, cy: py, r: 7, class: 'clap-endpoint' }));
   }
   hits.forEach(hit => {
     const hands = hit.hands?.length ? hit.hands : ['unassigned'];
     for (const hand of hands) {
       const px = x(hit.matra), py = handY[hand];
-      const dot = svgNode('circle', { cx: px, cy: py, r: 8, class: 'clap-hit' + (hand === 'unassigned' ? ' clap-hit-unassigned' : ''), 'data-hand': hand });
+      const dot = svgNode('circle', { cx: px, cy: py, r: stacked ? 16 : 8, class: 'clap-hit' + (hand === 'unassigned' ? ' clap-hit-unassigned' : ''), 'data-hand': hand });
       dot.style.fill = hit.color || '#141018';
       dot.append(svgNode('title', {}, `Clap ${hit.index}${hit.label ? ': ' + hit.label : ''} · ${hand === 'unassigned' ? 'hand not marked' : hand + ' hand'} · ${(hit.elapsed / 1000).toFixed(3)} s · ${result.snap ? 'snapped ' : ''}matra ${(hit.matra + 1 + (result.matraOffset || 0)).toFixed(2)}`));
       svg.append(dot);
-      if (hit.label) svg.append(svgNode('text', { x: px, y: py - 15, 'text-anchor': 'middle', class: 'clap-bol-label' }, hit.label));
+      if (hit.label) svg.append(svgNode('text', { x: px, y: py - (stacked ? 30 : 15), 'text-anchor': 'middle', class: 'clap-bol-label' }, hit.label));
     }
   });
   if (result.first !== false) svg.append(svgNode('text', { x: start, y: 58, class: 'clap-sam-label' }, 'sam'));

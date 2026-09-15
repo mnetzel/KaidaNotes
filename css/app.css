@@ -246,3 +246,5 @@ button.empty-matra { background: transparent; border-radius: 0; min-height: 68px
 .clap-bol-label { font: 600 17px Arial, sans-serif; fill: #302536; paint-order: stroke; stroke: white; stroke-width: 3px; stroke-linejoin: round; }
 
 .clap-hand-label { font: 16px Arial, sans-serif; fill: #65556e; }
+
+.clap-vibhag-row .clap-bol-label { font-size: 34px; }
