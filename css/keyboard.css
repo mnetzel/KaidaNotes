@@ -1,5 +1,4 @@
 /* Keyboard coordinates and palette from redesign buttons.pdf (965 x 721.4319). */
-@font-face { font-family: 'Iosevka'; src: url('../assets/fonts/Iosevka-Bold.woff2') format('woff2'); font-weight: 700; font-style: normal; font-display: swap; }
 :root {
   --sur-color: #c77c20;
   --kinar-color: #2ba5e6;
@@ -18,7 +17,7 @@
   min-width: 0; min-height: 0; margin: 0; padding: 0;
   border: 1px solid #000; border-radius: calc(var(--keyboard-layout-width) * .0175);
   background: var(--keyboard-button-color); color: #000; opacity: 1;
-  font: 700 calc(var(--keyboard-layout-width) * .062176)/1 'Iosevka', monospace;
+  font: 400 calc(var(--keyboard-layout-width) * .062176)/1 'Iosevka', monospace;
   transform: none; box-shadow: none; white-space: nowrap;
 }
 .keyboard button:disabled { color: #766f64; opacity: 1; }
@@ -68,3 +67,5 @@
 .keyboard #backspace-bol { left: 87.57105%; top: 18.27187%; width: 8.28186%; height: 11.07836%; }
 .keyboard #clear-bols { left: 74.62733%; top: 18.23596%; width: 11.88517%; height: 6.07732%; }
 .keyboard #clear-all { left: 74.62733%; top: 25.65352%; width: 11.88517%; height: 6.07733%; }
+
+.keyboard [data-bol], .keyboard [data-pause] { font-weight: 700; }

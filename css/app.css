@@ -1,5 +1,7 @@
+@font-face { font-family: 'Iosevka'; src: url('../assets/fonts/Iosevka-Regular.woff2') format('woff2'); font-weight: 400; font-style: normal; font-display: swap; }
+@font-face { font-family: 'Iosevka'; src: url('../assets/fonts/Iosevka-Bold.woff2') format('woff2'); font-weight: 700; font-style: normal; font-display: swap; }
 :root {
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: 'Iosevka', monospace;
   color: #141018;
   background: #f5f3f6;
   font-synthesis: none;
@@ -46,7 +48,7 @@ button[aria-pressed="true"] { box-shadow: inset 0 0 0 3px var(--purple-strong); 
 .key-gap { height: 24px; }
 .right-keys { left: 49%; top: 16%; }
 .bayan-direction { position: absolute; left: 4.2%; top: 44.5%; display: flex; gap: 12px; }
-.bayan-direction button { width: 63px; height: 146px; background: #ffffff; font-size: 118px; line-height: 1; padding: 0; font-family: Arial, sans-serif; }
+.bayan-direction button { width: 63px; height: 146px; background: #ffffff; font-size: 118px; line-height: 1; padding: 0; font-family: 'Iosevka', monospace; }
 .compound-keys { position: absolute; left: 18.5%; top: 68%; display: grid; grid-template-columns: repeat(3, 144px); gap: 8px; }
 .compound-keys button { background: #ffffff; line-height: 1.05; padding: 12px; min-height: 87px; font-size: 42px; }
 .strike-zones { position: absolute; inset: 0; pointer-events: none; }
@@ -101,20 +103,20 @@ button[aria-pressed="true"] { box-shadow: inset 0 0 0 3px var(--purple-strong); 
 .empty-matra { opacity: .36; }
 .empty-matra::after { content: '·'; color: #b0a8b3; font-size: 26px; }
 .notation-bol { position: relative; background: transparent; padding: 6px 7px; border-radius: 4px; min-width: 46px; white-space: nowrap; min-height: 68px; }
-.notation-text { font: 600 50px/1.15 Arial, sans-serif; }
+.notation-text { font: 700 50px/1.15 'Iosevka', monospace; }
 .notation-bol.compound .notation-text { font-size: 34px; }
 .notation-bol.selected { background: var(--yellow); }
 .notation-bol[aria-pressed="true"] { box-shadow: none; outline: 2px solid #bf921a; outline-offset: -2px; }
 .notation-bol.primary::after { content: ''; position: absolute; bottom: 2px; width: 18px; height: 3px; background: #9e7200; left: calc(50% - 9px); border-radius: 2px; }
 .notation-bol.editing, #selected-bol.editing { min-width: 70px; outline: 3px dashed #9e7200; outline-offset: -3px; }
 #cancel-replacement { margin: 0 45px 8px; padding: 6px 14px; background: var(--yellow); font-size: 16px; }
-.tag-markers { display: flex; justify-content: flex-end; font: 13px/1.2 Arial, sans-serif; gap: 3px; min-height: 0; }
+.tag-markers { display: flex; justify-content: flex-end; font: 13px/1.2 'Iosevka', monospace; gap: 3px; min-height: 0; }
 .finger-left { color: #1611e7; }
 .finger-right { color: #d41528; }
 .membrane-control-marker { color: var(--hold-color); }
 .membrane-control-marker { font-size: 15px; }
 .execution { color: #716575; }
-.address-debug { display: block; margin-top: 6px; font: 11px Arial, sans-serif; color: #665c70; }
+.address-debug { display: block; margin-top: 6px; font: 11px 'Iosevka', monospace; color: #665c70; }
 .notation-empty { margin: 0 0 22px 95px; color: #8b7e90; font-size: 14px; }
 .inspector { display: flex; align-items: center; gap: 24px; padding: 20px 45px 0; }
 .selected-preview { flex: 0 0 130px; text-align: center; }
@@ -123,7 +125,7 @@ button[aria-pressed="true"] { box-shadow: inset 0 0 0 3px var(--purple-strong); 
 #selection-count { display: block; font-size: 12px; color: #7c6a82; min-height: 20px; margin-top: 5px; }
 .address-controls { display: flex; flex: 1; gap: 7px; }
 .address-group { display: grid; grid-template-columns: 35px 1fr; grid-template-rows: 49px 49px 24px; column-gap: 7px; row-gap: 8px; align-items: center; flex: 1; position: relative; }
-.address-number { grid-row: 1 / 3; font: 46px Arial, sans-serif; text-align: center; }
+.address-number { grid-row: 1 / 3; font: 46px 'Iosevka', monospace; text-align: center; }
 .address-arrow { min-width: 64px; background: var(--yellow); height: 49px; border-radius: 3px; font-size: 44px; line-height: 1; padding: 0 5px 4px; }
 .address-label { grid-column: 1 / 3; font-size: 18px; text-align: center; }
 .hide-subsub { position: absolute; right: 0; bottom: -41px; min-height: 34px; min-width: 38px; border-radius: 3px; background: var(--yellow); font-size: 24px; }
@@ -131,7 +133,7 @@ button[aria-pressed="true"] { box-shadow: inset 0 0 0 3px var(--purple-strong); 
 .selection-help { margin: 28px 45px 12px; font-size: 13px; color: #7d6f83; line-height: 1.5; min-height: 20px; }
 .notes-share { display: flex; gap: 28px; padding: 32px 62px 28px; align-items: center; }
 .notes-field { flex: 1; min-width: 0; }
-#extra-notes { display: block; background: #fff6cd; width: 100%; min-height: 108px; border: none; border-radius: 7px; resize: vertical; padding: 12px 16px; font: 22px/1.35 Arial, sans-serif; color: #31252a; }
+#extra-notes { display: block; background: #fff6cd; width: 100%; min-height: 108px; border: none; border-radius: 7px; resize: vertical; padding: 12px 16px; font: 22px/1.35 'Iosevka', monospace; color: #31252a; }
 #extra-notes::placeholder { color: #968562; }
 .notes-field label { display: block; text-align: center; font-size: 21px; margin-top: 7px; }
 .share-actions { display: flex; gap: 20px; }
@@ -140,12 +142,12 @@ button[aria-pressed="true"] { box-shadow: inset 0 0 0 3px var(--purple-strong); 
 footer { display: flex; justify-content: center; gap: 10px; font-size: 12px; color: #95899b; padding: 18px 20px 28px; }
 dialog { border: 1px solid #e4d8e9; border-radius: 18px; max-width: min(560px, calc(100% - 32px)); padding: 26px; box-shadow: 0 20px 100px #2f153744; }
 dialog::backdrop { background: #251a315c; backdrop-filter: blur(3px); }
-dialog h2 { margin: 0 0 12px; font-size: 24px; font-weight: 500; }
+dialog h2 { margin: 0 0 12px; font-size: 24px; font-weight: 400; }
 dialog p { font-size: 16px; line-height: 1.5; color: #706276; }
 .dialog-actions { display: flex; gap: 10px; flex-wrap: wrap; justify-content: flex-end; align-items: center; margin-top: 18px; }
 .dialog-actions button, .dialog-actions a { padding: 12px 14px; border-radius: 8px; font-size: 15px; }
 .dialog-actions a { background: #e1f8e9; color: #127534; text-decoration: none; }
-#share-preview { width: 100%; resize: vertical; border: 1px solid #d9cbdc; border-radius: 6px; padding: 12px; font: 15px/1.6 monospace; }
+#share-preview { width: 100%; resize: vertical; border: 1px solid #d9cbdc; border-radius: 6px; padding: 12px; font: 15px/1.6 'Iosevka', monospace; }
 .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: #33233e; color: white; padding: 12px 22px; border-radius: 24px; box-shadow: var(--shadow); font-size: 15px; max-width: calc(100% - 24px); z-index: 5; }
 @media (min-width: 900px) { .app { margin: 20px auto; border-radius: 18px; } }
 @media (min-width: 601px) and (max-width: 760px) {
@@ -211,17 +213,17 @@ button.empty-matra { background: transparent; border-radius: 0; min-height: 68px
 @media (min-width: 601px) and (max-width: 760px) { .center-keys { gap: 4px; } .center-keys button { font-size: 34px; min-height: 36px; } }
 
 .clapping { margin: 0 30px; padding: 26px 0 34px; border-top: 2px solid #e8dceb; }
-.clapping h2 { margin: 0 0 12px; font-size: 30px; font-weight: 500; }
+.clapping h2 { margin: 0 0 12px; font-size: 30px; font-weight: 400; }
 .clapping p { font-size: 22px; line-height: 1.45; margin: 12px 0; }
 .clapping-controls { display: flex; gap: 18px; align-items: stretch; margin: 22px 0; }
 #start-clapping { min-width: 240px; padding: 16px 22px; font-size: 28px; }
 #clap { flex: 1; min-height: 150px; font-size: 48px; touch-action: manipulation; user-select: none; }
 #clap-status { min-height: 64px; color: #65556e; }
-#clap-summary { font-weight: 600; }
+#clap-summary { font-weight: 400; }
 #clap-plot-container { overflow-x: auto; }
 .clap-plot { display: block; width: 100%; min-width: var(--clap-plot-width, 760px); height: auto; }
-.clap-vibhag-label { font: 22px Arial, sans-serif; fill: #674279; }
-.clap-matra-label, .clap-sam-label { font: 20px Arial, sans-serif; fill: #66556d; }
+.clap-vibhag-label { font: 22px 'Iosevka', monospace; fill: #674279; }
+.clap-matra-label, .clap-sam-label { font: 20px 'Iosevka', monospace; fill: #66556d; }
 .clap-matra-line { stroke: #a2b8d6; stroke-width: 1; }
 .clap-vibhag-line { stroke: #75468c; stroke-width: 3; }
 .clap-baseline { stroke: #aca0b1; stroke-width: 1; }
@@ -238,13 +240,13 @@ button.empty-matra { background: transparent; border-radius: 0; min-height: 68px
 #clap-snap, #clear-clapping, #clap-view, #clap-blocks { padding: 10px 20px; font-size: 26px; margin: 0 0 18px; }
 .clap-half-line { stroke: #bcb3c3; stroke-width: 1; stroke-dasharray: 3 4; opacity: .6; }
 
-.clap-bol-label { font: 600 17px Arial, sans-serif; fill: #302536; paint-order: stroke; stroke: white; stroke-width: 3px; stroke-linejoin: round; }
+.clap-bol-label { font: 700 17px 'Iosevka', monospace; fill: #302536; paint-order: stroke; stroke: white; stroke-width: 3px; stroke-linejoin: round; }
 
-.clap-hand-label { font: 16px Arial, sans-serif; fill: #65556e; }
+.clap-hand-label { font: 16px 'Iosevka', monospace; fill: #65556e; }
 
 .clap-vibhag-row .clap-bol-label { font-size: 34px; }
 
-.clap-block-label { font-family: Arial, sans-serif; font-weight: 600; fill: white; pointer-events: none; }
+.clap-block-label { font-family: 'Iosevka', monospace; font-weight: 700; fill: white; pointer-events: none; }
 
 #clap-result:has(#clap-plot-container.blocks-view) #clap-summary,
 #clap-result:has(#clap-plot-container.blocks-view) .clap-legend { display: none; }
@@ -254,7 +256,7 @@ button.empty-matra { background: transparent; border-radius: 0; min-height: 68px
 #presentation-dialog[open] { display: flex; flex-direction: column; gap: 8px; }
 #presentation-stage { position: relative; flex: 1; min-height: 0; overflow: hidden; }
 #presentation-content { position: absolute; top: 0; width: 840px; transform-origin: top left; background: white; }
-#presentation-content h1 { margin: 8px 24px 4px; text-align: center; font: 32px Arial, sans-serif; }
+#presentation-content h1 { margin: 8px 24px 4px; text-align: center; font: 32px 'Iosevka', monospace; }
 .presentation-structure { text-align: center; margin: 0 0 12px; font-size: 22px; }
 #presentation-content .notation { padding: 8px 30px; min-height: 0; overflow: visible; }
 #presentation-content .vibhag-row { min-height: 68px; margin-bottom: 4px; gap: 12px; }
@@ -266,4 +268,4 @@ button.empty-matra { background: transparent; border-radius: 0; min-height: 68px
 #presentation-content .matras { grid-auto-columns: calc(100% / var(--matra-columns, 4)); }
 
 .presentation-plot { margin-top: 26px; }
-.presentation-notes { margin: 24px 32px 12px; white-space: pre-wrap; overflow-wrap: anywhere; font: 24px/1.4 Arial, sans-serif; }
+.presentation-notes { margin: 24px 32px 12px; white-space: pre-wrap; overflow-wrap: anywhere; font: 24px/1.4 'Iosevka', monospace; }

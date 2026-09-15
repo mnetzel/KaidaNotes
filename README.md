@@ -166,7 +166,7 @@ Blocks use a compact layout with only bol names and matra numbers: hand labels, 
 
 Timeline matra numbers align with the start boundary. **Presentation View** opens a read-only sheet with the composition title, notation and stacked block timeline. It scales the entire sheet to fit the current screen; long compositions appear smaller. **Presentation Off** (or Escape) restores the editor without changing data, selection or timeline preferences. If no clap recording exists, only notation is shown.
 
-Presentation includes nonempty Extra notes after the block timeline, with a small gap separating notation from blocks. All notation and notes use upright Arial. Block corners use proportional, subtle rounding for one- and two-hand strokes.
+Presentation includes nonempty Extra notes after the block timeline, with a small gap separating notation from blocks. All notation and notes use upright Iosevka. Block corners use proportional, subtle rounding for one- and two-hand strokes.
 
 ## Keyboard design tokens
 
@@ -183,3 +183,5 @@ The bol keyboard follows `redesign buttons.pdf`: opaque cream buttons, black out
 
 Notation colors and timeline blocks/dots reference the same stroke tokens. Hold remains a separate membrane-control marker.
 The original Iosevka Bold 34.8.1 webfont is served from `assets/fonts/Iosevka-Bold.woff2`, with its OFL license alongside it. Source: https://github.com/be5invis/Iosevka/releases/tag/v34.8.1 . Google Fonts does not currently serve the Iosevka family, so the original font is bundled rather than substituting another typeface.
+
+Typography uses bundled Iosevka 34.8.1 throughout: Bold (700) for bol names in keys, notation, previews and timeline; Regular (400) for controls, notes, annotations and headings. Both font files share the included OFL license.
