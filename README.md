@@ -187,3 +187,5 @@ The original Iosevka Bold 34.8.1 webfont is served from `assets/fonts/Iosevka-Bo
 Typography uses bundled Iosevka 34.8.1 throughout: Bold (700) for bol names in keys, notation, previews and timeline; Regular (400) for controls, notes, annotations and headings. Both font files share the included OFL license.
 
 Notation bols use invisible display slots: Bayan direction above the Hold dot on the left, O/C in the bottom-left corner, and blue left-hand/red right-hand fingers along the bottom. Finger pairs use commas. The side column collapses when no direction, hold or open/close tag is present. Matra grid widths stay equal, and Presentation View reuses the same slot layout. This is a rendering change only; stored annotations are unchanged.
+
+Finger annotations are centered under the bol text: a single hand is centered on its own, while two hands form one compact centered group with a small gap. The O/C slot remains separate on the left.

@@ -287,7 +287,7 @@ button.empty-matra { background: transparent; border-radius: 0; min-height: 68px
 .bol-direction { grid-column: 1; grid-row: 1; font-size: .64em; color: #000; transform: scaleX(.65); }
 .bol-display .membrane-control-marker { grid-column: 1; grid-row: 2; width: .32em; height: .32em; border-radius: 50%; background: var(--hold-color); font-size: 1em; }
 .bol-open-close { grid-column: 1; grid-row: 3; font-size: .4em; color: #000; }
-.bol-display .finger-left { grid-column: 2; grid-row: 3; justify-self: start; padding: 0 .08em; font-size: .44em; }
-.bol-display .finger-right { grid-column: 3; grid-row: 3; justify-self: end; padding: 0 .08em; font-size: .44em; }
+.bol-fingers { grid-column: 2 / 4; grid-row: 3; display: inline-flex; align-items: center; justify-content: center; gap: .25em; font-size: .44em; }
+.bol-fingers .finger-left, .bol-fingers .finger-right { font-size: inherit; }
 .bol-extra { position: absolute; top: 0; right: 0; font-size: .25em; }
 #presentation-content .notation-bol { min-height: 0; }

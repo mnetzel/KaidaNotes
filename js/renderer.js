@@ -31,16 +31,20 @@ function bolButton(bol, selection, debug, editingId) {
   text.style.color = bolColor(bol);
   display.append(text);
   if (!editing) {
-    const marker = (cls, value) => {
+    const marker = (cls, value, parent = display) => {
       const node = element('span', cls, value);
       node.setAttribute('aria-hidden', 'true');
-      display.append(node);
+      parent.append(node);
     };
     if (tags.bayanDirection) marker('bol-direction', tags.bayanDirection === 'up' ? '⬆' : '⬇');
     if (tags.membraneControl === 'right-4') marker('membrane-control-marker', '');
     if (tags.openClose) marker('bol-open-close', tags.openClose === 'open' ? 'O' : 'C');
-    if (tags.leftHandFinger) marker('finger-left', tags.leftHandFinger.replaceAll('-and-', ','));
-    if (tags.rightHandFinger) marker('finger-right', tags.rightHandFinger.replaceAll('-and-', ','));
+    if (tags.leftHandFinger || tags.rightHandFinger) {
+      const fingers = element('span', 'bol-fingers');
+      display.append(fingers);
+      if (tags.leftHandFinger) marker('finger-left', tags.leftHandFinger.replaceAll('-and-', ','), fingers);
+      if (tags.rightHandFinger) marker('finger-right', tags.rightHandFinger.replaceAll('-and-', ','), fingers);
+    }
     if (tags.extra.length) marker('bol-extra', '+');
   }
   button.append(display);
