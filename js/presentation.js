@@ -2,6 +2,7 @@ import { renderNotation, fitNotation } from './renderer.js';
 import { createSelection } from './selection.js';
 import { clapDisplay } from './clap-data.js';
 import { renderClapPlot } from './clapping.js';
+import { setupPresentationImage } from './presentation-image.js';
 
 export function setupPresentation(getComposition) {
   const dialog = document.querySelector('#presentation-dialog');
@@ -16,6 +17,7 @@ export function setupPresentation(getComposition) {
     content.style.left = `${Math.max(0, (stage.clientWidth - content.offsetWidth * scale) / 2)}px`;
   };
   const observer = new ResizeObserver(fit);
+  const image = setupPresentationImage(content, fit);
   observer.observe(stage);
   observer.observe(content);
   document.querySelector('#presentation-open').addEventListener('click', () => {
@@ -58,6 +60,8 @@ export function setupPresentation(getComposition) {
     const overflow = Math.max(0, notation.scrollWidth - notation.clientWidth);
     if (overflow) content.style.width = `${840 + overflow}` + 'px';
     fit();
+    image.prepare(composition);
   });
   document.querySelector('#presentation-close').addEventListener('click', () => dialog.close());
+  dialog.addEventListener('close', image.clear);
 }

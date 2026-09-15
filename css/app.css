@@ -264,6 +264,12 @@ button.empty-matra { background: transparent; border-radius: 0; min-height: 68px
 #presentation-content .empty-matra { min-height: 56px; }
 #presentation-content .clap-plot { width: 100%; min-width: 0; }
 #presentation-close { align-self: center; flex: none; padding: 6px 12px; font-size: 12px; background: #eee9f2; }
+.presentation-actions { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 8px; }
+.presentation-actions button { padding: 6px 12px; font-size: 14px; }
+#presentation-share { background: #d8f5df; }
+#presentation-save { background: var(--lavender); }
+#presentation-image-status { margin: 0; text-align: center; font-size: 12px; }
+#presentation-image-status:empty { display: none; }
 
 #presentation-content .matras { grid-auto-columns: calc(100% / var(--matra-columns, 4)); }
 

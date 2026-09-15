@@ -185,7 +185,12 @@
   </main>
   <dialog id="presentation-dialog" aria-label="Presentation View">
     <div id="presentation-stage"><div id="presentation-content"></div></div>
-    <button type="button" id="presentation-close">Presentation Off</button>
+    <div class="presentation-actions">
+      <button type="button" id="presentation-share" disabled>Share image</button>
+      <button type="button" id="presentation-save" disabled>Save image</button>
+      <button type="button" id="presentation-close">Presentation Off</button>
+    </div>
+    <p id="presentation-image-status" role="status"></p>
   </dialog>
   <dialog id="clear-dialog" aria-labelledby="clear-title">
     <h2 id="clear-title">Reset the entire app?</h2>
