@@ -247,3 +247,19 @@ button.empty-matra { background: transparent; border-radius: 0; min-height: 68px
 
 #clap-result:has(#clap-plot-container.blocks-view) #clap-summary,
 #clap-result:has(#clap-plot-container.blocks-view) .clap-legend { display: none; }
+
+#presentation-open { display: block; margin: 0 auto 12px; padding: 10px 24px; font-size: 26px; }
+#presentation-dialog { width: 100vw; height: 100dvh; max-width: none; max-height: none; margin: 0; padding: 12px; border: 0; border-radius: 0; background: white; overflow: hidden; }
+#presentation-dialog[open] { display: flex; flex-direction: column; gap: 8px; }
+#presentation-stage { position: relative; flex: 1; min-height: 0; overflow: hidden; }
+#presentation-content { position: absolute; top: 0; width: 840px; transform-origin: top left; background: white; }
+#presentation-content h1 { margin: 8px 24px 4px; text-align: center; font: 32px Arial, sans-serif; }
+.presentation-structure { text-align: center; margin: 0 0 12px; font-size: 22px; }
+#presentation-content .notation { padding: 8px 30px; min-height: 0; overflow: visible; }
+#presentation-content .vibhag-row { min-height: 68px; margin-bottom: 4px; gap: 12px; }
+#presentation-content .notation-bol { display: inline-flex; align-items: center; min-height: 56px; }
+#presentation-content .empty-matra { min-height: 56px; }
+#presentation-content .clap-plot { width: 100%; min-width: 0; }
+#presentation-close { align-self: center; flex: none; padding: 6px 12px; font-size: 12px; background: #eee9f2; }
+
+#presentation-content .matras { grid-auto-columns: calc(100% / var(--matra-columns, 4)); }

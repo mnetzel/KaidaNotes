@@ -50,7 +50,7 @@ export function renderClapPlot(container, result, byVibhag = false, blocks = fal
   });
   for (let m = 0; m <= totalMatras; m++) {
     svg.append(svgNode('line', { x1: x(m), x2: x(m), y1: top, y2: gridBottom, class: 'clap-matra-line' }));
-    if (m < totalMatras) svg.append(svgNode('text', { x: x(m + .5), y: gridBottom + 24, 'text-anchor': 'middle', class: 'clap-matra-label' }, m + 1 + (result.matraOffset || 0)));
+    if (m < totalMatras) svg.append(svgNode('text', { x: x(m), y: gridBottom + 24, 'text-anchor': 'middle', class: 'clap-matra-label' }, m + 1 + (result.matraOffset || 0)));
   }
   if (result.snap) {
     for (let q = 1; q < totalMatras * 2; q++) if (q % 2) svg.append(svgNode('line', { x1: x(q / 2), x2: x(q / 2), y1: top, y2: gridBottom, class: 'clap-half-line' }));

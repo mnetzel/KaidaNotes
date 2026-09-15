@@ -50,6 +50,7 @@
       </div>
     </section>
 
+    <button type="button" id="presentation-open" class="purple">Presentation View</button>
     <header class="composition-types" aria-label="Composition type">
       <button type="button" data-type="kaida" aria-pressed="true">Kaida</button>
       <button type="button" data-type="palta" aria-pressed="false">Palta</button>
@@ -180,6 +181,10 @@
     </section>
     <noscript>KaidaNotes needs JavaScript enabled to edit notation.</noscript>
   </main>
+  <dialog id="presentation-dialog" aria-label="Presentation View">
+    <div id="presentation-stage"><div id="presentation-content"></div></div>
+    <button type="button" id="presentation-close">Presentation Off</button>
+  </dialog>
   <dialog id="clear-dialog" aria-labelledby="clear-title">
     <h2 id="clear-title">Reset the entire app?</h2>
     <p>Clear all bols, tags, notes, structure settings and undo history. This starts a new, empty Kaida.</p>

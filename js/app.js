@@ -1,3 +1,4 @@
+import { setupPresentation } from './presentation.js';
 import { createComposition, clearVibhag, deleteBol, insertPause, replaceBol, recognizeTala } from './model.js';
 import { moveSelectedAtLevel } from './rhythm.js';
 import { createSelection, createBolInteraction, clickNotationBol, setMultiSelect, getPrimarySelection } from './selection.js';
@@ -77,6 +78,7 @@ function render() {
 }
 
 store.subscribe(render);
+setupPresentation(() => store.composition);
 document.querySelectorAll('[data-type]').forEach(button => button.addEventListener('click', () => {
   store.update(composition => ({ ...composition, compositionType: button.dataset.type }));
 }));
