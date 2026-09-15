@@ -19,9 +19,9 @@ export function clickNotationBol(selection, interaction, bols, id) {
     selection: { ...selection, ids: [id] },
     interaction: { id, clicks, editingId: id },
   };
-  if (clicks === 2) return {
+  if (clicks === 1 && !selection.multi) return {
     selection: { ...selection, ids: [...bols.filter(value => value.text === bol.text && value.id !== id).map(value => value.id), id] },
     interaction: { id, clicks, editingId: null },
   };
-  return { selection: selectBol(selection, id), interaction: { id, clicks, editingId: null } };
+  return { selection: clicks === 2 ? { ...selection, ids: [id] } : selectBol(selection, id), interaction: { id, clicks, editingId: null } };
 }

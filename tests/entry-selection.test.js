@@ -18,18 +18,19 @@ test('entry exceeds the target without changing it; only explicit next-vibhag ad
   assert.equal(c.bols.at(-1).position.matra, 2);
 });
 
-test('three consecutive taps select one, all exact matches across vibhags, then one replacement', () => {
+test('three consecutive taps select all exact matches across vibhags, one, then one replacement', () => {
   let c = appendBol(appendBol(appendBol(createComposition(), 'Dha'), 'Ta'), 'Dha', true);
   let state = { selection: createSelection(), interaction: createBolInteraction() };
   const target = c.bols[0].id;
   const tap = id => state = clickNotationBol(state.selection, state.interaction, c.bols, id);
   tap(target);
-  assert.deepEqual(state.selection.ids, [target]);
-  tap(target);
   assert.deepEqual(new Set(state.selection.ids), new Set([target, c.bols[2].id]));
   assert.equal(getPrimarySelection(state.selection), target);
   c = { ...c, bols: applyTagToSelection(c.bols, state.selection.ids, 'dayanArticulation', 'sur') };
   assert.deepEqual(c.bols.map(b => b.tags.dayanArticulation), ['sur', null, 'sur']);
+  tap(target);
+  assert.deepEqual(state.selection.ids, [target]);
+  assert.equal(state.interaction.editingId, null);
   tap(target);
   assert.deepEqual(state.selection.ids, [target]);
   assert.equal(state.interaction.editingId, target);
