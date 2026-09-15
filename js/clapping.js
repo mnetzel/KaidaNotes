@@ -75,7 +75,7 @@ export function renderClapPlot(container, result, byVibhag = false, blocks = fal
     const gap = Math.min(3, Math.max(0, right - left) / 8);
     const blockWidth = Math.max(2, right - left - gap * 2);
     const rect = svgNode('rect', { x: left + gap, y: py, width: blockWidth, height,
-      rx: 3, class: 'clap-block', 'data-hands': hands.join(' '), 'data-clap': hit.index });
+      rx: Math.min(both ? 12 : 6, blockWidth / 4), class: 'clap-block', 'data-hands': hands.join(' '), 'data-clap': hit.index });
     rect.style.fill = hit.color || '#141018';
     rect.append(svgNode('title', {}, `${hit.label || 'Clap ' + hit.index} · ${hands.join(' + ')} · ${(hit.endMatra - hit.matra).toFixed(2)} matras${hit.endMatra === hit.matra ? ' (coincident after Snap)' : ''}`));
     svg.append(rect);

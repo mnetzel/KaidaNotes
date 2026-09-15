@@ -44,6 +44,12 @@ export function setupPresentation(getComposition) {
       renderClapPlot(plot, clapDisplay(composition.clapping, composition.bols), true, true);
       content.append(plot);
     }
+    if (composition.notes.trim()) {
+      const notes = document.createElement('p');
+      notes.className = 'presentation-notes';
+      notes.textContent = composition.notes;
+      content.append(notes);
+    }
     dialog.showModal();
     // Expand exceptionally wide notation before scaling the entire sheet to fit.
     const overflow = Math.max(0, notation.scrollWidth - notation.clientWidth);

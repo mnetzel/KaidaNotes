@@ -165,3 +165,5 @@ Notes and sharing are above the composition type selector. The recorded timeline
 Blocks use a compact layout with only bol names and matra numbers: hand labels, vibhag headings, sam captions and the surrounding summary/legend are hidden. Tight vertical spacing replaces the dot view’s header and footer space.
 
 Timeline matra numbers align with the start boundary. **Presentation View** opens a read-only sheet with the composition title, notation and stacked block timeline. It scales the entire sheet to fit the current screen; long compositions appear smaller. **Presentation Off** (or Escape) restores the editor without changing data, selection or timeline preferences. If no clap recording exists, only notation is shown.
+
+Presentation includes nonempty Extra notes after the block timeline, with a small gap separating notation from blocks. All notation and notes use upright Arial. Block corners use proportional, subtle rounding for one- and two-hand strokes.
