@@ -24,19 +24,26 @@ function bolButton(bol, selection, debug, editingId) {
   button.title = labels.join(' · ') || (bol.text === '—' ? 'Pause — select to edit its rhythm' : `${bol.text} — select to annotate`);
   if (bol.text === '—') button.setAttribute('aria-label', `Pause, bol ${bol.order}, ${LEVELS.map(level => `${level} ${bol.position[level]}`).join(', ')}`);
   if (editing) button.setAttribute('aria-label', `Replace ${bol.text}, bol ${bol.order}: choose a new bol on the keyboard`);
+  const tags = bol.tags;
+  const side = !editing && !!(tags.bayanDirection || tags.membraneControl || tags.openClose);
+  const display = element('span', 'bol-display' + (side ? ' has-side' : ''));
   const text = element('span', 'notation-text', editing ? '\u00a0' : bol.text);
   text.style.color = bolColor(bol);
-  button.append(text);
-  const markers = element('span', 'tag-markers');
-  markers.setAttribute('aria-hidden', 'true');
-  for (const [group, cls] of [['leftHandFinger', 'finger-left'], ['rightHandFinger', 'finger-right']]) {
-    if (bol.tags[group]) markers.append(element('span', cls, bol.tags[group].replaceAll('-and-', '+')));
+  display.append(text);
+  if (!editing) {
+    const marker = (cls, value) => {
+      const node = element('span', cls, value);
+      node.setAttribute('aria-hidden', 'true');
+      display.append(node);
+    };
+    if (tags.bayanDirection) marker('bol-direction', tags.bayanDirection === 'up' ? '⬆' : '⬇');
+    if (tags.membraneControl === 'right-4') marker('membrane-control-marker', '');
+    if (tags.openClose) marker('bol-open-close', tags.openClose === 'open' ? 'O' : 'C');
+    if (tags.leftHandFinger) marker('finger-left', tags.leftHandFinger.replaceAll('-and-', ','));
+    if (tags.rightHandFinger) marker('finger-right', tags.rightHandFinger.replaceAll('-and-', ','));
+    if (tags.extra.length) marker('bol-extra', '+');
   }
-  if (bol.tags.membraneControl === 'right-4') markers.append(element('span', 'membrane-control-marker', '●'));
-  if (bol.tags.bayanDirection) markers.append(element('span', 'execution', bol.tags.bayanDirection === 'up' ? '↑' : '↓'));
-  if (bol.tags.openClose) markers.append(element('span', 'execution', bol.tags.openClose === 'open' ? '○' : '×'));
-  if (bol.tags.extra.length) markers.append(element('span', 'execution', '+'));
-  if (!editing && markers.childNodes.length) button.append(markers);
+  button.append(display);
   if (debug) button.append(element('small', 'address-debug', LEVELS.map(level => bol.position[level]).join(':')));
   return button;
 }

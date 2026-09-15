@@ -185,3 +185,5 @@ Notation colors and timeline blocks/dots reference the same stroke tokens. Hold 
 The original Iosevka Bold 34.8.1 webfont is served from `assets/fonts/Iosevka-Bold.woff2`, with its OFL license alongside it. Source: https://github.com/be5invis/Iosevka/releases/tag/v34.8.1 . Google Fonts does not currently serve the Iosevka family, so the original font is bundled rather than substituting another typeface.
 
 Typography uses bundled Iosevka 34.8.1 throughout: Bold (700) for bol names in keys, notation, previews and timeline; Regular (400) for controls, notes, annotations and headings. Both font files share the included OFL license.
+
+Notation bols use invisible display slots: Bayan direction above the Hold dot on the left, O/C in the bottom-left corner, and blue left-hand/red right-hand fingers along the bottom. Finger pairs use commas. The side column collapses when no direction, hold or open/close tag is present. Matra grid widths stay equal, and Presentation View reuses the same slot layout. This is a rendering change only; stored annotations are unchanged.
