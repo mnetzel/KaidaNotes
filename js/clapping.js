@@ -86,7 +86,7 @@ export function setupClapping(getComposition, updateComposition) {
   const resultPanel = document.querySelector('#clap-result');
   const snapButton = document.querySelector('#clap-snap');
   const viewButton = document.querySelector('#clap-view');
-  let byVibhag = false;
+  let byVibhag = true;
   let lastCapture, lastBols;
   let recording = false, times = [], structure = [], name = '';
   const setIdle = () => {
@@ -95,11 +95,11 @@ export function setupClapping(getComposition, updateComposition) {
   };
   const reset = () => {
     setIdle(); times = []; structure = []; name = '';
-    byVibhag = false; viewButton.setAttribute('aria-pressed', 'false');
+    byVibhag = true; viewButton.setAttribute('aria-pressed', 'true');
     resultPanel.hidden = true;
     document.querySelector('#clap-plot-container').replaceChildren();
     document.querySelector('#clap-summary').textContent = '';
-    snapButton.setAttribute('aria-pressed', 'false');
+    snapButton.setAttribute('aria-pressed', 'true');
     status.textContent = 'Start, then tap Clap from sam to the next sam.';
   };
   const sync = () => {
@@ -112,6 +112,7 @@ export function setupClapping(getComposition, updateComposition) {
     renderClapPlot(document.querySelector('#clap-plot-container'), result, byVibhag);
     document.querySelector('#clap-summary').textContent = `${capture.name} · ${capture.structure.join('–')} · ${result.totalMatras} matras · ${result.hits.length} claps · ${(result.duration / 1000).toFixed(2)} s · ${capture.snap ? 'Snap ½ matra' : 'Original timing'}`;
     snapButton.setAttribute('aria-pressed', String(capture.snap));
+    viewButton.setAttribute('aria-pressed', String(byVibhag));
     resultPanel.hidden = false;
     status.textContent = 'Final clap = next sam (end only). This recording is included in your Kaida link.';
   };
@@ -140,7 +141,7 @@ export function setupClapping(getComposition, updateComposition) {
       setIdle();
       try {
         analyzeClaps(times, structure);
-        const capture = { timestamps: times.map(t => t - times[0]), structure: [...structure], name, snap: false };
+        const capture = { timestamps: times.map(t => t - times[0]), structure: [...structure], name, snap: true };
         updateComposition(c => ({ ...c, clapping: capture }));
         sync();
       } catch (error) {
