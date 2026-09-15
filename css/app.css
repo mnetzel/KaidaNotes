@@ -47,12 +47,8 @@ button[aria-pressed="true"] { box-shadow: inset 0 0 0 3px var(--purple-strong); 
 .right-keys { left: 49%; top: 16%; }
 .bayan-direction { position: absolute; left: 4.2%; top: 44.5%; display: flex; gap: 12px; }
 .bayan-direction button { width: 63px; height: 146px; background: #ffffff; font-size: 118px; line-height: 1; padding: 0; font-family: Arial, sans-serif; }
-.compound-keys { position: absolute; left: 23.2%; top: 63.5%; display: grid; grid-template-columns: 88px 88px; gap: 8px; }
-.compound-keys button, .compound-right button { background: #ffffff; line-height: 1.05; padding: 5px; min-height: 48px; font-size: 23px; }
-.compound-keys [data-bol="GheGhe"] { font-size: 18px; }
-.compound-keys small { display: block; font-size: 16px; }
-.compound-right { position: absolute; left: 49%; top: 58.5%; display: grid; gap: 12px; }
-.compound-right button { font-size: 25px; }
+.compound-keys { position: absolute; left: 23.2%; top: 63.5%; display: grid; grid-template-columns: repeat(3, 96px); gap: 8px; }
+.compound-keys button { background: #ffffff; line-height: 1.05; padding: 8px; min-height: 58px; font-size: 28px; }
 .strike-zones { position: absolute; inset: 0; pointer-events: none; }
 .zone { position: absolute; pointer-events: auto; opacity: .87; min-width: 44px; }
 .zone:disabled { opacity: .64; }
@@ -157,10 +153,8 @@ dialog p { font-size: 16px; line-height: 1.5; color: #706276; }
   .bol-keys { gap: 5px; }
   .bol-keys button { min-width: 70px; min-height: 42px; font-size: 40px; }
   .key-gap { height: 12px; }
-  .compound-keys { grid-template-columns: 74px 74px; gap: 5px; }
-  .compound-keys [data-bol="GheGhe"] { font-size: 15px; }
-  .compound-keys small { font-size: 13px; }
-  .compound-right button { font-size: 21px; }
+  .compound-keys { grid-template-columns: repeat(3, 78px); gap: 5px; }
+  .compound-keys button { font-size: 24px; min-height: 52px; }
   .bayan-direction button { width: 48px; height: 115px; font-size: 94px; }
   .fingers { gap: 10px; }
   .fingers button { min-height: 80px; padding: 16px 10px; }
