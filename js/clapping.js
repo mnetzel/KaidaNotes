@@ -9,6 +9,7 @@ const svgNode = (tag, attrs = {}, text) => {
 };
 
 export function renderClapPlot(container, result, byVibhag = false, blocks = false) {
+  container.classList.toggle('blocks-view', blocks);
   if (blocks && !result.blockIntervals) result = { ...result, hits: clapBlocks(result), blockIntervals: true };
   if (byVibhag) {
     let offset = 0;
@@ -28,22 +29,23 @@ export function renderClapPlot(container, result, byVibhag = false, blocks = fal
   }
   const { totalMatras, structure, hits, duration } = result;
   const width = Math.max(760, (result.scaleMatras || totalMatras) * 40 + 64);
-  const start = 32, end = width - 32, top = 70;
+  const start = 32, end = width - 32, top = blocks ? 8 : 70;
   const x = matra => start + matra / (result.scaleMatras || totalMatras) * (end - start);
   const rowEnd = x(totalMatras);
   const stacked = result.rowIndex !== undefined;
   const suffix = result.rowIndex === undefined ? '' : '-' + result.rowIndex;
-  const baseline = 246;
-  const handY = { right: 146, left: baseline, unassigned: 196 };
-  const gridBottom = baseline + 34;
-  const paddingX = 48, paddingY = 24;
-  const svg = svgNode('svg', { viewBox: `-${paddingX} -${paddingY} ${width + paddingX * 2} ${baseline + 94 + paddingY * 2}`, role: 'img', 'aria-labelledby': `clap-plot-title${suffix} clap-plot-description${suffix}`, class: 'clap-plot' });
+  const baseline = blocks ? 122 : 246;
+  const handY = { right: blocks ? 44 : 146, left: baseline, unassigned: blocks ? 83 : 196 };
+  const gridBottom = baseline + (blocks ? 36 : 34);
+  const paddingX = 48, paddingY = blocks ? 0 : 24;
+  const viewHeight = blocks ? gridBottom + 36 : baseline + 94 + paddingY * 2;
+  const svg = svgNode('svg', { viewBox: `-${paddingX} -${paddingY} ${width + paddingX * 2} ${viewHeight}`, role: 'img', 'aria-labelledby': `clap-plot-title${suffix} clap-plot-description${suffix}`, class: 'clap-plot' });
   svg.append(svgNode('title', { id: 'clap-plot-title' + suffix }, 'Claps over one tala cycle'));
   svg.append(svgNode('desc', { id: 'clap-plot-description' + suffix }, `${hits.length} hits over ${(duration / 1000).toFixed(2)} seconds. ${totalMatras} equal matras grouped ${structure.join(', ')}. The last tap marks the next sam and is excluded from the hit count.`));
   let offset = 0;
   structure.forEach((length, i) => {
     svg.append(svgNode('rect', { x: x(offset), y: top, width: x(offset + length) - x(offset), height: gridBottom - top, fill: i % 2 ? '#f8f0fb' : '#f0f4ff' }));
-    svg.append(svgNode('text', { x: x(offset + length / 2), y: 35, 'text-anchor': 'middle', class: 'clap-vibhag-label' }, `V${(result.rowIndex ?? i) + 1} · ${length}`));
+    if (!blocks) svg.append(svgNode('text', { x: x(offset + length / 2), y: 35, 'text-anchor': 'middle', class: 'clap-vibhag-label' }, `V${(result.rowIndex ?? i) + 1} · ${length}`));
     offset += length;
   });
   for (let m = 0; m <= totalMatras; m++) {
@@ -55,19 +57,19 @@ export function renderClapPlot(container, result, byVibhag = false, blocks = fal
   }
   offset = 0;
   for (const length of [...structure, 0]) {
-    svg.append(svgNode('line', { x1: x(offset), x2: x(offset), y1: top - 10, y2: gridBottom, class: 'clap-vibhag-line' }));
+    svg.append(svgNode('line', { x1: x(offset), x2: x(offset), y1: blocks ? top : top - 10, y2: gridBottom, class: 'clap-vibhag-line' }));
     offset += length;
   }
   for (const [hand, label] of [['right', 'Dayan · right'], ['left', 'Bayan · left']]) {
     const py = handY[hand];
     svg.append(svgNode('line', { x1: start, x2: rowEnd, y1: py, y2: py, class: 'clap-baseline', 'data-hand': hand }));
-    svg.append(svgNode('text', { x: start, y: py - (stacked ? 72 : 36), class: 'clap-hand-label' }, label));
-    if (result.last !== false) svg.append(svgNode('circle', { cx: rowEnd, cy: py, r: 7, class: 'clap-endpoint' }));
+    if (!blocks) svg.append(svgNode('text', { x: start, y: py - (stacked ? 72 : 36), class: 'clap-hand-label' }, label));
+    if (!blocks && result.last !== false) svg.append(svgNode('circle', { cx: rowEnd, cy: py, r: 7, class: 'clap-endpoint' }));
   }
   if (blocks) hits.forEach(hit => {
     const hands = hit.hands?.length ? hit.hands : ['unassigned'];
     const both = hands.includes('right') && hands.includes('left');
-    const height = both ? 172 : 72;
+    const height = both ? handY.left - handY.right + 72 : 72;
     const py = both ? handY.right - 36 : handY[hands[0]] - 36;
     const left = x(hit.matra), right = x(hit.endMatra);
     const gap = Math.min(3, Math.max(0, right - left) / 8);
@@ -95,8 +97,8 @@ export function renderClapPlot(container, result, byVibhag = false, blocks = fal
       if (hit.label) svg.append(svgNode('text', { x: px, y: py - (stacked ? 30 : 15), 'text-anchor': 'middle', class: 'clap-bol-label' }, hit.label));
     }
   });
-  if (result.first !== false) svg.append(svgNode('text', { x: start, y: 58, class: 'clap-sam-label' }, 'sam'));
-  if (result.last !== false) svg.append(svgNode('text', { x: rowEnd, y: 58, 'text-anchor': 'end', class: 'clap-sam-label' }, 'next sam'));
+  if (!blocks && result.first !== false) svg.append(svgNode('text', { x: start, y: 58, class: 'clap-sam-label' }, 'sam'));
+  if (!blocks && result.last !== false) svg.append(svgNode('text', { x: rowEnd, y: 58, 'text-anchor': 'end', class: 'clap-sam-label' }, 'next sam'));
   container.replaceChildren(svg);
   container.style.setProperty('--clap-plot-width', `${width}px`);
 }

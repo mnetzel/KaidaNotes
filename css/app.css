@@ -244,3 +244,6 @@ button.empty-matra { background: transparent; border-radius: 0; min-height: 68px
 .clap-vibhag-row .clap-bol-label { font-size: 34px; }
 
 .clap-block-label { font-family: Arial, sans-serif; font-weight: 600; fill: white; pointer-events: none; }
+
+#clap-result:has(#clap-plot-container.blocks-view) #clap-summary,
+#clap-result:has(#clap-plot-container.blocks-view) .clap-legend { display: none; }
