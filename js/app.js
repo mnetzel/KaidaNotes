@@ -3,7 +3,7 @@ import { createComposition, clearVibhag, deleteBol, insertPause, replaceBol, rec
 import { moveSelectedAtLevel } from './rhythm.js';
 import { createSelection, createBolInteraction, clickNotationBol, setMultiSelect, getPrimarySelection } from './selection.js';
 import { applyTagToSelection } from './tags.js';
-import { startComposition, saveComposition } from './persistence.js';
+import { createAddressWriter } from './address-state.js';
 import { createStore } from './state.js';
 import { renderNotation, renderInspector } from './renderer.js';
 import { exportBasic, exportComplete, shareText } from './export.js';
@@ -24,8 +24,14 @@ const cursor = () => entryCursor ?? endCursor(store.composition);
 let toastTimeout;
 let shareRequest = 0;
 const debug = new URLSearchParams(location.search).get('debug') === '1';
-const store = createStore(startComposition(), composition => {
-  $('#session-status').textContent = saveComposition(composition) ? 'Saved on this device' : 'Storage unavailable — copy to keep';
+const addressWriter = createAddressWriter({
+  getURL: () => location.href,
+  replaceURL: url => history.replaceState(null, '', url),
+  onStatus: message => { $('#session-status').textContent = message; },
+});
+const store = createStore(createComposition(), composition => { void addressWriter.save(composition); });
+window.addEventListener('beforeunload', event => {
+  if (addressWriter.unsettled) { event.preventDefault(); event.returnValue = ''; }
 });
 function currentVibhag() {
   return store.composition.bols.find(b => b.id === getPrimarySelection(selection))?.position.vibhag
@@ -263,21 +269,18 @@ $('#close-share').addEventListener('click', () => $('#share-dialog').close());
 $('#share-dialog').addEventListener('close', () => { shareRequest++; });
 
 async function openSharedKaida() {
+  addressWriter.cancel();
   const hash = location.hash;
-  if (!hash.startsWith('#kaida=')) return;
   try {
-    const composition = await readShareLink(hash);
+    const composition = hash.startsWith('#kaida=') ? await readShareLink(hash) : createComposition();
     if (location.hash !== hash) return;
     selection = createSelection(); interaction = createBolInteraction();
     structureDraft = null; nextVibhag = false; entryCursor = null;
-    store.update(() => composition);
-    const url = new URL(location.href); url.hash = '';
-    history.replaceState(null, '', url.href);
+    store.reset(composition);
   } catch (error) {
     if (location.hash !== hash) return;
     console.warn('Could not open shared Kaida:', error);
-    const url = new URL(location.href); url.hash = '';
-    history.replaceState(null, '', url.href);
+    $('#session-status').textContent = 'Could not read this address. Current notation kept.';
   }
 }
 window.addEventListener('hashchange', openSharedKaida);
