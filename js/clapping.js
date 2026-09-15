@@ -13,7 +13,8 @@ export function renderClapPlot(container, result) {
   const width = Math.max(760, totalMatras * 40 + 64);
   const start = 32, end = width - 32, top = 70;
   const x = matra => start + matra / totalMatras * (end - start);
-  const baseline = 166;
+  const baseline = 246;
+  const handY = { right: 146, left: baseline, unassigned: 196 };
   const gridBottom = baseline + 34;
   const svg = svgNode('svg', { viewBox: `0 0 ${width} ${baseline + 94}`, role: 'img', 'aria-labelledby': 'clap-plot-title clap-plot-description', class: 'clap-plot' });
   svg.append(svgNode('title', { id: 'clap-plot-title' }, 'Claps over one tala cycle'));
@@ -36,14 +37,21 @@ export function renderClapPlot(container, result) {
     svg.append(svgNode('line', { x1: x(offset), x2: x(offset), y1: top - 10, y2: gridBottom, class: 'clap-vibhag-line' }));
     offset += length;
   }
-  svg.append(svgNode('line', { x1: start, x2: end, y1: baseline, y2: baseline, class: 'clap-baseline' }));
-  svg.append(svgNode('circle', { cx: end, cy: baseline, r: 7, class: 'clap-endpoint' }));
+  for (const [hand, label] of [['right', 'Dayan · right'], ['left', 'Bayan · left']]) {
+    const py = handY[hand];
+    svg.append(svgNode('line', { x1: start, x2: end, y1: py, y2: py, class: 'clap-baseline', 'data-hand': hand }));
+    svg.append(svgNode('text', { x: start, y: py - 36, class: 'clap-hand-label' }, label));
+    svg.append(svgNode('circle', { cx: end, cy: py, r: 7, class: 'clap-endpoint' }));
+  }
   hits.forEach(hit => {
-    const px = x(hit.matra), py = baseline;
-    const dot = svgNode('circle', { cx: px, cy: py, r: 5, class: 'clap-hit' });
-    dot.append(svgNode('title', {}, `Clap ${hit.index}${hit.label ? ': ' + hit.label : ''}: ${(hit.elapsed / 1000).toFixed(3)} s · ${result.snap ? 'snapped ' : ''}matra ${(hit.matra + 1).toFixed(2)}`));
-    svg.append(dot);
-    if (hit.label) svg.append(svgNode('text', { x: px, y: py - 11, 'text-anchor': 'middle', class: 'clap-bol-label' }, hit.label));
+    const hands = hit.hands?.length ? hit.hands : ['unassigned'];
+    for (const hand of hands) {
+      const px = x(hit.matra), py = handY[hand];
+      const dot = svgNode('circle', { cx: px, cy: py, r: 5, class: 'clap-hit' + (hand === 'unassigned' ? ' clap-hit-unassigned' : ''), 'data-hand': hand });
+      dot.append(svgNode('title', {}, `Clap ${hit.index}${hit.label ? ': ' + hit.label : ''} · ${hand === 'unassigned' ? 'hand not marked' : hand + ' hand'} · ${(hit.elapsed / 1000).toFixed(3)} s · ${result.snap ? 'snapped ' : ''}matra ${(hit.matra + 1).toFixed(2)}`));
+      svg.append(dot);
+      if (hit.label) svg.append(svgNode('text', { x: px, y: py - 11, 'text-anchor': 'middle', class: 'clap-bol-label' }, hit.label));
+    }
   });
   svg.append(svgNode('text', { x: start, y: 58, class: 'clap-sam-label' }, 'sam'));
   svg.append(svgNode('text', { x: end, y: 58, 'text-anchor': 'end', class: 'clap-sam-label' }, 'next sam'));

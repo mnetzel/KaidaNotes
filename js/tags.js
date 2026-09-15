@@ -6,7 +6,7 @@ export const TAGS = {
     { id: 'open-tin', label: 'open tin', color: 'purple' },
   ],
   membraneControl: [{ id: 'right-4', label: 'membrane control: right finger 4' }],
-  leftHandFinger: [{ id: '4-and-3', label: 'left fingers 4 and 3' }, { id: '2', label: 'left finger 2' }],
+  leftHandFinger: [{ id: '1-5', label: 'left fingers 1–5 (whole hand)' }, { id: '4-and-3', label: 'left fingers 4 and 3' }, { id: '2', label: 'left finger 2' }],
   rightHandFinger: [{ id: '2', label: 'right finger 2' }, { id: '3-and-4', label: 'right fingers 3 and 4' }, { id: '3', label: 'right finger 3' }],
   bayanDirection: [{ id: 'up', label: 'bayan up' }, { id: 'down', label: 'bayan down' }],
   openClose: [{ id: 'open', label: 'open' }, { id: 'close', label: 'close' }],

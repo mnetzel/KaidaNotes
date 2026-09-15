@@ -33,3 +33,20 @@ test('clap labels skip pauses, follow notation order, survive sharing and retain
  assert.deepEqual(clapDisplay(c.clapping,c.bols.slice(2)).hits.slice(0,3).map(h=>h.label),['Te','Re','Dhin']);
  assert.equal(clapDisplay({...capture(),timestamps:[0,100]},c.bols).hits.length,1);
 });
+
+test('hand interpretation preserves composition and shares whole-hand tags',async()=>{
+ let c=createComposition();
+ for(const text of ['Dha','—','Ta','Ke','Tin'])c=appendBol(c,text);
+ c.bols[0].tags.leftHandFinger='4-and-3';c.bols[0].tags.rightHandFinger='2';
+ c.bols[2].tags.rightHandFinger='3';
+ c.bols[3].tags.leftHandFinger='1-5';
+ c.bols[4].tags.membraneControl='right-4';
+ c.clapping={timestamps:[0,100,200,300,400],structure:[4],name:'Custom',snap:false};
+ const original=structuredClone(c);
+ assert.deepEqual(clapDisplay(c.clapping,c.bols).hits.map(h=>h.hands),[['right','left'],['right'],['left'],[]]);
+ assert.deepEqual(c,original);
+ assert.deepEqual(sanitizeComposition(c),original);
+ const decoded=await readShareLink(new URL(await createShareLink(c,'https://example.com/')).hash);
+ assert.deepEqual(decoded,original);
+ assert.deepEqual(clapDisplay({...c.clapping,snap:true},c.bols).hits.map(h=>h.hands),[['right','left'],['right'],['left'],[]]);
+});

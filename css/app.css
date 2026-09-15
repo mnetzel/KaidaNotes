@@ -67,7 +67,7 @@ button[aria-pressed="true"] { box-shadow: inset 0 0 0 3px var(--purple-strong); 
 .fingers { position: absolute; bottom: 0; display: flex; align-items: end; gap: 16px; }
 .fingers button { padding: 22px 14px; min-height: 106px; border-radius: 30px 30px 0 0; background: #ffffff; font-size: 25px; }
 .fingers small { font-size: 15px; }
-.left-fingers { left: 5.5%; color: #1611e7; }
+.left-fingers { left: 1%; gap: 10px; color: #1611e7; }
 .left-fingers button:last-child { margin-left: 9px; }
 .right-fingers { right: 6%; color: #e4001d; }
 .structure-bar { display: flex; align-items: center; gap: 28px; padding: 10px 19px; }
@@ -244,3 +244,6 @@ button.empty-matra { background: transparent; border-radius: 0; min-height: 68px
 .clap-half-line { stroke: #bcb3c3; stroke-width: 1; stroke-dasharray: 3 4; opacity: .6; }
 
 .clap-bol-label { font: 600 17px Arial, sans-serif; fill: #302536; paint-order: stroke; stroke: white; stroke-width: 3px; stroke-linejoin: round; }
+
+.clap-hand-label { font: 16px Arial, sans-serif; fill: #65556e; }
+.clap-hit-unassigned { fill: #888; }
