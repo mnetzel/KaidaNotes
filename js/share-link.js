@@ -2,9 +2,6 @@ import { sanitizeComposition } from './model.js';
 
 export const MAX_LINK_LENGTH = 64000;
 export const MAX_DOCUMENT_BYTES = 1000000;
-const canonical = value => JSON.stringify(value, function (key, item) {
-  return item && typeof item === 'object' && !Array.isArray(item) ? Object.fromEntries(Object.keys(item).sort().map(name => [name, item[name]])) : item;
-});
 const invalid = () => new Error('This Kaida link is incomplete or invalid. Ask the sender to copy the full link again.');
 
 async function readLimited(stream, limit) {
@@ -53,8 +50,6 @@ export async function readShareLink(hash) {
     if (raw.bols.some(b => !b || typeof b.text !== 'string' || !b.position || !Number.isSafeInteger(b.position.vibhag) || b.position.vibhag < 1 || b.position.vibhag > 10000)) throw invalid();
     if (raw.ui?.entryVibhag > 10000) throw invalid();
     const composition = sanitizeComposition(raw);
-    // Reject a damaged or unsupported document rather than silently dropping data.
-    if (canonical(composition) !== canonical(raw)) throw invalid();
     return composition;
   } catch { throw invalid(); }
 }

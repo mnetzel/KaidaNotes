@@ -144,7 +144,6 @@ $('#clear-dialog').addEventListener('close', () => {
   nextVibhag = false; structureDraft = null; entryCursor = null;
   selection = createSelection(); interaction = createBolInteraction();
   $('#toast').hidden = true; clearTimeout(toastTimeout);
-  $('#link-status').hidden = true;
   clapping.reset();
   store.reset(createComposition());
   $('#notation').scrollLeft = 0;
@@ -272,12 +271,11 @@ async function openSharedKaida() {
     store.update(() => composition);
     const url = new URL(location.href); url.hash = '';
     history.replaceState(null, '', url.href);
-    $('#link-status').textContent = 'Shared Kaida loaded. You can edit it and send a new link. Undo restores the previous composition.';
-    $('#link-status').hidden = false;
   } catch (error) {
     if (location.hash !== hash) return;
-    $('#link-status').textContent = error.message + ' Your saved composition has not been changed.';
-    $('#link-status').hidden = false;
+    console.warn('Could not open shared Kaida:', error);
+    const url = new URL(location.href); url.hash = '';
+    history.replaceState(null, '', url.href);
   }
 }
 window.addEventListener('hashchange', openSharedKaida);

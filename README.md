@@ -122,7 +122,7 @@ Use **link** beside the text sharing buttons, then **copy link** or **open Whats
 
 The URL ends with `#kaida=1.<gzip-base64url>`. Encoding uses the browser's [Compression Streams API](https://developer.mozilla.org/en-US/docs/Web/API/CompressionStream). The data resides in the link, with no database or link-shortening service. Anyone receiving the complete link can open its snapshot. Edits do not change an already sent link; create another link to send a revision.
 
-Incoming links load automatically and save locally. Undo can restore the previous local composition during that session. After import, the payload is removed from the address bar so a reload preserves subsequent edits instead of reimporting the original snapshot. Use the **link** button to share again. Invalid, unsupported, truncated or oversized links show an error without replacing the local composition. The codec rejects validation that would silently change document contents.
+Incoming links load automatically and save locally. Undo can restore the previous local composition during that session. After import, the payload is removed from the address bar so a reload preserves subsequent edits instead of reimporting the original snapshot. Use the **link** button to share again. Unreadable, unsupported or oversized links leave the local composition intact and are removed from the address without a persistent notification. Compatible older payloads are normalized using the same importer as saved compositions, without requiring an exact field-for-field match.
 
 The implementation bounds decoded JSON to 1 MB, composition size to 10,000 bols/vibhags on import, and generated URLs to 64,000 characters. Links over 8,000 characters show a reminder to send the complete address; messaging applications may impose their own limits. No content is truncated to fit. Compression/decompression requires a browser supporting CompressionStream and DecompressionStream.
 
@@ -157,3 +157,5 @@ Clap dots use the same articulation colors as notation bols (including the defau
 **Vibhags view** toggles between the full tala and one stacked plot per vibhag. Each row retains both hand lines and the same matra width, with continuous matra numbering. Boundary hits belong to the next row; only the last row marks next sam. This display toggle does not alter or save over recording data.
 
 New clap recordings start with Snap enabled; Vibhags view starts enabled when opening the app or clearing clapping. Both remain switchable. Existing recordings and incoming links retain their saved Snap choice.
+
+Notes and sharing are above the composition type selector. The recorded timeline appears above the bottom clapping controls.

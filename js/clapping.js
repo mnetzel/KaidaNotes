@@ -85,6 +85,7 @@ export function setupClapping(getComposition, updateComposition) {
   const clapButton = document.querySelector('#clap');
   const status = document.querySelector('#clap-status');
   const resultPanel = document.querySelector('#clap-result');
+  const resultActions = document.querySelector('#clap-result-actions');
   const snapButton = document.querySelector('#clap-snap');
   const viewButton = document.querySelector('#clap-view');
   let byVibhag = true;
@@ -97,7 +98,7 @@ export function setupClapping(getComposition, updateComposition) {
   const reset = () => {
     setIdle(); times = []; structure = []; name = '';
     byVibhag = true; viewButton.setAttribute('aria-pressed', 'true');
-    resultPanel.hidden = true;
+    resultPanel.hidden = true; resultActions.hidden = true;
     document.querySelector('#clap-plot-container').replaceChildren();
     document.querySelector('#clap-summary').textContent = '';
     snapButton.setAttribute('aria-pressed', 'true');
@@ -114,7 +115,7 @@ export function setupClapping(getComposition, updateComposition) {
     document.querySelector('#clap-summary').textContent = `${capture.name} · ${capture.structure.join('–')} · ${result.totalMatras} matras · ${result.hits.length} claps · ${(result.duration / 1000).toFixed(2)} s · ${capture.snap ? 'Snap ½ matra' : 'Original timing'}`;
     snapButton.setAttribute('aria-pressed', String(capture.snap));
     viewButton.setAttribute('aria-pressed', String(byVibhag));
-    resultPanel.hidden = false;
+    resultPanel.hidden = false; resultActions.hidden = false;
     status.textContent = 'Final clap = next sam (end only). This recording is included in your Kaida link.';
   };
   viewButton.addEventListener('click', () => {
@@ -154,7 +155,7 @@ export function setupClapping(getComposition, updateComposition) {
     const composition = getComposition();
     if (!composition.vibhagStructure.length) { status.textContent = 'Set a vibhag structure above before clapping.'; return; }
     structure = [...composition.vibhagStructure]; name = composition.talaName || 'Custom tala';
-    times = []; recording = true; resultPanel.hidden = true;
+    times = []; recording = true; resultPanel.hidden = true; resultActions.hidden = true;
     startButton.textContent = 'Stop clapping'; startButton.setAttribute('aria-pressed', 'true');
     clapButton.disabled = false;
     status.textContent = `Ready · ${name} ${structure.join('–')}. First clap starts the clock. Finish with the next sam, then stop.`;

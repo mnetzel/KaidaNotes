@@ -37,3 +37,11 @@ test('invalid, truncated, unsupported and oversized payloads are rejected', asyn
   await assert.rejects(readShareLink(link.hash.slice(0,-6)));
   await assert.rejects(createShareLink({...createComposition(),notes:'x'.repeat(MAX_DOCUMENT_BYTES+1)},'https://example.com/'));
 });
+
+test('compatible older links with omitted defaults or extra fields load normally', async()=>{
+ const c=appendToVibhag(createComposition(),'Dhin',1);
+ const old=structuredClone(c);
+ delete old.bols[0].tags;
+ old.legacyDisplay='unused';
+ assert.deepEqual(await readShareLink(hashFor(old)),c);
+});
