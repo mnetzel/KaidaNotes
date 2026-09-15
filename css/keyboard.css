@@ -8,15 +8,17 @@
   --open-stroke-color: #7d3deb;
   --keyboard-button-color: #f3eada;
 }
-.keyboard { aspect-ratio: 965 / 721.4319; container-type: inline-size; }
+/* Use the unzoomed layout width: WebKit applies portrait zoom twice to cqw fonts. */
+.keyboard { aspect-ratio: 965 / 721.4319; --keyboard-layout-width: min(100vw, 840px); }
+@media (max-width: 600px) { .keyboard { --keyboard-layout-width: 840px; } }
 .keyboard .entry-actions, .keyboard .open-close, .keyboard .bol-keys,
 .keyboard .bayan-direction, .keyboard .compound-keys, .keyboard .fingers, .keyboard .pause-keys { display: contents; }
 .keyboard button {
   position: absolute; display: grid; place-items: center; box-sizing: border-box;
   min-width: 0; min-height: 0; margin: 0; padding: 0;
-  border: 1px solid #000; border-radius: 1.75cqw;
+  border: 1px solid #000; border-radius: calc(var(--keyboard-layout-width) * .0175);
   background: var(--keyboard-button-color); color: #000; opacity: 1;
-  font: 700 6.2176cqw/1 'Iosevka', monospace;
+  font: 700 calc(var(--keyboard-layout-width) * .062176)/1 'Iosevka', monospace;
   transform: none; box-shadow: none; white-space: nowrap;
 }
 .keyboard button:disabled { color: #766f64; opacity: 1; }
@@ -27,8 +29,8 @@
 .keyboard .zone svg { width: 100%; height: 100%; overflow: visible; }
 .keyboard .zone[aria-pressed="true"] { background: transparent; outline: 0; box-shadow: none; }
 .keyboard .zone[aria-pressed="true"] svg { filter: drop-shadow(0 0 2px white) drop-shadow(0 0 2px black); }
-.keyboard .zone[aria-pressed="true"]::after { position: absolute; inset: 0; display: grid; place-items: center; color: white; font-size: 3cqw; }
-.keyboard #clear-bols, .keyboard #clear-all { font-size: 2.1cqw; }
+.keyboard .zone[aria-pressed="true"]::after { position: absolute; inset: 0; display: grid; place-items: center; color: white; font-size: calc(var(--keyboard-layout-width) * .03); }
+.keyboard #clear-bols, .keyboard #clear-all { font-size: calc(var(--keyboard-layout-width) * .021); }
 .keyboard .zone-orange { left: 76.40484%; top: 46.97321%; width: 4.13755%; height: 11.72539%; }
 .keyboard .zone-blue { left: 73.85805%; top: 60.44555%; width: 11.49350%; height: 12.17328%; }
 .keyboard .zone-purple { left: 90.06136%; top: 69.59123%; width: 7.68911%; height: 7.39234%; }
