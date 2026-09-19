@@ -4,6 +4,12 @@
 indentation and a final newline. This is the same uncompressed object carried
 by the editable link. It has no additional export wrapper or encoded payload.
 
+The filename joins bol names within each vibhag and separates vibhags with `_`,
+for example `DhaTiDhaGheGhe_TinNaKiNa_TaTiDhaGheGhe_DhinNaGheNa.json`.
+The composition type, tala heading, notes, and tags are not part of the filename.
+Empty compositions use `Kaida.json`; exceptionally long names are shortened for
+filesystem compatibility, without shortening the JSON content.
+
 **Import** reads this object, applies the same compatibility/migration logic as
 opening a Kaida link, replaces the current composition and updates the tab's URL.
 Undo restores the previous composition. File selection cancellation or a failed
