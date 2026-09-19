@@ -136,9 +136,13 @@ button[aria-pressed="true"] { box-shadow: inset 0 0 0 3px var(--purple-strong); 
 #extra-notes { display: block; background: #fff6cd; width: 100%; min-height: 108px; border: none; border-radius: 7px; resize: vertical; padding: 12px 16px; font: 22px/1.35 'Iosevka', monospace; color: #31252a; }
 #extra-notes::placeholder { color: #968562; }
 .notes-field label { display: block; text-align: center; font-size: 21px; margin-top: 7px; }
-.share-actions { display: flex; gap: 20px; }
+.share-actions { display: grid; grid-template-columns: repeat(3, 96px); gap: 12px 20px; }
 .share-actions button { display: flex; flex-direction: column; align-items: center; gap: 8px; background: transparent; padding: 0; min-width: 96px; font-size: 18px; }
 .share-actions svg { width: 96px; height: 96px; fill: #20c960; }
+.share-actions .json-action svg { width: 64px; height: 64px; fill: none; stroke: #75468c; stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+.share-actions .json-action text { fill: #75468c; stroke: none; font: 18px 'Iosevka', monospace; }
+#json-status { grid-column: 1 / -1; max-width: 328px; margin: 0; font-size: 16px; color: #65556e; }
+#json-status:empty { display: none; }
 footer { display: flex; justify-content: center; gap: 10px; font-size: 12px; color: #95899b; padding: 18px 20px 28px; }
 dialog { border: 1px solid #e4d8e9; border-radius: 18px; max-width: min(560px, calc(100% - 32px)); padding: 26px; box-shadow: 0 20px 100px #2f153744; }
 dialog::backdrop { background: #251a315c; backdrop-filter: blur(3px); }

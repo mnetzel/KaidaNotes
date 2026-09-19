@@ -39,7 +39,8 @@ function watchNotation(container) {
   // Detached presentation sheets are fitted by their own stage observer.
   if (!container.isConnected) return;
   if (!notationObservers.has(container)) {
-    const observer = new ResizeObserver(() => fitNotation(container));
+    // Font fitting can change row height; apply it outside resize delivery.
+    const observer = new ResizeObserver(() => requestAnimationFrame(() => fitNotation(container)));
     observer.observe(container);
     notationObservers.set(container, observer);
     document.fonts.ready.then(() => fitNotation(container));

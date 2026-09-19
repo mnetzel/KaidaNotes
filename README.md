@@ -22,6 +22,8 @@ Open <http://localhost:4173/KaidaNotes/>. Any static HTTP server also works. Ser
 6. Add extra notes. Edits update this tab’s URL and are restored from it after reload. Switching apps or tabs keeps the active editor intact.
 7. **link** creates an editable snapshot to copy or send through WhatsApp. The recipient opens the composition, edits it, and creates a new link to send back. **basic** or **complete** copies text and opens a readable preview with an optional WhatsApp link. Complete includes performance annotations. Both include composition notes. No message is sent automatically.
 
+**Export / Import:** the JSON file buttons beneath the sharing icons download and load the complete composition, including tags, notes, empty matras, and completed clapping data. Export is readable UTF-8 JSON with two-space indentation. Import replaces the current composition and is undoable; invalid files leave it intact. See [JSON format and field reference](docs/json-format.md) for integration with other applications.
+
 **Undo / redo:** buttons or Ctrl/Cmd+Z and Ctrl/Cmd+Shift+Z. History is held in memory (last 100 edits); nearby note keystrokes form one undo step. **clear** removes only the selected bol's vibhag (or current entry vibhag when nothing is selected), retaining all other rows, structure and notes; it is undoable. Entry resumes in that emptied row. **⌫** removes just the primary selected bol, or the last bol in the current row, and is undoable. **clear all** asks for confirmation, then resets bols, tags, notes, composition type, structure, selection, drafts and undo/redo history. The empty composition replaces the saved document.
 
 ## Rhythm semantics

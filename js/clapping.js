@@ -130,10 +130,10 @@ export function setupClapping(getComposition, updateComposition) {
     snapButton.setAttribute('aria-pressed', 'true');
     status.textContent = 'Start, then tap Clap from sam to the next sam.';
   };
-  const sync = () => {
+  const sync = (force = false) => {
     const { clapping: capture, bols } = getComposition();
-    if (capture === lastCapture && (bols === lastBols || recording)) return;
-    if (capture !== lastCapture) setIdle();
+    if (!force && capture === lastCapture && (bols === lastBols || recording)) return;
+    if (force || capture !== lastCapture) setIdle();
     lastCapture = capture; lastBols = bols;
     if (!capture) { reset(); return; }
     const result = clapDisplay(capture, bols);

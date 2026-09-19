@@ -1,4 +1,5 @@
 import { setupPresentation } from './presentation.js';
+import { setupJSONFiles } from './json-file.js';
 import { createComposition, clearVibhag, deleteBol, insertPause, replaceBol, recognizeTala } from './model.js';
 import { moveSelectedAtLevel } from './rhythm.js';
 import { createSelection, createBolInteraction, clickNotationBol, setMultiSelect, getPrimarySelection } from './selection.js';
@@ -85,6 +86,13 @@ function render() {
 
 store.subscribe(render);
 setupPresentation(() => store.composition);
+setupJSONFiles(() => store.composition, composition => {
+  selection = createSelection(); interaction = createBolInteraction();
+  structureDraft = null; nextVibhag = false; entryCursor = null;
+  store.update(() => composition);
+  clapping.sync(true);
+  render();
+});
 document.querySelectorAll('[data-type]').forEach(button => button.addEventListener('click', () => {
   store.update(composition => ({ ...composition, compositionType: button.dataset.type }));
 }));
