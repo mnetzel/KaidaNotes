@@ -26,7 +26,7 @@ jobs:
           cp -r css js _site/
           mkdir _site/assets
           cp assets/tabla.jpg assets/favicon.svg _site/assets/
-          cp -r assets/fonts _site/assets/
+          cp -r assets/fonts assets/hands _site/assets/
           touch _site/.nojekyll
       - uses: actions/upload-pages-artifact@v3
         if: github.event_name != 'pull_request'

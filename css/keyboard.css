@@ -69,3 +69,22 @@
 .keyboard #clear-all { left: 74.62733%; top: 25.65352%; width: 11.88517%; height: 6.07733%; }
 
 .keyboard [data-bol], .keyboard [data-pause] { font-weight: 700; }
+
+/* Fingering controls use the supplied hand drawings, without button tiles. */
+.keyboard::before { content: ''; position: absolute; inset: 78% 0 0; background: linear-gradient(transparent, white 85%); pointer-events: none; }
+.keyboard .fingers button[data-tag] { top: 79%; width: 13%; height: 20.5%; background: transparent; border: 0; border-radius: 8px; }
+.keyboard .left-fingers [data-tag="1-5"] { left: 4%; }
+.keyboard .left-fingers [data-tag="4-and-3"] { left: 17%; }
+.keyboard .left-fingers [data-tag="2"] { left: 30%; }
+.keyboard .right-fingers [data-tag="2"] { left: 60%; }
+.keyboard .right-fingers [data-tag="3-and-4"] { left: 73%; }
+.keyboard .right-fingers [data-tag="3"] { left: 86%; }
+.keyboard .fingers img { display: block; width: 100%; height: 100%; object-fit: contain; pointer-events: none; }
+.keyboard .fingers button[aria-pressed="true"], .keyboard .fingers button[aria-pressed="mixed"] { background: transparent; box-shadow: none; }
+.keyboard .fingers button[aria-pressed="true"] img { filter: drop-shadow(0 0 2px white) drop-shadow(0 0 2px #75468c); }
+.keyboard .fingers button[aria-pressed="true"]::after, .keyboard .fingers button[aria-pressed="mixed"]::after {
+  content: '✓'; position: absolute; right: 2%; bottom: 5%; display: grid; place-items: center;
+  width: 1.2em; height: 1.2em; border-radius: 50%; background: #75468c; color: white;
+  font-size: calc(var(--keyboard-layout-width) * .025);
+}
+.keyboard .fingers button[aria-pressed="mixed"]::after { content: '−'; }
