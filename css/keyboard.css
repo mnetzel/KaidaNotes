@@ -38,6 +38,7 @@
 .keyboard [data-bol="Ke"] { left: 4.42114%; top: 18.27187%; width: 13.96698%; height: 11.04064%; }
 .keyboard [data-tag="close"] { left: 19.97393%; top: 67.34090%; width: 16.75612%; height: 11.04064%; }
 .keyboard [data-bol="Ki"] { left: 4.42114%; top: 30.53913%; width: 13.96698%; height: 11.04064%; }
+.keyboard [data-bol="Ka"] { left: 4.42114%; top: 42.80638%; width: 13.96698%; height: 11.04064%; }
 .keyboard [data-bol="Ghe"] { left: 4.42114%; top: 6.00461%; width: 13.96698%; height: 11.04064%; }
 .keyboard [data-tag="open"] { left: 4.42114%; top: 67.34090%; width: 13.96698%; height: 11.04064%; }
 .keyboard [data-bol="Dha"] { left: 22.76307%; top: 6.00461%; width: 13.96698%; height: 11.04064%; }
@@ -55,8 +56,8 @@
 .keyboard [data-pause="before"] { left: 41.10501%; top: 67.34090%; width: 13.96698%; height: 11.04064%; }
 .keyboard [data-pause="after"] { left: 56.28536%; top: 67.34090%; width: 13.96699%; height: 11.04064%; }
 .keyboard [data-bol="KeTe"] { left: 56.28536%; top: 42.80638%; width: 13.96699%; height: 11.04064%; }
-.keyboard [data-tag="up"] { left: 4.42114%; top: 49.75784%; width: 6.52497%; height: 11.04064%; }
-.keyboard [data-tag="down"] { left: 11.86311%; top: 49.82840%; width: 6.52497%; height: 11.04064%; }
+.keyboard [data-tag="up"] { left: 4.42114%; top: 55.07364%; width: 6.52497%; height: 11.04064%; }
+.keyboard [data-tag="down"] { left: 11.86311%; top: 55.07364%; width: 6.52497%; height: 11.04064%; }
 .keyboard #next-vibhag { left: 74.62733%; top: 6.06858%; width: 21.22563%; height: 11.07836%; }
 .keyboard [data-tag="1-5"] { left: 4.42114%; top: 84.98561%; width: 13.96698%; height: 11.04064%; }
 .keyboard [data-tag="4-and-3"] { left: 19.90340%; top: 84.98561%; width: 13.96699%; height: 11.04064%; }
