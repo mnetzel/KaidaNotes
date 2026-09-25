@@ -1,4 +1,5 @@
 import { renderPresentationCanvas } from './presentation-canvas.js';
+import { compositionFilename } from './filename.js';
 
 export function setupPresentationImage(content, fit) {
   const share = document.querySelector('#presentation-share');
@@ -25,8 +26,7 @@ export function setupPresentationImage(content, fit) {
       const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
       if (request !== revision) return;
       if (!blob?.size) throw new Error('Empty image');
-      const name = `${current.compositionType}-${current.talaName || 'kaida'}`.replace(/[^a-z0-9-]+/gi, '-');
-      file = new File([blob], `${name}.png`, { type: 'image/png' });
+      file = new File([blob], compositionFilename(current, 'png'), { type: 'image/png' });
       share.disabled = save.disabled = false;
       status.textContent = navigator.canShare?.({ files: [file] })
         ? 'Share image → choose WhatsApp.'
