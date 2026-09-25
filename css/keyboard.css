@@ -40,8 +40,9 @@
 .keyboard [data-bol="Ki"] { left: 4.42114%; top: 30.53913%; width: 13.96698%; height: 11.04064%; }
 .keyboard [data-bol="Ka"] { left: 4.42114%; top: 42.80638%; width: 13.96698%; height: 11.04064%; }
 .keyboard [data-bol="Ghe"] { left: 4.42114%; top: 6.00461%; width: 13.96698%; height: 11.04064%; }
+.keyboard [data-bol="Ghi"] { left: 18.9%; top: 6.00461%; width: 7%; height: 11.04064%; font-size: calc(var(--keyboard-layout-width) * .042); }
 .keyboard [data-tag="open"] { left: 4.42114%; top: 67.34090%; width: 13.96698%; height: 11.04064%; }
-.keyboard [data-bol="Dha"] { left: 22.76307%; top: 6.00461%; width: 13.96698%; height: 11.04064%; }
+.keyboard [data-bol="Dha"] { left: 26.5%; top: 6.00461%; width: 13.96698%; height: 11.04064%; }
 .keyboard [data-bol="Ta"] { left: 41.10501%; top: 6.00461%; width: 13.96698%; height: 11.04064%; }
 .keyboard [data-bol="Te"] { left: 56.28536%; top: 6.00461%; width: 13.96699%; height: 11.04064%; }
 .keyboard [data-bol="Dhi"] { left: 22.76307%; top: 18.27187%; width: 13.96698%; height: 11.04064%; }
