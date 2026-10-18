@@ -222,6 +222,11 @@
   </dialog>
   <dialog id="presentation-dialog" aria-label="Presentation View">
     <div id="presentation-stage"><div id="presentation-content"></div></div>
+    <div class="presentation-views" role="group" aria-label="Presentation content">
+      <button type="button" data-presentation-view="bols" aria-pressed="false">Bols</button>
+      <button type="button" data-presentation-view="blocks" aria-pressed="false">Blocks</button>
+      <button type="button" data-presentation-view="both" aria-pressed="true">Both</button>
+    </div>
     <div class="presentation-actions">
       <button type="button" id="presentation-share" disabled>Share image</button>
       <button type="button" id="presentation-save" disabled>Save image</button>
