@@ -119,6 +119,7 @@ export function setupClapping(getComposition, updateComposition) {
   const setIdle = () => {
     recording = false; startButton.textContent = 'Start clapping';
     startButton.setAttribute('aria-pressed', 'false'); clapButton.disabled = true;
+    document.querySelector('#manual-open').disabled = false;
   };
   const reset = () => {
     setIdle(); times = []; structure = []; name = '';
@@ -142,7 +143,7 @@ export function setupClapping(getComposition, updateComposition) {
     snapButton.setAttribute('aria-pressed', String(capture.snap));
     viewButton.setAttribute('aria-pressed', String(byVibhag));
     resultPanel.hidden = false; resultActions.hidden = false;
-    status.textContent = 'Final clap = next sam (end only). This recording is included in your Kaida link.';
+    status.textContent = capture.manualTimings ? 'Manual timeline saved. Timings are included in your Kaida link and JSON.' : 'Final clap = next sam (end only). This recording is included in your Kaida link.';
   };
   blocksButton.addEventListener('click', () => {
     const { clapping: capture, bols } = getComposition();
@@ -189,6 +190,7 @@ export function setupClapping(getComposition, updateComposition) {
     if (!composition.vibhagStructure.length) { status.textContent = 'Set a vibhag structure above before clapping.'; return; }
     structure = [...composition.vibhagStructure]; name = composition.talaName || 'Custom tala';
     times = []; recording = true; resultPanel.hidden = true; resultActions.hidden = true;
+    document.querySelector('#manual-open').disabled = true;
     startButton.textContent = 'Stop clapping'; startButton.setAttribute('aria-pressed', 'true');
     clapButton.disabled = false;
     status.textContent = `Ready · ${name} ${structure.join('–')}. First clap starts the clock. Finish with the next sam, then stop.`;

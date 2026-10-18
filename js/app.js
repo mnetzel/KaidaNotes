@@ -1,5 +1,6 @@
 import { setupPresentation } from './presentation.js';
 import { setupJSONFiles } from './json-file.js';
+import { setupManualTimeline } from './manual-timeline.js';
 import { createComposition, clearVibhag, deleteBol, insertPause, replaceBol, recognizeTala } from './model.js';
 import { moveSelectedAtLevel } from './rhythm.js';
 import { createSelection, createBolInteraction, clickNotationBol, setMultiSelect, getPrimarySelection } from './selection.js';
@@ -44,6 +45,10 @@ function currentBol() {
 }
 fitPortraitLayout();
 const clapping = setupClapping(() => store.composition, transform => store.update(transform));
+setupManualTimeline(() => store.composition, capture => {
+  store.update(composition => ({ ...composition, clapping: capture }));
+  clapping.sync(true);
+});
 
 function toast(message) {
   clearTimeout(toastTimeout);
@@ -295,6 +300,7 @@ window.addEventListener('hashchange', openSharedKaida);
 await openSharedKaida();
 
 render();
+if (new URLSearchParams(location.search).get('view') === 'manual') $('#manual-open').click();
 if (debug) Object.defineProperty(window, 'kaidaDebug', { value: Object.freeze({
   snapshot: () => structuredClone(store.composition),
   exportJSON: () => JSON.stringify(store.composition, null, 2),

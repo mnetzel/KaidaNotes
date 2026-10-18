@@ -57,6 +57,22 @@ they can differ from the composition's subsequently edited structure.
 `clapping.snap` is a boolean: snapping rounds the displayed timing to half-matras;
 it never changes the raw timestamps.
 
+The manual timeline adds optional `clapping.manualTimings`, an ordered array of
+`{ "bolId": "…", "start": 0, "end": 0.75 }` entries. **Start and end are zero-based
+matra offsets** within `clapping.structure`, not milliseconds. Each entry refers
+to a bol ID and may describe a pause bol too. Intervals have positive lengths,
+stay inside the cycle, and cannot overlap; gaps represent silence. These explicit
+ends take precedence over durations inferred from the next onset. Entries whose
+bols have been deleted are ignored by the display.
+
+Manual saves retain the existing cycle duration (or use 500 ms/matra when no
+recording exists), set `snap: false`, and derive timestamps from sounding onsets
+plus the sam/end anchors. For very large manual timelines beyond the recording's
+4,096 timestamp limit, `timestamps` contains just the two anchors;
+`manualTimings` remains authoritative. The editor's quarter-matra snapping is
+independent of the display's optional half-matra Snap. Older recordings without
+`manualTimings` keep their existing interpretation unchanged.
+
 ## Compatibility
 
 Exports preserve every stored composition field. Transient selection, undo history,

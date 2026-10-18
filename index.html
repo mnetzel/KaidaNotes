@@ -9,6 +9,7 @@
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="css/app.css">
   <link rel="stylesheet" href="css/keyboard.css">
+  <link rel="stylesheet" href="css/manual-timeline.css">
   <script type="module">
     try {
       const loader = new URL('js/fresh.js', location.href);
@@ -178,6 +179,7 @@
       <h2 id="clapping-title">Clap a tala cycle</h2>
       <p>Tap from sam to the next sam. The last clap closes the cycle.</p>
       <div class="clapping-controls"><button type="button" id="start-clapping" class="purple" aria-pressed="false">Start clapping</button><button type="button" id="clap" class="yellow" disabled>Clap</button></div>
+      <button type="button" id="manual-open" class="purple">Manual timeline</button>
       <p id="clap-status" role="status">Start, then tap Clap from sam to the next sam.</p>
         <div id="clap-result-actions" hidden>
         <button type="button" id="clap-snap" class="yellow" aria-pressed="true" title="Snap to the nearest half matra">Snap · ½ matra</button>
@@ -189,6 +191,35 @@
     </section>
     <noscript>KaidaNotes needs JavaScript enabled to edit notation.</noscript>
   </main>
+  <dialog id="manual-dialog" aria-labelledby="manual-title" aria-describedby="manual-help">
+    <h2 id="manual-title">Manual timeline</h2>
+    <div class="manual-body">
+      <p id="manual-help"></p>
+      <div class="manual-toolbar">
+        <label><input type="checkbox" id="manual-snap" checked> Snap · ¼ matra</label>
+        <label><input type="checkbox" id="manual-link-edges" checked> Link edges</label>
+        <label>Zoom <input type="range" id="manual-zoom" min="60" max="240" step="20" value="120"></label>
+        <button type="button" id="manual-reset">From notation</button>
+      </div>
+      <div id="manual-overview" aria-label="Full cycle overview"></div>
+      <div id="manual-scroll" tabindex="0" aria-label="Scrollable manual timeline">
+        <div id="manual-track"></div>
+      </div>
+      <div class="manual-fields">
+        <button type="button" id="manual-previous" aria-label="Previous bol">←</button>
+        <span id="manual-selected"></span>
+        <button type="button" id="manual-next" aria-label="Next bol">→</button>
+        <label>Start · matra<input type="number" id="manual-start" min="1" step=".25"></label>
+        <label>End · matra<input type="number" id="manual-end" min="1" step=".25"></label>
+        <span id="manual-duration"></span>
+      </div>
+    </div>
+    <p id="manual-status" role="status"></p>
+    <div class="manual-actions">
+      <button type="button" id="manual-cancel">Cancel</button>
+      <button type="button" id="manual-ok" class="purple">OK</button>
+    </div>
+  </dialog>
   <dialog id="presentation-dialog" aria-label="Presentation View">
     <div id="presentation-stage"><div id="presentation-content"></div></div>
     <div class="presentation-actions">

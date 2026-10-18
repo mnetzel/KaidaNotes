@@ -1,0 +1,46 @@
+#manual-open { padding: 12px 22px; font-size: 26px; }
+#manual-dialog { width: min(1160px, calc(100% - 24px)); max-width: none; max-height: calc(100dvh - 24px); margin: auto; padding: 20px; overflow: hidden; }
+#manual-dialog[open] { display: flex; flex-direction: column; gap: 12px; }
+#manual-dialog h2 { margin: 0; font-size: 26px; }
+#manual-dialog p { margin: 0; font-size: 14px; }
+.manual-body { overflow: auto; min-height: 0; padding: 3px; }
+.manual-toolbar, .manual-fields, .manual-actions { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+.manual-toolbar { margin: 12px 0; }
+.manual-toolbar label { display: flex; align-items: center; gap: 6px; font-size: 16px; }
+.manual-toolbar input[type="checkbox"] { width: 20px; height: 20px; accent-color: #75468c; }
+.manual-toolbar input[type="range"] { width: 130px; }
+.manual-toolbar button, .manual-fields button, .manual-actions button { padding: 9px 16px; font-size: 16px; }
+#manual-overview { position: relative; height: 38px; margin: 8px 0 12px; border: 1px solid #c7bacd; background: #faf8fc; overflow: hidden; border-radius: 5px; }
+#manual-overview .manual-mini { position: absolute; top: 0; height: 100%; min-width: 0; padding: 0; background: var(--bol-color); border: 1px solid white; border-radius: 0; }
+#manual-overview .manual-mini.selected { outline: 3px solid #ffe47b; outline-offset: -3px; }
+#manual-overview .manual-mini.rest { background: #eee9f2; }
+#manual-scroll { overflow: auto; border: 1px solid #c7bacd; border-radius: 8px; overscroll-behavior: contain; }
+#manual-track { position: relative; height: 180px; background-color: #faf8fc; user-select: none; }
+#manual-track::before { content: ''; position: absolute; left: 16px; top: 42px; right: 16px; bottom: 14px; background: repeating-linear-gradient(to right, transparent 0, transparent calc(var(--manual-unit) / 4 - 1px), #e3dce8 calc(var(--manual-unit) / 4 - 1px), #e3dce8 calc(var(--manual-unit) / 4)); pointer-events: none; }
+.manual-vibhag { position: absolute; top: 0; padding: 5px 0; color: #75468c; font-size: 12px; }
+.manual-grid-line { position: absolute; top: 22px; bottom: 0; border-left: 1px solid #a2b8d6; padding-left: 4px; font-size: 13px; color: #65556e; }
+.manual-grid-line.vibhag-start { border-left: 2px solid #75468c; }
+.manual-block { position: absolute; top: 55px; height: 88px; min-width: 1px; border: 2px solid white; border-radius: 6px; background: var(--bol-color); touch-action: none; }
+.manual-block.selected { outline: 3px solid #a274b7; outline-offset: 1px; z-index: 1; }
+.manual-block.rest { background: #eee9f2; border: 2px dashed #ad9bb7; }
+.manual-block button { position: absolute; top: 0; bottom: 0; min-width: 0; padding: 0; border-radius: 0; background: transparent; color: white; touch-action: none; user-select: none; }
+.manual-block .manual-move { inset: 0; padding: 0 10px; overflow: hidden; font: 700 24px 'Iosevka', monospace; cursor: grab; }
+.manual-block.rest .manual-move { color: #65556e; }
+.manual-block .manual-start, .manual-block .manual-end { width: 12px; background: #ffffff38; cursor: ew-resize; z-index: 1; }
+.manual-block .manual-start { left: 0; border-radius: 4px 0 0 4px; border-right: 1px solid #ffffff80; }
+.manual-block .manual-end { right: 0; border-radius: 0 4px 4px 0; border-left: 1px solid #ffffff80; }
+.manual-block button:focus-visible { outline: 3px solid #ffe47b; outline-offset: -3px; }
+.manual-fields { margin-top: 16px; }
+.manual-fields label { display: flex; flex-direction: column; gap: 4px; font-size: 13px; }
+.manual-fields input { width: 110px; padding: 8px; font: inherit; border: 1px solid #b29cbe; border-radius: 5px; }
+#manual-selected { font-weight: 700; min-width: 110px; }
+#manual-duration { color: #65556e; font-size: 14px; }
+.manual-actions { justify-content: flex-end; flex: none; margin-top: 4px; }
+#manual-status { color: #65556e; min-height: 20px; }
+@media (max-width: 600px) {
+  #manual-dialog { padding: 12px; }
+  #manual-dialog h2 { font-size: 23px; }
+  .manual-toolbar { gap: 8px; }
+  .manual-toolbar input[type="range"] { width: 100px; }
+  .manual-fields { gap: 10px; }
+}
