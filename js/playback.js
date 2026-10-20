@@ -112,7 +112,7 @@ export function setupPresentationPlayback() {
       const gain = context.createGain();
       source.buffer = bank;
       const duration = Math.min(sample.duration, Math.max(.02, (event.end - event.start) * secondsPerMatra));
-      const level = .8 / event.samples.length;
+      const level = .8 * sample.gain / event.samples.length;
       gain.gain.setValueAtTime(0, when);
       gain.gain.linearRampToValueAtTime(level, when + .001);
       gain.gain.setValueAtTime(level, when + Math.max(.001, duration - .008));

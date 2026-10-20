@@ -212,6 +212,8 @@ Disabled vibhags remain visible but dimmed. Playback concatenates only enabled r
 
 Audio uses execution tags, never bol names:
 
+The **Ghe (GH)** sample uses **2× gain** for the current volume trial; all other samples retain their original gain. This also applies when Ghe is one hand of a combined stroke. The source WAV and saved composition data are unchanged.
+
 | Tags | Sample |
 | --- | --- |
 | Sur + right finger 2 | Ta |
