@@ -16,6 +16,7 @@ export function renderClapPlot(container, result, byVibhag = false, blocks = fal
     const rows = result.structure.map((length, index) => {
       const row = document.createElement('div');
       row.className = 'clap-vibhag-row';
+      row.dataset.vibhag = index;
       const last = index === result.structure.length - 1;
       const hits = blocks ? blocksInRange(result.hits, offset, offset + length, last) : result.hits.filter(hit => hit.matra >= offset && (hit.matra < offset + length || (last && hit.matra === offset + length)))
         .map(hit => ({ ...hit, matra: hit.matra - offset }));
@@ -34,9 +35,10 @@ export function renderClapPlot(container, result, byVibhag = false, blocks = fal
   const rowEnd = x(totalMatras);
   const stacked = result.rowIndex !== undefined;
   const suffix = result.rowIndex === undefined ? '' : '-' + result.rowIndex;
-  const baseline = blocks ? 122 : 246;
-  const handY = { right: blocks ? 44 : 146, left: baseline, unassigned: blocks ? 83 : 196 };
-  const gridBottom = baseline + (blocks ? 36 : 34);
+  const laneHeight = blocks ? result.blockLaneHeight || 72 : 72;
+  const baseline = blocks ? top + laneHeight * 1.5 + 6 : 246;
+  const handY = { right: blocks ? top + laneHeight / 2 : 146, left: baseline, unassigned: blocks ? top + laneHeight + 3 : 196 };
+  const gridBottom = baseline + (blocks ? laneHeight / 2 : 34);
   const paddingX = 48, paddingY = blocks ? 0 : 24;
   const viewHeight = blocks ? gridBottom + 36 : baseline + 94 + paddingY * 2;
   const svg = svgNode('svg', { viewBox: `-${paddingX} -${paddingY} ${width + paddingX * 2} ${viewHeight}`, role: 'img', 'aria-labelledby': `clap-plot-title${suffix} clap-plot-description${suffix}`, class: 'clap-plot' });
@@ -69,8 +71,8 @@ export function renderClapPlot(container, result, byVibhag = false, blocks = fal
   if (blocks) hits.forEach(hit => {
     const hands = hit.hands?.length ? hit.hands : ['unassigned'];
     const both = hands.includes('right') && hands.includes('left');
-    const height = both ? handY.left - handY.right + 72 : 72;
-    const py = both ? handY.right - 36 : handY[hands[0]] - 36;
+    const height = both ? handY.left - handY.right + laneHeight : laneHeight;
+    const py = both ? handY.right - laneHeight / 2 : handY[hands[0]] - laneHeight / 2;
     const left = x(hit.matra), right = x(hit.endMatra);
     const gap = Math.min(3, Math.max(0, right - left) / 8);
     const blockWidth = Math.max(2, right - left - gap * 2);

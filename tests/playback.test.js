@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createComposition, appendToVibhag, insertPause } from '../js/model.js';
 import { createManualDraft, manualCapture } from '../js/manual-timing.js';
-import { resolveStrokeSamples, createPlaybackPlan, playbackWindow, STROKE_SAMPLES } from '../js/playback-data.js';
+import { resolveStrokeSamples, createPlaybackPlan, selectPlaybackVibhags, playbackCursor, playbackWindow, STROKE_SAMPLES } from '../js/playback-data.js';
 
 const bol = tags => ({ id: 'test', text: 'Any label', tags });
 
@@ -75,4 +75,37 @@ test('look-ahead windows loop without drifting, duplicates or phantom end-of-cyc
     assert.ok(sample.offset >= i && sample.offset < i + .1);
     assert.ok(sample.duration > .8 && sample.offset + sample.duration < i + 1);
   }
+});
+
+test('practice loops concatenate selected vibhags, preserve pauses, and map back to original matras', () => {
+  const base = { structure: [2, 3, 1, 2], totalMatras: 8, events: [
+    { bolId: 'a', start: 0, end: .5, samples: ['Ta'] },
+    { bolId: 'b', start: 2, end: 3, samples: ['Ghe'] },
+    { bolId: 'c', start: 5.5, end: 6, samples: ['Ke'] },
+    { bolId: 'd', start: 6, end: 8, samples: ['Tin'] },
+  ] };
+  const original = structuredClone(base);
+  const plan = selectPlaybackVibhags(base, [2, 0, 2]);
+  assert.equal(plan.totalMatras, 3);
+  assert.deepEqual(plan.events.map(e => [e.bolId, e.start, e.end]), [['a', 0, .5], ['c', 2.5, 3]]);
+  assert.deepEqual(playbackWindow(plan, 0, 6).map(e => [e.bolId, e.beat]), [['a', 0], ['c', 2.5], ['a', 3], ['c', 5.5]]);
+  assert.deepEqual(playbackCursor(plan, 2.25), { phase: 2.25, vibhag: 2, matra: 5.25 });
+  assert.deepEqual(playbackCursor(plan, 3.25), { phase: .25, vibhag: 0, matra: .25 });
+  assert.equal(playbackCursor(plan, -1), null);
+  const empty = selectPlaybackVibhags(base, []);
+  assert.equal(empty.totalMatras, 0); assert.deepEqual(empty.events, []);
+  assert.equal(playbackCursor(empty, 1), null); assert.deepEqual(playbackWindow(empty, 0, 10), []);
+  assert.deepEqual(base, original);
+});
+
+test('practice selection clips crossing strokes but never retriggers them at adjacent selected rows', () => {
+  const base = { structure: [2, 2, 2], totalMatras: 6,
+    events: [{ bolId: 'held', start: 1, end: 5, samples: ['Tin', 'Ghe'] }] };
+  assert.deepEqual(selectPlaybackVibhags(base, [0, 1, 2]).events, base.events);
+  assert.deepEqual(selectPlaybackVibhags(base, [1]).events.map(e => [e.start, e.end]), [[0, 2]]);
+  assert.deepEqual(selectPlaybackVibhags(base, [0, 2]).events.map(e => [e.start, e.end]), [[1, 2], [2, 3]]);
+  const plan = selectPlaybackVibhags(base, [1, 2]);
+  assert.equal(plan.events.length, 1);
+  assert.deepEqual([plan.events[0].start, plan.events[0].end], [0, 3]);
+  assert.deepEqual(playbackCursor(plan, 2.5), { phase: 2.5, vibhag: 2, matra: 4.5 });
 });

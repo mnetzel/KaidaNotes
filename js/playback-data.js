@@ -56,7 +56,40 @@ export function createPlaybackPlan(composition) {
     const { samples } = resolveStrokeSamples(bol);
     return samples.length ? [{ bolId: bol.id, start: t.start, end: Math.min(totalMatras, t.end), samples }] : [];
   }).sort((a, b) => a.start - b.start);
-  return { events, totalMatras, timing, fallback, unmapped, untimed };
+  return { events, intervals, structure: [...structure], totalMatras, timing, fallback, unmapped, untimed };
+}
+
+// Compress chosen vibhags into a practice cycle without editing saved timings.
+// Adjacent chosen rows form one run, so a held bol crossing them is not retriggered.
+export function selectPlaybackVibhags(base, selected) {
+  const chosen = new Set(selected);
+  const segments = [], runs = [];
+  let sourceStart = 0, totalMatras = 0;
+  base.structure.forEach((length, index) => {
+    if (chosen.has(index)) {
+      const segment = { index, sourceStart, sourceEnd: sourceStart + length, start: totalMatras, end: totalMatras + length };
+      segments.push(segment);
+      const previous = runs.at(-1);
+      if (previous?.sourceEnd === sourceStart) {
+        previous.sourceEnd += length; previous.end += length;
+      } else runs.push({ ...segment });
+      totalMatras += length;
+    }
+    sourceStart += length;
+  });
+  const events = runs.flatMap(run => base.events.flatMap(event => {
+    const start = Math.max(event.start, run.sourceStart), end = Math.min(event.end, run.sourceEnd);
+    if (end < start || event.start >= run.sourceEnd || event.end <= run.sourceStart && event.end !== event.start) return [];
+    return [{ ...event, start: run.start + start - run.sourceStart, end: run.start + end - run.sourceStart }];
+  })).sort((a, b) => a.start - b.start);
+  return { ...base, events, totalMatras, segments };
+}
+
+export function playbackCursor(plan, beat) {
+  if (beat < 0 || !plan.totalMatras) return null;
+  const phase = beat % plan.totalMatras;
+  const segment = plan.segments.find(row => row.start <= phase && phase < row.end);
+  return { phase, vibhag: segment.index, matra: segment.sourceStart + phase - segment.start };
 }
 
 // Half-open scheduling windows avoid duplicate hits at loop/look-ahead borders.

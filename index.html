@@ -221,11 +221,15 @@
     </div>
   </dialog>
   <dialog id="presentation-dialog" aria-label="Presentation View">
-    <div id="presentation-stage"><div id="presentation-content"></div></div>
+    <div id="presentation-stage">
+      <div id="presentation-content"></div>
+      <div id="practice-vibhags" role="group" aria-label="Vibhags to loop" hidden></div>
+    </div>
     <div class="presentation-views" role="group" aria-label="Presentation content">
       <button type="button" data-presentation-view="bols" aria-pressed="false">Bols</button>
       <button type="button" data-presentation-view="blocks" aria-pressed="false">Blocks</button>
       <button type="button" data-presentation-view="both" aria-pressed="true">Both</button>
+      <button type="button" id="presentation-zoom" disabled>Zoom to Block</button>
     </div>
     <div class="presentation-playback" role="group" aria-label="Loop playback">
       <button type="button" id="presentation-play" disabled>Start</button>
@@ -252,6 +256,14 @@
       <button type="button" id="presentation-close">Presentation Off</button>
     </div>
     <p id="presentation-image-status" role="status"></p>
+    <div id="practice-controls" hidden>
+      <button type="button" id="practice-exit">Zoom Out</button>
+      <button type="button" id="practice-toggle" aria-pressed="false" disabled>Start</button>
+      <button type="button" data-tempo-step="-1" aria-label="Slower tempo">↓</button>
+      <output id="practice-tempo" aria-live="polite">120 BPM</output>
+      <button type="button" data-tempo-step="1" aria-label="Faster tempo">↑</button>
+      <p id="practice-status" role="status"></p>
+    </div>
   </dialog>
   <dialog id="clear-dialog" aria-labelledby="clear-title">
     <h2 id="clear-title">Reset the entire app?</h2>

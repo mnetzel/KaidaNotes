@@ -1,4 +1,4 @@
-import { createPlaybackPlan, playbackWindow, STROKE_SAMPLES } from './playback-data.js';
+import { createPlaybackPlan, selectPlaybackVibhags, playbackCursor, playbackWindow, STROKE_SAMPLES } from './playback-data.js';
 
 export function setupPresentationPlayback() {
   const startButton = document.querySelector('#presentation-play');
@@ -7,16 +7,34 @@ export function setupPresentationPlayback() {
   const content = document.querySelector('#presentation-content');
   const status = document.querySelector('#presentation-playback-status');
   const position = document.querySelector('#presentation-position');
-  let context, bankPromise, bank, plan, readyText = '', tempo = 120;
+  const practiceToggle = document.querySelector('#practice-toggle');
+  const practiceTempo = document.querySelector('#practice-tempo');
+  const practiceStatus = document.querySelector('#practice-status');
+  const stepButtons = [...document.querySelectorAll('[data-tempo-step]')];
+  const tempos = tempoButtons.map(button => Number(button.dataset.playbackTempo));
+  let context, bankPromise, bank, basePlan, plan, readyText = '', tempo = 120;
   let revision = 0, playing = false, timer, animation, anchorTime = 0, scheduledBeat = 0;
   const voices = new Set();
   let highlighted = '';
+  const cursor = () => plan && playbackCursor(plan, playing ? (context.currentTime - anchorTime) / (60 / tempo) : -1);
+  const syncControls = () => {
+    practiceToggle.textContent = stopButton.disabled ? 'Start' : 'Stop';
+    practiceToggle.disabled = !plan?.events.length;
+    practiceToggle.setAttribute('aria-pressed', String(!stopButton.disabled));
+    practiceTempo.textContent = `${tempo} BPM`;
+    stepButtons.forEach(button => { button.disabled = Number(button.dataset.tempoStep) < 0 ? tempo === tempos[0] : tempo === tempos.at(-1); });
+    practiceStatus.textContent = status.textContent;
+  };
   const refreshVisuals = () => {
-    const beat = playing ? (context.currentTime - anchorTime) / (60 / tempo) : -1;
-    const phase = beat >= 0 ? beat % plan.totalMatras : -1;
-    const ids = new Set(phase < 0 ? [] : plan.events.filter(event => event.start <= phase && phase < event.end).map(event => event.bolId));
-    content.querySelectorAll('[data-bol-id]').forEach(node => node.classList.toggle('playback-current', ids.has(node.dataset.bolId)));
-    highlighted = [...ids].join(',');
+    const current = cursor();
+    const ids = new Set(!current ? [] : plan.events.filter(event => event.start <= current.phase && current.phase < event.end).map(event => event.bolId));
+    for (const root of [content, document.querySelector('#clap-plot-container')]) {
+      root?.querySelectorAll('[data-bol-id]').forEach(node => {
+        const row = node.closest('.clap-vibhag-row');
+        node.classList.toggle('playback-current', ids.has(node.dataset.bolId) && (!row || Number(row.dataset.vibhag) === current?.vibhag));
+      });
+    }
+    highlighted = `${current?.vibhag}:${[...ids].join(',')}`;
   };
 
   const silence = (futureOnly = false) => {
@@ -35,22 +53,28 @@ export function setupPresentationPlayback() {
     stopButton.disabled = true;
     position.textContent = '';
     status.textContent = readyText;
+    syncControls();
+  };
+  const describePlan = () => {
+    const source = { manual: 'manual timeline', clapping: 'clapping', notation: 'notation' }[plan.timing];
+    readyText = `Loop · ${plan.totalMatras} matras · ${source}.`;
+    if (plan.fallback) readyText += ' Incomplete recording: using notation.';
+    if (plan.unmapped) readyText += ` ${plan.unmapped} bol${plan.unmapped === 1 ? '' : 's'} need matching finger/zone tags.`;
+    if (plan.untimed) readyText += ` ${plan.untimed} bol${plan.untimed === 1 ? '' : 's'} have no manual timing.`;
+    if (!plan.events.length) readyText = plan.totalMatras ? 'Set finger/zone tags on the selected bols to hear playback.' : 'Select a vibhag to loop.';
   };
   const setComposition = composition => {
     stop();
     try {
-      plan = createPlaybackPlan(composition);
-      const source = { manual: 'manual timeline', clapping: 'clapping', notation: 'notation' }[plan.timing];
-      readyText = `Loop · ${plan.totalMatras} matras · ${source}.`;
-      if (plan.fallback) readyText += ' Incomplete recording: using notation.';
-      if (plan.unmapped) readyText += ` ${plan.unmapped} bol${plan.unmapped === 1 ? '' : 's'} need matching finger/zone tags.`;
-      if (plan.untimed) readyText += ` ${plan.untimed} bol${plan.untimed === 1 ? '' : 's'} have no manual timing.`;
-      if (!plan.events.length) readyText = 'Set finger/zone tags on the bols to hear playback.';
+      basePlan = createPlaybackPlan(composition);
+      plan = selectPlaybackVibhags(basePlan, basePlan.structure.map((_, index) => index));
+      describePlan();
     } catch (error) {
-      plan = null; readyText = error.message;
+      basePlan = plan = null; readyText = error.message;
     }
     startButton.disabled = !plan?.events.length;
     status.textContent = readyText;
+    syncControls();
   };
   const loadBank = () => {
     if (!bankPromise) {
@@ -97,11 +121,10 @@ export function setupPresentationPlayback() {
   };
   const drawPosition = () => {
     if (!playing) return;
-    const beat = Math.max(0, (context.currentTime - anchorTime) / (60 / tempo));
-    position.textContent = `Matra ${Math.floor(beat % plan.totalMatras) + 1} / ${plan.totalMatras} · Loop`;
-    const phase = context.currentTime < anchorTime ? -1 : beat % plan.totalMatras;
-    const ids = plan.events.filter(event => event.start <= phase && phase < event.end).map(event => event.bolId).join(',');
-    if (ids !== highlighted) refreshVisuals();
+    const current = cursor();
+    position.textContent = current ? `V${current.vibhag + 1} · Matra ${Math.floor(current.matra) + 1} · Loop ${plan.totalMatras} matras` : '';
+    const ids = !current ? '' : plan.events.filter(event => event.start <= current.phase && current.phase < event.end).map(event => event.bolId).join(',');
+    if (`${current?.vibhag}:${ids}` !== highlighted) refreshVisuals();
     animation = requestAnimationFrame(drawPosition);
   };
   startButton.addEventListener('click', async () => {
@@ -109,6 +132,7 @@ export function setupPresentationPlayback() {
     const ticket = ++revision;
     startButton.disabled = true; stopButton.disabled = false;
     status.textContent = 'Loading tabla sounds…';
+    syncControls();
     try {
       if (!context) {
         const Audio = window.AudioContext || window.webkitAudioContext;
@@ -123,16 +147,17 @@ export function setupPresentationPlayback() {
       if (ticket !== revision) return;
       playing = true; anchorTime = context.currentTime + .06; scheduledBeat = 0;
       status.textContent = readyText;
+      syncControls();
       tick(); timer = setInterval(tick, 25); drawPosition();
     } catch (error) {
       if (ticket !== revision) return;
       stop(); status.textContent = `${error.message} Tap Start to retry.`;
+      syncControls();
     }
   });
   stopButton.addEventListener('click', stop);
-  tempoButtons.forEach(button => button.addEventListener('click', () => {
-    const next = Number(button.dataset.playbackTempo);
-    if (next === tempo) { if (!startButton.disabled) startButton.click(); return; }
+  const setTempo = (next, autoStart = false) => {
+    if (next === tempo) { if (autoStart && !startButton.disabled) startButton.click(); return; }
     const phase = playing ? Math.max(0, (context.currentTime - anchorTime) / (60 / tempo)) : 0;
     tempo = next;
     tempoButtons.forEach(item => item.setAttribute('aria-pressed', String(Number(item.dataset.playbackTempo) === tempo)));
@@ -143,8 +168,30 @@ export function setupPresentationPlayback() {
       tick();
     }
     refreshVisuals();
+    syncControls();
     // A tempo preset also starts the loop when it is stopped.
-    if (!startButton.disabled) startButton.click();
+    if (autoStart && !startButton.disabled) startButton.click();
+  };
+  tempoButtons.forEach(button => button.addEventListener('click', () => setTempo(Number(button.dataset.playbackTempo), true)));
+  stepButtons.forEach(button => button.addEventListener('click', () => {
+    const index = tempos.indexOf(tempo) + Number(button.dataset.tempoStep);
+    if (tempos[index]) setTempo(tempos[index]);
   }));
-  return { setComposition, stop, refreshVisuals };
+  practiceToggle.addEventListener('click', () => {
+    if (!stopButton.disabled) stop(); else if (!startButton.disabled) startButton.click();
+  });
+  const setVibhags = selected => {
+    if (!basePlan) return;
+    plan = selectPlaybackVibhags(basePlan, selected);
+    describePlan();
+    if (!plan.events.length) { stop(); return; }
+    if (playing) {
+      silence(); anchorTime = context.currentTime + .04; scheduledBeat = 0; tick();
+    }
+    startButton.disabled = playing || !stopButton.disabled;
+    status.textContent = readyText;
+    refreshVisuals(); syncControls();
+  };
+  syncControls();
+  return { setComposition, stop, refreshVisuals, setVibhags, getPlan: () => basePlan };
 }
