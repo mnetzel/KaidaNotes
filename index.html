@@ -227,6 +227,13 @@
       <button type="button" data-presentation-view="blocks" aria-pressed="false">Blocks</button>
       <button type="button" data-presentation-view="both" aria-pressed="true">Both</button>
     </div>
+    <div class="presentation-playback" role="group" aria-label="Loop playback">
+      <button type="button" id="presentation-play" disabled>Start</button>
+      <button type="button" id="presentation-stop" disabled>Stop</button>
+      <label>Tempo <input type="number" id="presentation-tempo" min="20" max="400" step="1" value="120" inputmode="numeric"> BPM</label>
+      <span id="presentation-position" aria-live="off"></span>
+    </div>
+    <p id="presentation-playback-status" role="status"></p>
     <div class="presentation-actions">
       <button type="button" id="presentation-share" disabled>Share image</button>
       <button type="button" id="presentation-save" disabled>Save image</button>

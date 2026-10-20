@@ -3,6 +3,7 @@ import { createSelection } from './selection.js';
 import { clapDisplay } from './clap-data.js';
 import { renderClapPlot } from './clapping.js';
 import { setupPresentationImage } from './presentation-image.js';
+import { setupPresentationPlayback } from './playback.js';
 
 export function setupPresentation(getComposition) {
   const dialog = document.querySelector('#presentation-dialog');
@@ -20,6 +21,7 @@ export function setupPresentation(getComposition) {
   };
   const observer = new ResizeObserver(fit);
   const image = setupPresentationImage(content, fit);
+  const playback = setupPresentationPlayback();
   observer.observe(stage);
   observer.observe(content);
   const render = () => {
@@ -77,12 +79,18 @@ export function setupPresentation(getComposition) {
     composition = getComposition();
     if (view === 'blocks' && !composition.clapping) view = 'bols';
     render();
+    playback.setComposition(composition);
   });
   viewButtons.forEach(button => button.addEventListener('click', () => {
     if (!composition || view === button.dataset.presentationView) return;
     view = button.dataset.presentationView;
     render();
   }));
-  document.querySelector('#presentation-close').addEventListener('click', () => dialog.close());
+  document.querySelector('#presentation-close').addEventListener('click', () => {
+    playback.stop();
+    dialog.close();
+  });
   dialog.addEventListener('close', image.clear);
+  dialog.addEventListener('close', playback.stop);
+  dialog.addEventListener('cancel', playback.stop);
 }
