@@ -6,7 +6,7 @@ import { clapDisplay } from './clap-data.js';
 export const STROKE_SAMPLES = Object.fromEntries(
   ['Ta', 'Te', 'Re', 'Tin', 'Na', 'Ti', 'Ghe', 'Ke'].map((name, slot) => {
     const trim = [.014, .028, .022, .008, .042, .014, .040, .016][slot];
-    return [name, { offset: slot + trim, duration: 1 - trim - .001, gain: name === 'Ghe' ? 2 : 1 }];
+    return [name, { offset: slot + trim, duration: 1 - trim - .001, gain: name === 'Ghe' ? 3 : 1 }];
   }),
 );
 

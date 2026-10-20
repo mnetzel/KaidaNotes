@@ -212,7 +212,7 @@ Disabled vibhags remain visible but dimmed. Playback concatenates only enabled r
 
 Audio uses execution tags, never bol names:
 
-The temporary **Ghe ×1–×6** buttons in zoom select the **Ghe (GH)** volume multiplier, initially **×2**. They adjust a shared audio gain immediately, including current/already-scheduled strokes and Ghe played as one hand of a combined stroke. Other samples retain their original gain. The choice lasts for the page session and is not saved in links or JSON. The source WAV and composition data are unchanged.
+The **Ghe (GH)** sample uses a fixed **×3** volume multiplier, including when Ghe is one hand of a combined stroke. Other samples retain their original gain. The source WAV and composition data are unchanged.
 
 | Tags | Sample |
 | --- | --- |

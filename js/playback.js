@@ -11,10 +11,9 @@ export function setupPresentationPlayback() {
   const practiceStatus = document.querySelector('#practice-status');
   const stepButtons = [...document.querySelectorAll('[data-tempo-step]')];
   const gapButtons = [...document.querySelectorAll('[data-loop-gap]')];
-  const gheButtons = [...document.querySelectorAll('[data-ghe-gain]')];
   const gapIndicator = document.querySelector('#practice-gap-indicator');
   const tempos = Array.from({ length: 18 }, (_, index) => 60 + index * 20);
-  let context, bankPromise, bank, basePlan, plan, gheVolume, gheGain = STROKE_SAMPLES.Ghe.gain, readyText = '', tempo = 120, gapMatras = 0;
+  let context, bankPromise, bank, basePlan, plan, readyText = '', tempo = 120, gapMatras = 0;
   let revision = 0, playing = false, timer, animation, anchorTime = 0, scheduledBeat = 0;
   const voices = new Set();
   let highlighted = '';
@@ -38,7 +37,6 @@ export function setupPresentationPlayback() {
     tempoDisplays.forEach(output => { output.textContent = `${tempo} BPM`; });
     stepButtons.forEach(button => { button.disabled = Number(button.dataset.tempoStep) < 0 ? tempo === tempos[0] : tempo === tempos.at(-1); });
     gapButtons.forEach(button => button.setAttribute('aria-pressed', String(Number(button.dataset.loopGap) === gapMatras)));
-    gheButtons.forEach(button => button.setAttribute('aria-pressed', String(Number(button.dataset.gheGain) === gheGain)));
     practiceStatus.textContent = status.textContent;
   };
   const refreshVisuals = () => {
@@ -114,12 +112,12 @@ export function setupPresentationPlayback() {
       const gain = context.createGain();
       source.buffer = bank;
       const duration = Math.min(sample.duration, Math.max(.02, (event.end - event.start) * secondsPerMatra));
-      const level = .8 * (name === 'Ghe' ? 1 : sample.gain) / event.samples.length;
+      const level = .8 * sample.gain / event.samples.length;
       gain.gain.setValueAtTime(0, when);
       gain.gain.linearRampToValueAtTime(level, when + .001);
       gain.gain.setValueAtTime(level, when + Math.max(.001, duration - .008));
       gain.gain.linearRampToValueAtTime(0, when + duration);
-      source.connect(gain); gain.connect(name === 'Ghe' ? gheVolume : context.destination);
+      source.connect(gain); gain.connect(context.destination);
       const voice = { source, gain, when };
       voices.add(voice);
       source.onended = () => { voices.delete(voice); source.disconnect(); gain.disconnect(); };
@@ -159,10 +157,6 @@ export function setupPresentationPlayback() {
         const Audio = window.AudioContext || window.webkitAudioContext;
         if (!Audio) throw new Error('This browser does not support audio playback.');
         context = new Audio({ latencyHint: 'interactive' });
-        // One shared gain changes current and already-scheduled Ghe strokes too.
-        gheVolume = context.createGain();
-        gheVolume.gain.value = gheGain;
-        gheVolume.connect(context.destination);
         context.addEventListener('statechange', () => {
           if (playing && context.state !== 'running') stop();
         });
@@ -218,11 +212,6 @@ export function setupPresentationPlayback() {
     if (next === gapMatras) return;
     gapMatras = next;
     if (plan) setVibhags(plan.segments.map(segment => segment.index)); else syncControls();
-  }));
-  gheButtons.forEach(button => button.addEventListener('click', () => {
-    gheGain = Number(button.dataset.gheGain);
-    if (gheVolume) gheVolume.gain.setTargetAtTime(gheGain, context.currentTime, .005);
-    syncControls();
   }));
   syncControls();
   return { setComposition, stop, refreshVisuals, setVibhags, getPlan: () => basePlan };
