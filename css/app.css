@@ -13,6 +13,7 @@
   --orange: #df5900;
   --green: #208b19;
   --red: #e52132;
+  --playback-highlight-color: #ef1010;
   --shadow: 0 6px 30px #3820440a;
 }
 * { box-sizing: border-box; }
@@ -279,8 +280,8 @@ button.empty-matra { background: transparent; border-radius: 0; min-height: 68px
 .presentation-tempos button { min-width: 0; padding: 7px 4px; }
 .presentation-tempos button[aria-pressed="true"] { background: var(--purple); box-shadow: inset 0 0 0 2px #75468c; }
 #presentation-sound { width: 18px; height: 18px; accent-color: #75468c; }
-#presentation-content .notation-bol.playback-current { outline: 5px solid #ffce00; outline-offset: 1px; border-radius: 5px; }
-.clap-block-playhead { display: none; fill: none; stroke: #ffe100; stroke-width: 10px; stroke-linejoin: round; pointer-events: none; filter: drop-shadow(0 0 2px #403000); }
+#presentation-content .notation-bol.playback-current { outline: 7px solid var(--playback-highlight-color); outline-offset: 1px; border-radius: 5px; }
+.clap-block-playhead { display: none; fill: none; stroke: var(--playback-highlight-color); stroke-width: 24px; stroke-linejoin: round; pointer-events: none; filter: drop-shadow(0 0 1px white); }
 .clap-block-playhead.playback-current { display: inline; }
 .clap-sound-label { font-weight: 400; }
 @media (max-width: 600px) {
@@ -317,6 +318,9 @@ button.empty-matra { background: transparent; border-radius: 0; min-height: 68px
 #practice-toggle { background: var(--purple) !important; }
 #practice-tempo { min-width: 68px; text-align: center; font-size: 16px; }
 #practice-status { flex-basis: 100%; margin: 0; text-align: center; font-size: 12px; }
+.practice-gaps { flex-basis: 100%; display: flex; justify-content: center; gap: 5px; }
+.practice-gaps button[aria-pressed="true"] { background: var(--purple) !important; box-shadow: inset 0 0 0 2px #75468c; }
+#practice-gap-indicator { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); border: 3px solid var(--playback-highlight-color); border-radius: 8px; padding: 12px 20px; background: white; color: var(--playback-highlight-color); font-size: 24px; white-space: nowrap; pointer-events: none; }
 
 
 /* Fixed annotation slots, with no visible slot borders. */

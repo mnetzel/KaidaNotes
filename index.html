@@ -224,6 +224,7 @@
     <div id="presentation-stage">
       <div id="presentation-content"></div>
       <div id="practice-vibhags" role="group" aria-label="Vibhags to loop" hidden></div>
+      <output id="practice-gap-indicator" aria-live="off" hidden></output>
     </div>
     <div class="presentation-views" role="group" aria-label="Presentation content">
       <button type="button" data-presentation-view="bols" aria-pressed="false">Bols</button>
@@ -262,6 +263,11 @@
       <button type="button" data-tempo-step="-1" aria-label="Slower tempo">↓</button>
       <output id="practice-tempo" aria-live="polite">120 BPM</output>
       <button type="button" data-tempo-step="1" aria-label="Faster tempo">↑</button>
+      <div class="practice-gaps" role="group" aria-label="Silent matras between loops">
+        <button type="button" data-loop-gap="0" aria-pressed="true">No gap</button>
+        <button type="button" data-loop-gap="1" aria-pressed="false">1 gap</button>
+        <button type="button" data-loop-gap="2" aria-pressed="false">2 gaps</button>
+      </div>
       <p id="practice-status" role="status"></p>
     </div>
   </dialog>

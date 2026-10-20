@@ -112,6 +112,8 @@ export function renderClapPlot(container, result, byVibhag = false, blocks = fal
       if (hit.label) svg.append(svgNode('text', { x: px, y: py - (stacked ? 30 : 15), 'text-anchor': 'middle', class: 'clap-bol-label' }, hit.label));
     }
   });
+  // Paint the thick active outline above neighbouring blocks as well as its own.
+  if (blocks) svg.querySelectorAll('.clap-block-playhead').forEach(outline => svg.append(outline));
   if (!blocks && result.first !== false) svg.append(svgNode('text', { x: start, y: 58, class: 'clap-sam-label' }, 'sam'));
   if (!blocks && result.last !== false) svg.append(svgNode('text', { x: rowEnd, y: 58, 'text-anchor': 'end', class: 'clap-sam-label' }, 'next sam'));
   container.replaceChildren(svg);

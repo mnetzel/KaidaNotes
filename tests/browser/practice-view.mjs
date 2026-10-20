@@ -62,6 +62,12 @@ for (const engine of [webkit, chromium]) {
   assert.equal(await page.locator('[data-loop-vibhag]:checked').count(), 4);
   assert.equal(await page.locator('#presentation-save').isVisible(), false);
   assert.equal(await page.locator('#presentation-zoom').isVisible(), false);
+  assert.equal(await page.locator('[data-loop-gap="0"]').getAttribute('aria-pressed'), 'true');
+  const outlineStyle = await page.locator('#presentation-content .clap-block-playhead').first().evaluate(n => {
+    const style = getComputedStyle(n);
+    return { stroke: style.stroke, width: style.strokeWidth };
+  });
+  assert.deepEqual(outlineStyle, { stroke: 'rgb(239, 16, 16)', width: '24px' });
   const native = await page.evaluate(() => !!(window.AudioContext || window.webkitAudioContext));
   if (native) {
     await page.waitForFunction(() => !!document.querySelector('#presentation-content .clap-block-playhead.playback-current'));
@@ -94,6 +100,26 @@ for (const engine of [webkit, chromium]) {
     });
     assert.deepEqual(currentRows, [0, 2]);
   }
+  for (const gap of [1, 2]) {
+    await page.locator(`[data-loop-gap="${gap}"]`).click();
+    assert.equal(await page.locator(`[data-loop-gap="${gap}"]`).getAttribute('aria-pressed'), 'true');
+    assert.equal(await page.locator('.practice-gaps [aria-pressed="true"]').count(), 1);
+    if (native) {
+      await page.evaluate(() => { testAudioCalls.length = 0; });
+      await page.waitForFunction(() => testAudioCalls.length >= 8);
+      const calls = await page.evaluate(() => testAudioCalls.slice(0, 8));
+      const intervals = calls.slice(1).map((call, i) => call.when - calls[i].when);
+      const longInterval = .25 * (1 + gap); // Last bol duration + chosen silent matras.
+      assert.ok(calls.every(call => [.014, 3.008].includes(call.offset)));
+      assert.ok(intervals.every(n => Math.abs(n - .25) < 1e-6 || Math.abs(n - longInterval) < 1e-6));
+      assert.ok(intervals.some(n => Math.abs(n - longInterval) < 1e-6));
+      await page.waitForFunction(() => !document.querySelector('#practice-gap-indicator').hidden && !document.querySelector('#presentation-content .playback-current'));
+      assert.match(await page.locator('#practice-gap-indicator').textContent(), /GAP/);
+      if (gap === 2) await page.screenshot({ path: `tmp/practice-gap-${engine.name()}.png` });
+    }
+  }
+  await page.locator('[data-loop-gap="0"]').click();
+  assert.equal(await page.locator('#practice-gap-indicator').isVisible(), false);
   // Safe margins, correctly aligned unscaled touch targets, and all blocks fit.
   for (const viewport of [{ width: 393, height: 852 }, { width: 852, height: 393 }, { width: 1280, height: 900 }]) {
     await page.setViewportSize(viewport);
@@ -152,6 +178,7 @@ for (const engine of [webkit, chromium]) {
   await page.locator('#presentation-open').click();
   await page.locator('#presentation-zoom').click();
   assert.equal(await page.locator('[data-loop-vibhag]:checked').count(), 4); // Fresh session.
+  assert.equal(await page.locator('[data-loop-gap="0"]').getAttribute('aria-pressed'), 'true');
   await page.locator('#practice-exit').click(); await page.locator('#presentation-close').click();
   assert.deepEqual(await page.evaluate(() => kaidaDebug.snapshot()), original);
   // Practice is also usable before a clap/manual recording exists.
@@ -166,4 +193,4 @@ for (const engine of [webkit, chromium]) {
   assert.deepEqual(errors, []);
   await browser.close();
 }
-console.log('PASS: practice zoom, portrait/landscape/desktop safe margins, aligned row checkboxes, tempo steps, native selected-row loops/highlights, empty selection, close/reopen and unchanged saved data.');
+console.log('PASS: practice zoom, portrait/landscape/desktop safe margins, row selection, tempo steps, native selected-row loops with 0/1/2-matra gaps, bold red highlights, empty selection, close/reopen and unchanged saved data.');

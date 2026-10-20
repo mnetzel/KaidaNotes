@@ -11,18 +11,33 @@ export function setupPresentationPlayback() {
   const practiceTempo = document.querySelector('#practice-tempo');
   const practiceStatus = document.querySelector('#practice-status');
   const stepButtons = [...document.querySelectorAll('[data-tempo-step]')];
+  const gapButtons = [...document.querySelectorAll('[data-loop-gap]')];
+  const gapIndicator = document.querySelector('#practice-gap-indicator');
   const tempos = tempoButtons.map(button => Number(button.dataset.playbackTempo));
-  let context, bankPromise, bank, basePlan, plan, readyText = '', tempo = 120;
+  let context, bankPromise, bank, basePlan, plan, readyText = '', tempo = 120, gapMatras = 0;
   let revision = 0, playing = false, timer, animation, anchorTime = 0, scheduledBeat = 0;
   const voices = new Set();
   let highlighted = '';
   const cursor = () => plan && playbackCursor(plan, playing ? (context.currentTime - anchorTime) / (60 / tempo) : -1);
+  const gapPosition = () => {
+    if (!playing || !plan?.gapMatras) return 0;
+    const beat = (context.currentTime - anchorTime) / (60 / tempo);
+    if (beat < 0) return 0;
+    const phase = beat % plan.cycleMatras;
+    return phase >= plan.totalMatras ? Math.floor(phase - plan.totalMatras) + 1 : 0;
+  };
+  const drawGap = () => {
+    const gap = gapPosition();
+    gapIndicator.hidden = !gap || !document.querySelector('#presentation-dialog').classList.contains('practice-view');
+    gapIndicator.textContent = gap ? `GAP · ${gap} / ${gapMatras}` : '';
+  };
   const syncControls = () => {
     practiceToggle.textContent = stopButton.disabled ? 'Start' : 'Stop';
     practiceToggle.disabled = !plan?.events.length;
     practiceToggle.setAttribute('aria-pressed', String(!stopButton.disabled));
     practiceTempo.textContent = `${tempo} BPM`;
     stepButtons.forEach(button => { button.disabled = Number(button.dataset.tempoStep) < 0 ? tempo === tempos[0] : tempo === tempos.at(-1); });
+    gapButtons.forEach(button => button.setAttribute('aria-pressed', String(Number(button.dataset.loopGap) === gapMatras)));
     practiceStatus.textContent = status.textContent;
   };
   const refreshVisuals = () => {
@@ -35,6 +50,7 @@ export function setupPresentationPlayback() {
       });
     }
     highlighted = `${current?.vibhag}:${[...ids].join(',')}`;
+    drawGap();
   };
 
   const silence = (futureOnly = false) => {
@@ -58,6 +74,7 @@ export function setupPresentationPlayback() {
   const describePlan = () => {
     const source = { manual: 'manual timeline', clapping: 'clapping', notation: 'notation' }[plan.timing];
     readyText = `Loop · ${plan.totalMatras} matras · ${source}.`;
+    if (plan.gapMatras) readyText += ` + ${plan.gapMatras} gap matra${plan.gapMatras === 1 ? '' : 's'}.`;
     if (plan.fallback) readyText += ' Incomplete recording: using notation.';
     if (plan.unmapped) readyText += ` ${plan.unmapped} bol${plan.unmapped === 1 ? '' : 's'} need matching finger/zone tags.`;
     if (plan.untimed) readyText += ` ${plan.untimed} bol${plan.untimed === 1 ? '' : 's'} have no manual timing.`;
@@ -65,6 +82,7 @@ export function setupPresentationPlayback() {
   };
   const setComposition = composition => {
     stop();
+    gapMatras = 0;
     try {
       basePlan = createPlaybackPlan(composition);
       plan = selectPlaybackVibhags(basePlan, basePlan.structure.map((_, index) => index));
@@ -122,9 +140,11 @@ export function setupPresentationPlayback() {
   const drawPosition = () => {
     if (!playing) return;
     const current = cursor();
-    position.textContent = current ? `V${current.vibhag + 1} · Matra ${Math.floor(current.matra) + 1} · Loop ${plan.totalMatras} matras` : '';
+    const gap = gapPosition();
+    position.textContent = current ? `V${current.vibhag + 1} · Matra ${Math.floor(current.matra) + 1} · Loop ${plan.totalMatras} matras` : gap ? `Gap · ${gap} / ${gapMatras} matras` : '';
     const ids = !current ? '' : plan.events.filter(event => event.start <= current.phase && current.phase < event.end).map(event => event.bolId).join(',');
     if (`${current?.vibhag}:${ids}` !== highlighted) refreshVisuals();
+    drawGap();
     animation = requestAnimationFrame(drawPosition);
   };
   startButton.addEventListener('click', async () => {
@@ -182,7 +202,7 @@ export function setupPresentationPlayback() {
   });
   const setVibhags = selected => {
     if (!basePlan) return;
-    plan = selectPlaybackVibhags(basePlan, selected);
+    plan = selectPlaybackVibhags(basePlan, selected, gapMatras);
     describePlan();
     if (!plan.events.length) { stop(); return; }
     if (playing) {
@@ -192,6 +212,12 @@ export function setupPresentationPlayback() {
     status.textContent = readyText;
     refreshVisuals(); syncControls();
   };
+  gapButtons.forEach(button => button.addEventListener('click', () => {
+    const next = Number(button.dataset.loopGap);
+    if (next === gapMatras) return;
+    gapMatras = next;
+    if (plan) setVibhags(plan.segments.map(segment => segment.index)); else syncControls();
+  }));
   syncControls();
   return { setComposition, stop, refreshVisuals, setVibhags, getPlan: () => basePlan };
 }

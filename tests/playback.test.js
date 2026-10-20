@@ -109,3 +109,27 @@ test('practice selection clips crossing strokes but never retriggers them at adj
   assert.deepEqual([plan.events[0].start, plan.events[0].end], [0, 3]);
   assert.deepEqual(playbackCursor(plan, 2.5), { phase: 2.5, vibhag: 2, matra: 4.5 });
 });
+
+test('practice gaps add silence only after the selected loop, in matras, without changing its notes', () => {
+  const base = { structure: [2, 2, 2], totalMatras: 6, events: [0, 1, 2, 3, 4, 5].map(start => ({
+    bolId: String(start), start, end: start + 1, samples: ['Ta'],
+  })) };
+  const original = structuredClone(base);
+  for (const gap of [0, 1, 2]) {
+    const plan = selectPlaybackVibhags(base, [0, 2], gap);
+    const cycle = 4 + gap;
+    assert.equal(plan.totalMatras, 4); assert.equal(plan.cycleMatras, cycle);
+    assert.deepEqual(plan.events.map(e => [e.bolId, e.start]), [['0', 0], ['1', 1], ['4', 2], ['5', 3]]);
+    assert.deepEqual(playbackWindow(plan, 0, cycle * 2).map(e => e.beat), [0, 1, 2, 3, cycle, cycle + 1, cycle + 2, cycle + 3]);
+    if (gap) {
+      assert.deepEqual(playbackWindow(plan, 4, cycle), []);
+      assert.equal(playbackCursor(plan, 4), null);
+      assert.equal(playbackCursor(plan, cycle - .001), null);
+    }
+    assert.deepEqual(playbackCursor(plan, cycle), { phase: 0, vibhag: 0, matra: 0 });
+    const empty = selectPlaybackVibhags(base, [], gap);
+    assert.equal(empty.cycleMatras, 0); assert.equal(playbackCursor(empty, 0), null);
+    assert.deepEqual(playbackWindow(empty, 0, 20), []);
+  }
+  assert.deepEqual(base, original);
+});

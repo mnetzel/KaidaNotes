@@ -61,7 +61,7 @@ export function createPlaybackPlan(composition) {
 
 // Compress chosen vibhags into a practice cycle without editing saved timings.
 // Adjacent chosen rows form one run, so a held bol crossing them is not retriggered.
-export function selectPlaybackVibhags(base, selected) {
+export function selectPlaybackVibhags(base, selected, gapMatras = 0) {
   const chosen = new Set(selected);
   const segments = [], runs = [];
   let sourceStart = 0, totalMatras = 0;
@@ -82,12 +82,13 @@ export function selectPlaybackVibhags(base, selected) {
     if (end < start || event.start >= run.sourceEnd || event.end <= run.sourceStart && event.end !== event.start) return [];
     return [{ ...event, start: run.start + start - run.sourceStart, end: run.start + end - run.sourceStart }];
   })).sort((a, b) => a.start - b.start);
-  return { ...base, events, totalMatras, segments };
+  return { ...base, events, totalMatras, segments, gapMatras, cycleMatras: totalMatras ? totalMatras + gapMatras : 0 };
 }
 
 export function playbackCursor(plan, beat) {
   if (beat < 0 || !plan.totalMatras) return null;
-  const phase = beat % plan.totalMatras;
+  const phase = beat % plan.cycleMatras;
+  if (phase >= plan.totalMatras) return null; // Silent space between repetitions.
   const segment = plan.segments.find(row => row.start <= phase && phase < row.end);
   return { phase, vibhag: segment.index, matra: segment.sourceStart + phase - segment.start };
 }
@@ -96,11 +97,12 @@ export function playbackCursor(plan, beat) {
 export function playbackWindow(plan, from, until) {
   if (until <= from || !plan.events.length) return [];
   const events = [];
-  const first = Math.max(0, Math.floor(from / plan.totalMatras));
-  const last = Math.floor(until / plan.totalMatras);
+  const cycle = plan.cycleMatras ?? plan.totalMatras;
+  const first = Math.max(0, Math.floor(from / cycle));
+  const last = Math.floor(until / cycle);
   for (let loop = first; loop <= last; loop++) {
     for (const event of plan.events) {
-      const beat = loop * plan.totalMatras + event.start;
+      const beat = loop * cycle + event.start;
       if (beat >= from && beat < until) events.push({ ...event, beat });
     }
   }
