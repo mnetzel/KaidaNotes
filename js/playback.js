@@ -3,12 +3,21 @@ import { createPlaybackPlan, playbackWindow, STROKE_SAMPLES } from './playback-d
 export function setupPresentationPlayback() {
   const startButton = document.querySelector('#presentation-play');
   const stopButton = document.querySelector('#presentation-stop');
-  const tempoInput = document.querySelector('#presentation-tempo');
+  const tempoButtons = [...document.querySelectorAll('[data-playback-tempo]')];
+  const content = document.querySelector('#presentation-content');
   const status = document.querySelector('#presentation-playback-status');
   const position = document.querySelector('#presentation-position');
   let context, bankPromise, bank, plan, readyText = '', tempo = 120;
   let revision = 0, playing = false, timer, animation, anchorTime = 0, scheduledBeat = 0;
   const voices = new Set();
+  let highlighted = '';
+  const refreshVisuals = () => {
+    const beat = playing ? (context.currentTime - anchorTime) / (60 / tempo) : -1;
+    const phase = beat >= 0 ? beat % plan.totalMatras : -1;
+    const ids = new Set(phase < 0 ? [] : plan.events.filter(event => event.start <= phase && phase < event.end).map(event => event.bolId));
+    content.querySelectorAll('[data-bol-id]').forEach(node => node.classList.toggle('playback-current', ids.has(node.dataset.bolId)));
+    highlighted = [...ids].join(',');
+  };
 
   const silence = (futureOnly = false) => {
     if (!context) return;
@@ -21,6 +30,7 @@ export function setupPresentationPlayback() {
   const stop = () => {
     revision++; playing = false;
     clearInterval(timer); cancelAnimationFrame(animation); silence();
+    refreshVisuals();
     startButton.disabled = !plan?.events.length;
     stopButton.disabled = true;
     position.textContent = '';
@@ -89,6 +99,9 @@ export function setupPresentationPlayback() {
     if (!playing) return;
     const beat = Math.max(0, (context.currentTime - anchorTime) / (60 / tempo));
     position.textContent = `Matra ${Math.floor(beat % plan.totalMatras) + 1} / ${plan.totalMatras} · Loop`;
+    const phase = context.currentTime < anchorTime ? -1 : beat % plan.totalMatras;
+    const ids = plan.events.filter(event => event.start <= phase && phase < event.end).map(event => event.bolId).join(',');
+    if (ids !== highlighted) refreshVisuals();
     animation = requestAnimationFrame(drawPosition);
   };
   startButton.addEventListener('click', async () => {
@@ -117,17 +130,21 @@ export function setupPresentationPlayback() {
     }
   });
   stopButton.addEventListener('click', stop);
-  tempoInput.addEventListener('change', () => {
-    const next = Number(tempoInput.value);
-    if (!Number.isFinite(next) || next < 20 || next > 400) { tempoInput.value = tempo; return; }
+  tempoButtons.forEach(button => button.addEventListener('click', () => {
+    const next = Number(button.dataset.playbackTempo);
+    if (next === tempo) { if (!startButton.disabled) startButton.click(); return; }
     const phase = playing ? Math.max(0, (context.currentTime - anchorTime) / (60 / tempo)) : 0;
     tempo = next;
+    tempoButtons.forEach(item => item.setAttribute('aria-pressed', String(Number(item.dataset.playbackTempo) === tempo)));
     if (playing) {
       silence(true);
       anchorTime = context.currentTime - phase * (60 / tempo);
       scheduledBeat = phase + 1e-6;
       tick();
     }
-  });
-  return { setComposition, stop };
+    refreshVisuals();
+    // A tempo preset also starts the loop when it is stopped.
+    if (!startButton.disabled) startButton.click();
+  }));
+  return { setComposition, stop, refreshVisuals };
 }

@@ -42,12 +42,13 @@ export function clapDisplay(capture, bols = []) {
     const snap = value => capture.snap ? Math.round(value * 2) / 2 : value;
     return { ...result, snap: capture.snap, hits: capture.manualTimings.filter(t => byId.has(t.bolId)).map((t, index) => {
       const bol = byId.get(t.bolId);
-      return { index: index + 1, elapsed: t.start / result.totalMatras * result.duration,
+      return { index: index + 1, bolId: bol.id, elapsed: t.start / result.totalMatras * result.duration,
         matra: snap(t.start), endMatra: snap(t.end), label: bol.text, color: bolColor(bol) || '#141018',
         hands: ['right', 'left'].filter(hand => bol.tags?.[hand + 'HandFinger']) };
     }) };
   }
   return { ...result, snap: capture.snap, hits: result.hits.map(hit => ({ ...hit,
+    bolId: soundingBols[hit.index - 1]?.id,
     label: soundingBols[hit.index - 1]?.text || '',
     color: bolColor(soundingBols[hit.index - 1]) || '#141018',
     hands: ['right', 'left'].filter(hand => soundingBols[hit.index - 1]?.tags?.[hand + 'HandFinger']),

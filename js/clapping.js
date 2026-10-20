@@ -76,14 +76,27 @@ export function renderClapPlot(container, result, byVibhag = false, blocks = fal
     const blockWidth = Math.max(2, right - left - gap * 2);
     const rect = svgNode('rect', { x: left + gap, y: py, width: blockWidth, height,
       rx: Math.min(both ? 12 : 6, blockWidth / 4), class: 'clap-block', 'data-hands': hands.join(' '), 'data-clap': hit.index });
+    if (hit.bolId) rect.dataset.bolId = hit.bolId;
     rect.style.fill = hit.color || '#141018';
     rect.append(svgNode('title', {}, `${hit.label || 'Clap ' + hit.index} · ${hands.join(' + ')} · ${(hit.endMatra - hit.matra).toFixed(2)} matras${hit.endMatra === hit.matra ? ' (coincident after Snap)' : ''}`));
     svg.append(rect);
+    if (hit.bolId) {
+      const outline = rect.cloneNode(false);
+      outline.removeAttribute('style');
+      outline.setAttribute('class', 'clap-block-playhead');
+      outline.setAttribute('aria-hidden', 'true');
+      svg.append(outline);
+    }
     if (hit.label && blockWidth >= 10) {
       const fontSize = Math.min(stacked ? 34 : 22, (blockWidth - 6) / (hit.label.length * .65));
-      svg.append(svgNode('text', { x: left + gap + blockWidth / 2, y: py + height / 2,
+      svg.append(svgNode('text', { x: left + gap + blockWidth / 2, y: py + height / 2 - (hit.soundLabel ? 14 : 0),
         'text-anchor': 'middle', 'dominant-baseline': 'central', class: 'clap-block-label',
         style: `font-size: ${Math.max(1, fontSize)}px` }, hit.label));
+      if (hit.soundLabel) svg.append(svgNode('text', {
+        x: left + gap + blockWidth / 2, y: py + height / 2 + 21,
+        'text-anchor': 'middle', 'dominant-baseline': 'central', class: 'clap-block-label clap-sound-label',
+        style: `font-size: ${Math.max(1, Math.min(22, (blockWidth - 8) / (hit.soundLabel.length * .65)))}px`,
+      }, hit.soundLabel));
     }
   });
   else hits.forEach(hit => {

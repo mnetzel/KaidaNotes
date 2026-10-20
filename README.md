@@ -108,7 +108,7 @@ The app uses relative asset URLs and supports the `/KaidaNotes/` project path. T
 
 GitHub Pages is enabled with **GitHub Actions** as its source. The live application is <https://mnetzel.github.io/KaidaNotes/>. Push to `main` to validate and publish changes automatically. Alternatively, serve the repository root using GitHub Pages' branch publishing; `.nojekyll` is included.
 
-No compilation is required for deployment. `package.json` and Node.js are development conveniences only. No analytics, microphone recording, audio playback, accounts, or live synchronization are implemented.
+No compilation is required for deployment. `package.json` and Node.js are development conveniences only. No analytics, microphone recording, accounts, or live synchronization are implemented.
 
 ## Always load fresh
 
@@ -198,7 +198,9 @@ Optional browser regression: with the local server running and Playwright (Chrom
 
 `node tests/browser/presentation-views.mjs` checks all three presentation layouts, actual downloaded PNG dimensions, shared image freshness after rapid switching, unchanged composition data, and the no-recording fallback.
 
-**Loop playback** in Presentation View provides **Start**, **Stop**, and **Tempo** (20–400 BPM; one beat is one matra). Sounds are read from one eight-second recording at `assets/audio/tabla-strokes.wav`, supplied as `Ta_Te_Re_Tin_Na_Ti_Ghe_Ke.wav`. Its eight one-second slots are Ta, Te, Re, Tin, Na, Ti, Ghe, Ke. Per-slot offsets align attacks without splitting the file. Playback starts only on a user tap and stops when the presentation closes; view switches keep playing. Tempo changes preserve the current cycle position and sample pitch. Playback controls and position are outside the PNG export.
+**Loop playback** in Presentation View provides **Start**, **Stop**, and tempo presets **60, 80, 100, 120, 140, 160, 180, 200, 220, 240 BPM** (one beat is one matra). Tapping a preset starts a stopped loop or changes its speed while preserving the current cycle position and sample pitch. Sounds are read from one eight-second recording at `assets/audio/tabla-strokes.wav`, supplied as `Ta_Te_Re_Tin_Na_Ti_Ghe_Ke.wav`. Its eight one-second slots are Ta, Te, Re, Tin, Na, Ti, Ghe, Ke. Per-slot offsets align attacks without splitting the file. Playback starts only on a user tap and stops when the presentation closes; view switches keep playing. Playback controls and position are outside the PNG export.
+
+The currently sounding bol has a yellow outline in notation and blocks, synchronized to the audio clock, with no outline during silent gaps. **Sound** adds smaller white labels to blocks showing the actual resolved sample names (e.g. **Ta + Ghe**) without replacing the written bol. Missing mappings show **No sound**, and partially mapped strokes show **+ ?**. These labels use the same finger/zone resolver as playback and are included in image exports when enabled. The live yellow outline is excluded from images. Sound and tempo controls do not modify the composition, its URL or JSON.
 
 Audio uses execution tags, never bol names:
 
@@ -215,7 +217,7 @@ Audio uses execution tags, never bol names:
 
 Both hands trigger at the same audio-clock timestamp. Pause entries are silent. Samples stop at their timed end (with a short fade) or their own natural recording end, whichever comes first. Manual timings take priority, followed by a complete clap recording, then notated matras/subdivisions. The existing display Snap setting is respected. Incomplete recordings fall back to notation, and missing stroke tags/manual timings are reported rather than inferred from names. Tempo and playback state are view controls and do not alter the saved composition.
 
-`node tests/browser/playback.mjs` checks real WAV decoding and all eight sample slots, synchronized hands, pauses, loop boundaries, live tempo, stop/restart/close, and unchanged composition data. Audio output is muted during this browser test. Builds without Web Audio (including the Windows Playwright WebKit build) verify the unsupported-browser message; native audio scheduling is tested in a Web Audio-capable browser.
+`node tests/browser/playback.mjs` checks real WAV decoding and all eight sample slots, synchronized hands, pauses, loop boundaries, preset start/live tempo, audio-clock highlighting, Sound labels, export without playhead outlines, stop/restart/close, and unchanged composition data. Audio output is muted during this browser test. Builds without Web Audio (including the Windows Playwright WebKit build) verify the unsupported-browser message; native audio scheduling is tested in a Web Audio-capable browser.
 
 **Manual timeline** beneath the clap buttons opens a draft editor. Drag a block to move it or its edges to resize; **Snap · ¼ matra** rounds edits to quarter-matras. **Link edges** adjusts touching neighbours; disable it to create silent gaps. Pauses are visible dashed blocks. The overview jumps along long cycles, Zoom changes the horizontal scale, and Start/End fields or arrow keys allow exact edits (matra 1 is sam). **From notation** rebuilds the draft from the current grouping. Matching recordings start from raw timings; incomplete recordings fall back to notation so every bol is included. **OK** saves one undoable clapping-data edit, with independent block ends and pauses, included in links, JSON, and Presentation View. **Cancel**/Escape discard the draft. Manual edits are saved with display snapping off so quarter-matra timings remain exact; the existing optional half-matra Snap toggle remains reversible. `?view=manual` opens this editor directly for the composition in the URL fragment.
 

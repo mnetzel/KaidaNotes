@@ -230,7 +230,19 @@
     <div class="presentation-playback" role="group" aria-label="Loop playback">
       <button type="button" id="presentation-play" disabled>Start</button>
       <button type="button" id="presentation-stop" disabled>Stop</button>
-      <label>Tempo <input type="number" id="presentation-tempo" min="20" max="400" step="1" value="120" inputmode="numeric"> BPM</label>
+      <div class="presentation-tempos" role="group" aria-label="Tempo in BPM">
+        <button data-playback-tempo="60" aria-pressed="false">60</button>
+        <button data-playback-tempo="80" aria-pressed="false">80</button>
+        <button data-playback-tempo="100" aria-pressed="false">100</button>
+        <button data-playback-tempo="120" aria-pressed="true">120</button>
+        <button data-playback-tempo="140" aria-pressed="false">140</button>
+        <button data-playback-tempo="160" aria-pressed="false">160</button>
+        <button data-playback-tempo="180" aria-pressed="false">180</button>
+        <button data-playback-tempo="200" aria-pressed="false">200</button>
+        <button data-playback-tempo="220" aria-pressed="false">220</button>
+        <button data-playback-tempo="240" aria-pressed="false">240</button>
+      </div>
+      <label><input type="checkbox" id="presentation-sound"> Sound</label>
       <span id="presentation-position" aria-live="off"></span>
     </div>
     <p id="presentation-playback-status" role="status"></p>

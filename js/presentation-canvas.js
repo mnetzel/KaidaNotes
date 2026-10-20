@@ -59,6 +59,8 @@ function paintTimeline(context, svg, box) {
   context.scale(scale, scale);
   context.translate(-view.x, -view.y);
   for (const node of svg.children) {
+    // The live playhead is UI feedback, not part of the exported notation.
+    if (node.classList.contains('clap-block-playhead')) continue;
     const style = getComputedStyle(node);
     const value = name => number(node.getAttribute(name));
     context.save();

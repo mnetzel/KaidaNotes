@@ -4,12 +4,14 @@ import { clapDisplay } from './clap-data.js';
 import { renderClapPlot } from './clapping.js';
 import { setupPresentationImage } from './presentation-image.js';
 import { setupPresentationPlayback } from './playback.js';
+import { resolveStrokeSamples } from './playback-data.js';
 
 export function setupPresentation(getComposition) {
   const dialog = document.querySelector('#presentation-dialog');
   const stage = document.querySelector('#presentation-stage');
   const content = document.querySelector('#presentation-content');
   const viewButtons = [...document.querySelectorAll('[data-presentation-view]')];
+  const soundCheckbox = document.querySelector('#presentation-sound');
   let view = 'both', composition;
   const fit = () => {
     if (!dialog.open) return;
@@ -43,6 +45,7 @@ export function setupPresentation(getComposition) {
       notation.querySelectorAll('button').forEach(button => {
         const span = document.createElement('span');
         span.className = button.className;
+        if (button.dataset.bolId) span.dataset.bolId = button.dataset.bolId;
         span.append(...button.childNodes);
         button.replaceWith(span);
       });
@@ -53,7 +56,17 @@ export function setupPresentation(getComposition) {
     if (view !== 'bols' && composition.clapping) {
       const plot = document.createElement('div');
       plot.className = 'presentation-plot';
-      renderClapPlot(plot, clapDisplay(composition.clapping, composition.bols), true, true);
+      const result = clapDisplay(composition.clapping, composition.bols);
+      if (soundCheckbox.checked) {
+        const byId = new Map(composition.bols.map(bol => [bol.id, bol]));
+        result.hits = result.hits.map(hit => {
+          const bol = byId.get(hit.bolId);
+          const resolved = bol && resolveStrokeSamples(bol);
+          const sounds = resolved?.samples.join(' + ') || 'No sound';
+          return { ...hit, soundLabel: sounds + (resolved?.unmapped && resolved.samples.length ? ' + ?' : '') };
+        });
+      }
+      renderClapPlot(plot, result, true, true);
       content.append(plot);
     }
     if (composition.notes.trim()) {
@@ -73,6 +86,7 @@ export function setupPresentation(getComposition) {
     const overflow = notation ? Math.max(0, notation.scrollWidth - notation.clientWidth) : 0;
     if (overflow) content.style.width = `${840 + overflow}` + 'px';
     fit();
+    playback.refreshVisuals();
     image.prepare(composition);
   };
   document.querySelector('#presentation-open').addEventListener('click', () => {
@@ -86,6 +100,7 @@ export function setupPresentation(getComposition) {
     view = button.dataset.presentationView;
     render();
   }));
+  soundCheckbox.addEventListener('change', () => { if (composition) render(); });
   document.querySelector('#presentation-close').addEventListener('click', () => {
     playback.stop();
     dialog.close();
