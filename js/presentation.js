@@ -15,25 +15,16 @@ export function setupPresentation(getComposition) {
   const soundCheckbox = document.querySelector('#presentation-sound');
   const zoomButton = document.querySelector('#presentation-zoom');
   const practiceControls = document.querySelector('#practice-controls');
-  const vibhagChoices = document.querySelector('#practice-vibhags');
   let view = 'both', composition, practice = false, selectedVibhags = new Set(), practiceSize = '', resizeFrame;
   const fit = () => {
     if (!dialog.open) return;
     const notation = content.querySelector('.notation');
     if (notation) fitNotation(notation);
-    const sidebar = practice ? 44 : 0;
-    const available = Math.max(1, stage.clientWidth - sidebar);
-    const scale = Math.min(available / content.offsetWidth, stage.clientHeight / content.offsetHeight, practice ? Infinity : 1);
+    const available = Math.max(1, stage.clientWidth);
+    const scale = Math.min(available / content.offsetWidth, stage.clientHeight / content.offsetHeight);
     content.style.transform = `scale(${scale})`;
-    content.style.left = `${sidebar + Math.max(0, (available - content.offsetWidth * scale) / 2)}px`;
+    content.style.left = `${Math.max(0, (available - content.offsetWidth * scale) / 2)}px`;
     content.style.top = practice ? `${Math.max(0, (stage.clientHeight - content.offsetHeight * scale) / 2)}px` : '0px';
-    if (practice) {
-      const origin = stage.getBoundingClientRect();
-      content.querySelectorAll('.clap-vibhag-row').forEach((row, index) => {
-        const rect = row.getBoundingClientRect();
-        vibhagChoices.children[index].style.top = `${rect.top + rect.height / 2 - origin.top}px`;
-      });
-    }
   };
   const observer = new ResizeObserver(() => {
     if (practice && dialog.open && practiceSize !== `${stage.clientWidth}:${stage.clientHeight}`) {
@@ -46,29 +37,33 @@ export function setupPresentation(getComposition) {
   observer.observe(stage);
   observer.observe(content);
   const syncSelection = () => {
-    content.querySelectorAll('.clap-vibhag-row').forEach(row => row.classList.toggle('practice-excluded', !selectedVibhags.has(Number(row.dataset.vibhag))));
+    content.querySelectorAll('[data-loop-vibhag]').forEach(row => {
+      const enabled = selectedVibhags.has(Number(row.dataset.vibhag));
+      row.classList.toggle('practice-excluded', !enabled);
+      row.setAttribute('aria-pressed', String(enabled));
+    });
   };
-  const renderChoices = () => {
-    vibhagChoices.replaceChildren();
-    playback.getPlan()?.structure.forEach((_, index) => {
-      const label = document.createElement('label');
-      label.className = 'practice-vibhag';
-      const input = document.createElement('input');
-      input.type = 'checkbox'; input.checked = selectedVibhags.has(index); input.dataset.loopVibhag = index;
-      input.setAttribute('aria-label', `Loop V${index + 1}`);
-      input.addEventListener('change', () => {
-        if (input.checked) selectedVibhags.add(index); else selectedVibhags.delete(index);
+  const makeRowButtons = plot => {
+    plot.querySelectorAll('.clap-vibhag-row').forEach(row => {
+      const index = Number(row.dataset.vibhag);
+      const button = document.createElement('button');
+      button.type = 'button'; button.className = row.className;
+      button.style.cssText = row.style.cssText;
+      button.dataset.vibhag = button.dataset.loopVibhag = index;
+      button.setAttribute('aria-label', `Loop V${index + 1}`);
+      button.append(...row.childNodes); row.replaceWith(button);
+      button.addEventListener('click', () => {
+        if (selectedVibhags.has(index)) selectedVibhags.delete(index); else selectedVibhags.add(index);
         playback.setVibhags([...selectedVibhags]);
         syncSelection();
       });
-      label.append(input, `V${index + 1}`);
-      vibhagChoices.append(label);
     });
   };
   const render = () => {
+    const focusedRow = content.contains(document.activeElement) ? document.activeElement.dataset.loopVibhag : undefined;
     image.clear();
     dialog.classList.toggle('practice-view', practice);
-    practiceControls.hidden = vibhagChoices.hidden = !practice;
+    practiceControls.hidden = !practice;
     practiceSize = `${stage.clientWidth}:${stage.clientHeight}`;
     const title = document.createElement('h1');
     title.textContent = `${composition.compositionType.replaceAll('-', ' ').toUpperCase()} — ${composition.talaName || 'Custom tala'}`;
@@ -113,7 +108,7 @@ export function setupPresentation(getComposition) {
       } : clapDisplay(composition.clapping, composition.bols);
       if (practice) {
         const viewWidth = Math.max(760, Math.max(...base.structure) * 40 + 64) - 40;
-        const rowHeight = stage.clientHeight / base.structure.length * viewWidth / Math.max(1, stage.clientWidth - 44);
+        const rowHeight = stage.clientHeight / base.structure.length * viewWidth / Math.max(1, stage.clientWidth);
         // Use spare vertical space for taller hand lanes, keeping text undistorted.
         result.blockLaneHeight = Math.max(72, (rowHeight - 54) / 2);
       }
@@ -131,6 +126,7 @@ export function setupPresentation(getComposition) {
         const box = svg.viewBox.baseVal;
         svg.setAttribute('viewBox', `20 -4 ${box.width - 136} ${box.height + 4}`);
       });
+      if (practice) makeRowButtons(plot);
       content.append(plot);
     }
     if (!practice && composition.notes.trim()) {
@@ -145,7 +141,7 @@ export function setupPresentation(getComposition) {
       button.title = button.disabled ? 'Record clapping or set a manual timeline first.' : '';
     });
     zoomButton.disabled = !playback.getPlan()?.intervals.length;
-    if (practice) { renderChoices(); syncSelection(); }
+    if (practice) syncSelection();
     if (!dialog.open) dialog.showModal();
     if (notation) fitNotation(notation);
     // Expand exceptionally wide notation before scaling the entire sheet to fit.
@@ -153,6 +149,7 @@ export function setupPresentation(getComposition) {
     if (overflow) content.style.width = `${840 + overflow}` + 'px';
     fit();
     playback.refreshVisuals();
+    if (practice && focusedRow !== undefined) content.querySelector(`[data-loop-vibhag="${focusedRow}"]`)?.focus({ preventScroll: true });
     if (!practice) image.prepare(composition);
   };
   document.querySelector('#presentation-open').addEventListener('click', () => {

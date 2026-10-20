@@ -276,17 +276,14 @@ button.empty-matra { background: transparent; border-radius: 0; min-height: 68px
 .presentation-playback button { min-width: 60px; padding: 7px 12px; font-size: 14px; background: #eee9f2; }
 #presentation-play { background: var(--purple); }
 .presentation-playback label { display: inline-flex; align-items: center; gap: 5px; font-size: 14px; }
-.presentation-tempos { display: grid; grid-template-columns: repeat(10, minmax(0, 1fr)); gap: 4px; width: min(100%, 560px); order: 2; }
-.presentation-tempos button { min-width: 0; padding: 7px 4px; }
-.presentation-tempos button[aria-pressed="true"] { background: var(--purple); box-shadow: inset 0 0 0 2px #75468c; }
+.presentation-tempo-controls { display: inline-flex; align-items: center; gap: 5px; }
+.presentation-playback .presentation-tempo-controls button { min-width: 44px; min-height: 44px; padding: 6px 10px; font-size: 18px; }
+[data-tempo-display] { min-width: 68px; text-align: center; font-size: 16px; }
 #presentation-sound { width: 18px; height: 18px; accent-color: #75468c; }
 #presentation-content .notation-bol.playback-current { outline: 7px solid var(--playback-highlight-color); outline-offset: 1px; border-radius: 5px; }
 .clap-block-playhead { display: none; fill: none; stroke: var(--playback-highlight-color); stroke-width: 24px; stroke-linejoin: round; pointer-events: none; filter: drop-shadow(0 0 1px white); }
 .clap-block-playhead.playback-current { display: inline; }
 .clap-sound-label { font-weight: 400; }
-@media (max-width: 600px) {
-  .presentation-tempos { grid-template-columns: repeat(5, minmax(0, 1fr)); }
-}
 #presentation-position { flex-basis: 100%; text-align: center; font-size: 12px; color: #65556e; order: 3; }
 #presentation-position:empty { display: none; }
 #presentation-playback-status { margin: 0; text-align: center; font-size: 12px; }
@@ -305,14 +302,13 @@ button.empty-matra { background: transparent; border-radius: 0; min-height: 68px
 
 /* Practice mode stays inside the modal, including on iPhones without Fullscreen API. */
 #presentation-dialog.practice-view {
-  padding: max(5dvh, env(safe-area-inset-top)) max(8px, env(safe-area-inset-right)) max(5dvh, env(safe-area-inset-bottom)) max(8px, env(safe-area-inset-left));
+  padding: 0; gap: 0;
 }
 #presentation-dialog.practice-view > :not(#presentation-stage):not(#practice-controls) { display: none; }
 .practice-view #presentation-content .presentation-plot { margin: 0; }
-.practice-view .clap-vibhag-row.practice-excluded { opacity: .25; }
-#practice-vibhags { position: absolute; inset: 0 auto 0 0; width: 44px; }
-.practice-vibhag { position: absolute; left: 0; width: 44px; min-height: 44px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; transform: translateY(-50%); font-size: 11px; cursor: pointer; }
-.practice-vibhag input { width: 22px; height: 22px; margin: 0; accent-color: #75468c; cursor: pointer; }
+.practice-view .clap-vibhag-row[data-loop-vibhag] { display: block; width: 100%; min-width: 0; min-height: 0; margin: 0; padding: 0; border: 0; border-radius: 0; background: transparent; box-shadow: none; color: inherit; font: inherit; cursor: pointer; -webkit-appearance: none; appearance: none; }
+.practice-view .clap-vibhag-row[data-loop-vibhag]:focus-visible { outline: 4px solid #75468c; outline-offset: -4px; }
+.practice-view .clap-vibhag-row.practice-excluded { opacity: .5; filter: grayscale(1); }
 #practice-controls { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 5px; flex: none; }
 #practice-controls button { min-height: 44px; min-width: 44px; padding: 6px 10px; font-size: 15px; background: #eee9f2; }
 #practice-toggle { background: var(--purple) !important; }

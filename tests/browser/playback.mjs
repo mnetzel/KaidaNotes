@@ -51,8 +51,8 @@ for (const engine of [webkit, chromium]) {
   await page.goto(url.href); await page.waitForFunction(() => window.kaidaDebug);
   const original = await page.evaluate(() => kaidaDebug.snapshot());
   await page.locator('#presentation-open').click();
-  assert.deepEqual(await page.locator('[data-playback-tempo]').allTextContents(), ['60', '80', '100', '120', '140', '160', '180', '200', '220', '240']);
-  assert.equal(await page.locator('[data-playback-tempo="120"]').getAttribute('aria-pressed'), 'true');
+  assert.equal(await page.locator('[data-playback-tempo]').count(), 0);
+  assert.equal(await page.locator('#presentation-tempo-output').textContent(), '120 BPM');
   await page.locator('#presentation-sound').check();
   assert.deepEqual(await page.locator('#presentation-content .clap-sound-label').allTextContents(), ['Ta + Ghe', 'Ti + Ke']);
   assert.equal(await page.locator('#presentation-content .clap-block-label:not(.clap-sound-label)').count(), 2);
@@ -66,24 +66,27 @@ for (const engine of [webkit, chromium]) {
     await browser.close();
     continue;
   }
-  // Presets start playback directly, including from a stopped state.
-  await page.locator('[data-playback-tempo="240"]').click();
+  for (let i = 0; i < 14; i++) await page.locator('.presentation-tempo-controls [data-tempo-step="1"]').click();
+  assert.equal(await page.locator('#presentation-tempo-output').textContent(), '400 BPM');
+  assert.equal(await page.locator('.presentation-tempo-controls [data-tempo-step="1"]').isDisabled(), true);
+  assert.equal(await page.evaluate(() => window.testAudioCalls.length), 0); // Tempo arrows do not start audio.
+  await page.locator('#presentation-play').click();
   await page.waitForFunction(() => window.testAudioCalls.length >= 12, {}, { timeout: 20000 });
   const calls = await page.evaluate(() => window.testAudioCalls.slice(0, 12));
   for (let i = 0; i < calls.length; i += 2) {
     assert.equal(calls[i].when, calls[i + 1].when);
     assert.deepEqual([calls[i].offset, calls[i + 1].offset], i % 4 === 0 ? [.014, 6.04] : [5.014, 7.016]);
-    assert.ok(calls[i].duration <= .25 + 1e-9);
+    assert.ok(calls[i].duration <= .15 + 1e-9);
     assert.equal(calls[i].rate, 1);
   }
-  assert.ok(Math.abs(calls[2].when - calls[0].when - .5) < 1e-6); // Pause matra.
-  assert.ok(Math.abs(calls[4].when - calls[0].when - .75) < 1e-6); // Next cycle.
+  assert.ok(Math.abs(calls[2].when - calls[0].when - .3) < 1e-6); // Pause matra.
+  assert.ok(Math.abs(calls[4].when - calls[0].when - .45) < 1e-6); // Next cycle.
   const highlights = await page.evaluate(async () => {
     const c = kaidaDebug.snapshot();
     const checked = [];
     for (let i = 0; i < 75; i++) {
       await new Promise(requestAnimationFrame);
-      const beat = (testContext.currentTime - testAudioCalls[0].when) / .25;
+      const beat = (testContext.currentTime - testAudioCalls[0].when) / .15;
       const phase = beat % 3, fraction = phase % 1;
       if (beat < 0 || fraction < .12 || fraction > .88) continue;
       checked.push({ expected: phase < 1 ? [c.bols[0].id] : phase < 2 ? [] : [c.bols[2].id],
@@ -124,9 +127,9 @@ for (const engine of [webkit, chromium]) {
   assert.equal(await page.locator('#presentation-stop').isEnabled(), true);
   const position = await page.locator('#presentation-position').textContent(); assert.match(position, /Matra/);
   const tempoChange = await page.evaluate(() => {
-    const index = window.testAudioCalls.length;
-    document.querySelector('[data-playback-tempo="200"]').click();
-    return index;
+    const down = document.querySelector('.presentation-tempo-controls [data-tempo-step="-1"]');
+    for (let i = 0; i < 10; i++) down.click();
+    return window.testAudioCalls.length;
   });
   await page.waitForFunction(n => window.testAudioCalls.length >= n + 8, tempoChange);
   const changedCalls = await page.evaluate(n => window.testAudioCalls.slice(n, n + 8), tempoChange);

@@ -223,7 +223,6 @@
   <dialog id="presentation-dialog" aria-label="Presentation View">
     <div id="presentation-stage">
       <div id="presentation-content"></div>
-      <div id="practice-vibhags" role="group" aria-label="Vibhags to loop" hidden></div>
       <output id="practice-gap-indicator" aria-live="off" hidden></output>
     </div>
     <div class="presentation-views" role="group" aria-label="Presentation content">
@@ -235,17 +234,10 @@
     <div class="presentation-playback" role="group" aria-label="Loop playback">
       <button type="button" id="presentation-play" disabled>Start</button>
       <button type="button" id="presentation-stop" disabled>Stop</button>
-      <div class="presentation-tempos" role="group" aria-label="Tempo in BPM">
-        <button data-playback-tempo="60" aria-pressed="false">60</button>
-        <button data-playback-tempo="80" aria-pressed="false">80</button>
-        <button data-playback-tempo="100" aria-pressed="false">100</button>
-        <button data-playback-tempo="120" aria-pressed="true">120</button>
-        <button data-playback-tempo="140" aria-pressed="false">140</button>
-        <button data-playback-tempo="160" aria-pressed="false">160</button>
-        <button data-playback-tempo="180" aria-pressed="false">180</button>
-        <button data-playback-tempo="200" aria-pressed="false">200</button>
-        <button data-playback-tempo="220" aria-pressed="false">220</button>
-        <button data-playback-tempo="240" aria-pressed="false">240</button>
+      <div class="presentation-tempo-controls" role="group" aria-label="Tempo in BPM">
+        <button type="button" data-tempo-step="-1" aria-label="Slower tempo">↓</button>
+        <output id="presentation-tempo-output" data-tempo-display aria-live="polite">120 BPM</output>
+        <button type="button" data-tempo-step="1" aria-label="Faster tempo">↑</button>
       </div>
       <label><input type="checkbox" id="presentation-sound"> Sound</label>
       <span id="presentation-position" aria-live="off"></span>
@@ -261,7 +253,7 @@
       <button type="button" id="practice-exit">Zoom Out</button>
       <button type="button" id="practice-toggle" aria-pressed="false" disabled>Start</button>
       <button type="button" data-tempo-step="-1" aria-label="Slower tempo">↓</button>
-      <output id="practice-tempo" aria-live="polite">120 BPM</output>
+      <output id="practice-tempo" data-tempo-display aria-live="polite">120 BPM</output>
       <button type="button" data-tempo-step="1" aria-label="Faster tempo">↑</button>
       <div class="practice-gaps" role="group" aria-label="Silent matras between loops">
         <button type="button" data-loop-gap="0" aria-pressed="true">No gap</button>

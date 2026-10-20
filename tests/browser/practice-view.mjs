@@ -59,7 +59,7 @@ for (const engine of [webkit, chromium]) {
   assert.equal(await page.locator('#presentation-dialog').evaluate(n => n.classList.contains('practice-view')), true);
   assert.equal(await page.locator('#presentation-content h1, #presentation-content .presentation-notes, #presentation-content .notation').count(), 0);
   assert.equal(await page.locator('#presentation-content .clap-vibhag-row').count(), 4);
-  assert.equal(await page.locator('[data-loop-vibhag]:checked').count(), 4);
+  assert.equal(await page.locator('[data-loop-vibhag][aria-pressed="true"]').count(), 4);
   assert.equal(await page.locator('#presentation-save').isVisible(), false);
   assert.equal(await page.locator('#presentation-zoom').isVisible(), false);
   assert.equal(await page.locator('[data-loop-gap="0"]').getAttribute('aria-pressed'), 'true');
@@ -73,16 +73,29 @@ for (const engine of [webkit, chromium]) {
     await page.waitForFunction(() => !!document.querySelector('#presentation-content .clap-block-playhead.playback-current'));
     assert.equal(await page.locator('#practice-toggle').textContent(), 'Stop');
   }
-  await page.locator('[data-loop-vibhag="1"]').uncheck();
-  await page.locator('[data-loop-vibhag="3"]').uncheck();
+  assert.equal(await page.locator('#practice-vibhags').count(), 0);
+  assert.equal(await page.locator('#presentation-content input[type="checkbox"]').count(), 0);
+  await page.locator('[data-loop-vibhag="1"] .clap-block-label:not(.clap-sound-label)').first().click();
+  await page.locator('[data-loop-vibhag="3"]').click();
   assert.equal(await page.locator('.practice-excluded').count(), 2);
-  await page.locator('[data-tempo-step="1"]').click();
+  assert.equal(await page.locator('[data-loop-vibhag="1"]').evaluate(n => getComputedStyle(n).opacity), '0.5');
+  await page.locator('[data-loop-vibhag="1"]').focus();
+  await page.keyboard.press('Space');
+  assert.equal(await page.locator('[data-loop-vibhag="1"]').getAttribute('aria-pressed'), 'true');
+  await page.keyboard.press('Enter');
+  assert.equal(await page.locator('[data-loop-vibhag="1"]').getAttribute('aria-pressed'), 'false');
+  await page.locator('#practice-controls [data-tempo-step="1"]').click();
   assert.equal(await page.locator('#practice-tempo').textContent(), '140 BPM');
-  await page.locator('[data-tempo-step="-1"]').click();
+  await page.locator('#practice-controls [data-tempo-step="-1"]').click();
   assert.equal(await page.locator('#practice-tempo').textContent(), '120 BPM');
-  for (let i = 0; i < 6; i++) await page.locator('[data-tempo-step="1"]').click();
+  for (let i = 0; i < 6; i++) await page.locator('#practice-controls [data-tempo-step="1"]').click();
   assert.equal(await page.locator('#practice-tempo').textContent(), '240 BPM');
-  assert.equal(await page.locator('[data-tempo-step="1"]').isDisabled(), true);
+  assert.equal(await page.locator('#practice-controls [data-tempo-step="1"]').isDisabled(), false);
+  for (let i = 0; i < 8; i++) await page.locator('#practice-controls [data-tempo-step="1"]').click();
+  assert.equal(await page.locator('#practice-tempo').textContent(), '400 BPM');
+  assert.equal(await page.locator('#presentation-tempo-output').textContent(), '400 BPM');
+  assert.equal(await page.locator('#practice-controls [data-tempo-step="1"]').isDisabled(), true);
+  for (let i = 0; i < 8; i++) await page.locator('#practice-controls [data-tempo-step="-1"]').click();
   if (native) {
     await page.evaluate(() => { testAudioCalls.length = 0; });
     await page.waitForFunction(() => testAudioCalls.length >= 10);
@@ -120,7 +133,7 @@ for (const engine of [webkit, chromium]) {
   }
   await page.locator('[data-loop-gap="0"]').click();
   assert.equal(await page.locator('#practice-gap-indicator').isVisible(), false);
-  // Safe margins, correctly aligned unscaled touch targets, and all blocks fit.
+  // Edge-to-edge practice layout, full-row targets, and all blocks fit.
   for (const viewport of [{ width: 393, height: 852 }, { width: 852, height: 393 }, { width: 1280, height: 900 }]) {
     await page.setViewportSize(viewport);
     await page.waitForTimeout(100);
@@ -128,34 +141,32 @@ for (const engine of [webkit, chromium]) {
       const stage = document.querySelector('#presentation-stage').getBoundingClientRect();
       const content = document.querySelector('#presentation-content').getBoundingClientRect();
       const controls = document.querySelector('#practice-controls').getBoundingClientRect();
-      const labels = [...document.querySelectorAll('.practice-vibhag')].map(n => n.getBoundingClientRect());
-      const rows = [...document.querySelectorAll('#presentation-content .clap-vibhag-row')].map(n => n.getBoundingClientRect());
-      return { safeTop: stage.top, safeBottom: innerHeight - controls.bottom,
+
+      return { top: stage.top, left: stage.left, width: stage.width, bottom: innerHeight - controls.bottom,
         fits: content.top >= stage.top - 1 && content.bottom <= stage.bottom + 1 && content.right <= stage.right + 1,
-        aligned: rows.every((r, i) => Math.abs(r.top + r.height / 2 - labels[i].top - labels[i].height / 2) < 2),
-        touchSize: document.querySelector('[data-loop-vibhag]').getBoundingClientRect().width };
+        rowButtons: [...document.querySelectorAll('[data-loop-vibhag]')].every(n => n.localName === 'button'),
+        touchSize: document.querySelector('[data-loop-vibhag]').getBoundingClientRect().width, contentWidth: content.width };
     });
-    assert.ok(layout.safeTop >= viewport.height * .049);
-    assert.ok(layout.safeBottom >= viewport.height * .049);
-    assert.ok(layout.fits); assert.ok(layout.aligned); assert.equal(layout.touchSize, 22);
+    assert.equal(layout.top, 0); assert.equal(layout.left, 0); assert.equal(layout.width, viewport.width); assert.equal(layout.bottom, 0);
+    assert.ok(layout.fits); assert.ok(layout.rowButtons); assert.ok(Math.abs(layout.touchSize - layout.contentWidth) < 1);
   }
   await page.setViewportSize({ width: 393, height: 852 });
   await page.screenshot({ path: `tmp/practice-${engine.name()}.png` });
   // Selecting no rows stops audio and can be recovered without closing the view.
-  await page.locator('[data-loop-vibhag="0"]').uncheck();
-  await page.locator('[data-loop-vibhag="2"]').uncheck();
+  await page.locator('[data-loop-vibhag="0"]').click();
+  await page.locator('[data-loop-vibhag="2"]').click();
   assert.equal(await page.locator('#practice-toggle').isDisabled(), true);
   assert.match(await page.locator('#practice-status').textContent(), /Select a vibhag/);
   assert.equal(await page.locator('#presentation-content .playback-current').count(), 0);
   const stopped = await page.evaluate(() => testAudioCalls.length);
   await page.waitForTimeout(200);
   assert.equal(await page.evaluate(() => testAudioCalls.length), stopped);
-  for (let i = 0; i < 9; i++) await page.locator('[data-tempo-step="-1"]').click();
+  for (let i = 0; i < 9; i++) await page.locator('#practice-controls [data-tempo-step="-1"]').click();
   assert.equal(await page.locator('#practice-tempo').textContent(), '60 BPM');
-  assert.equal(await page.locator('[data-tempo-step="-1"]').isDisabled(), true);
+  assert.equal(await page.locator('#practice-controls [data-tempo-step="-1"]').isDisabled(), true);
   assert.equal(await page.evaluate(() => testAudioCalls.length), stopped); // Arrows never start a stopped loop.
-  for (let i = 0; i < 9; i++) await page.locator('[data-tempo-step="1"]').click();
-  await page.locator('[data-loop-vibhag="2"]').check();
+  for (let i = 0; i < 9; i++) await page.locator('#practice-controls [data-tempo-step="1"]').click();
+  await page.locator('[data-loop-vibhag="2"]').click();
   assert.equal(await page.locator('#practice-toggle').isEnabled(), true);
   if (native) {
     await page.locator('#practice-toggle').click();
@@ -169,7 +180,7 @@ for (const engine of [webkit, chromium]) {
   assert.equal(await page.locator('#presentation-content .presentation-notes').count(), 1);
   if (native) assert.equal(await page.locator('#presentation-stop').isEnabled(), true);
   await page.locator('#presentation-zoom').click();
-  assert.equal(await page.locator('[data-loop-vibhag]:checked').count(), 1);
+  assert.equal(await page.locator('[data-loop-vibhag][aria-pressed="true"]').count(), 1);
   await page.keyboard.press('Escape'); // Exit zoom, keep the presentation and audio.
   assert.equal(await page.locator('#presentation-dialog').evaluate(n => n.open), true);
   assert.equal(await page.locator('#presentation-dialog').evaluate(n => n.classList.contains('practice-view')), false);
@@ -177,7 +188,7 @@ for (const engine of [webkit, chromium]) {
   assert.equal(await page.locator('#presentation-stop').isDisabled(), true);
   await page.locator('#presentation-open').click();
   await page.locator('#presentation-zoom').click();
-  assert.equal(await page.locator('[data-loop-vibhag]:checked').count(), 4); // Fresh session.
+  assert.equal(await page.locator('[data-loop-vibhag][aria-pressed="true"]').count(), 4); // Fresh session.
   assert.equal(await page.locator('[data-loop-gap="0"]').getAttribute('aria-pressed'), 'true');
   await page.locator('#practice-exit').click(); await page.locator('#presentation-close').click();
   assert.deepEqual(await page.evaluate(() => kaidaDebug.snapshot()), original);
@@ -193,4 +204,4 @@ for (const engine of [webkit, chromium]) {
   assert.deepEqual(errors, []);
   await browser.close();
 }
-console.log('PASS: practice zoom, portrait/landscape/desktop safe margins, row selection, tempo steps, native selected-row loops with 0/1/2-matra gaps, bold red highlights, empty selection, close/reopen and unchanged saved data.');
+console.log('PASS: practice zoom, portrait/landscape/desktop edge-to-edge fit, full-row selection, 60–400 BPM steps, native selected-row loops with 0/1/2-matra gaps, bold red highlights, empty selection, close/reopen and unchanged saved data.');

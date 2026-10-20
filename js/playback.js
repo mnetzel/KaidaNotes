@@ -3,17 +3,16 @@ import { createPlaybackPlan, selectPlaybackVibhags, playbackCursor, playbackWind
 export function setupPresentationPlayback() {
   const startButton = document.querySelector('#presentation-play');
   const stopButton = document.querySelector('#presentation-stop');
-  const tempoButtons = [...document.querySelectorAll('[data-playback-tempo]')];
   const content = document.querySelector('#presentation-content');
   const status = document.querySelector('#presentation-playback-status');
   const position = document.querySelector('#presentation-position');
   const practiceToggle = document.querySelector('#practice-toggle');
-  const practiceTempo = document.querySelector('#practice-tempo');
+  const tempoDisplays = [...document.querySelectorAll('[data-tempo-display]')];
   const practiceStatus = document.querySelector('#practice-status');
   const stepButtons = [...document.querySelectorAll('[data-tempo-step]')];
   const gapButtons = [...document.querySelectorAll('[data-loop-gap]')];
   const gapIndicator = document.querySelector('#practice-gap-indicator');
-  const tempos = tempoButtons.map(button => Number(button.dataset.playbackTempo));
+  const tempos = Array.from({ length: 18 }, (_, index) => 60 + index * 20);
   let context, bankPromise, bank, basePlan, plan, readyText = '', tempo = 120, gapMatras = 0;
   let revision = 0, playing = false, timer, animation, anchorTime = 0, scheduledBeat = 0;
   const voices = new Set();
@@ -35,7 +34,7 @@ export function setupPresentationPlayback() {
     practiceToggle.textContent = stopButton.disabled ? 'Start' : 'Stop';
     practiceToggle.disabled = !plan?.events.length;
     practiceToggle.setAttribute('aria-pressed', String(!stopButton.disabled));
-    practiceTempo.textContent = `${tempo} BPM`;
+    tempoDisplays.forEach(output => { output.textContent = `${tempo} BPM`; });
     stepButtons.forEach(button => { button.disabled = Number(button.dataset.tempoStep) < 0 ? tempo === tempos[0] : tempo === tempos.at(-1); });
     gapButtons.forEach(button => button.setAttribute('aria-pressed', String(Number(button.dataset.loopGap) === gapMatras)));
     practiceStatus.textContent = status.textContent;
@@ -176,11 +175,10 @@ export function setupPresentationPlayback() {
     }
   });
   stopButton.addEventListener('click', stop);
-  const setTempo = (next, autoStart = false) => {
-    if (next === tempo) { if (autoStart && !startButton.disabled) startButton.click(); return; }
+  const setTempo = next => {
+    if (next === tempo) return;
     const phase = playing ? Math.max(0, (context.currentTime - anchorTime) / (60 / tempo)) : 0;
     tempo = next;
-    tempoButtons.forEach(item => item.setAttribute('aria-pressed', String(Number(item.dataset.playbackTempo) === tempo)));
     if (playing) {
       silence(true);
       anchorTime = context.currentTime - phase * (60 / tempo);
@@ -189,10 +187,7 @@ export function setupPresentationPlayback() {
     }
     refreshVisuals();
     syncControls();
-    // A tempo preset also starts the loop when it is stopped.
-    if (autoStart && !startButton.disabled) startButton.click();
   };
-  tempoButtons.forEach(button => button.addEventListener('click', () => setTempo(Number(button.dataset.playbackTempo), true)));
   stepButtons.forEach(button => button.addEventListener('click', () => {
     const index = tempos.indexOf(tempo) + Number(button.dataset.tempoStep);
     if (tempos[index]) setTempo(tempos[index]);
