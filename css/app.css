@@ -316,6 +316,8 @@ button.empty-matra { background: transparent; border-radius: 0; min-height: 68px
 #practice-status { flex-basis: 100%; margin: 0; text-align: center; font-size: 12px; }
 .practice-gaps { flex-basis: 100%; display: flex; justify-content: center; gap: 5px; }
 .practice-gaps button[aria-pressed="true"] { background: var(--purple) !important; box-shadow: inset 0 0 0 2px #75468c; }
+.practice-ghe { flex-basis: 100%; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 4px; }
+.practice-ghe button[aria-pressed="true"] { background: var(--purple) !important; box-shadow: inset 0 0 0 2px #75468c; }
 #practice-gap-indicator { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); border: 3px solid var(--playback-highlight-color); border-radius: 8px; padding: 12px 20px; background: white; color: var(--playback-highlight-color); font-size: 24px; white-space: nowrap; pointer-events: none; }
 
 
